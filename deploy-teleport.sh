@@ -2,13 +2,10 @@
 
 { # this ensures the entire script is downloaded #
 
-# import log library and set options
-source "${BASH_SOURCE%/*}/shell-logger/shell-logger"
-LOGGER_LEVEL=0
-LOGGER_ERROR_TRACE=0
-LOGGER_STDERR_LEVEL=4
-LOGGER_COLOR=auto
-LOGGER_TARGET=deploy.log
+# import
+source "${BASH_SOURCE%/*}/shell-logger/shell-logger" || exit
+source "${BASH_SOURCE%/*}/deploy.conf" || exit
+
 
 # function to check if command exist
 script_has() {
@@ -17,11 +14,11 @@ script_has() {
 
 configure_ufw() {
   if [ "$(ufw status | grep -qw inactive >/dev/null 2>/dev/null; echo $?)" = '1' ] || [ "$(ufw show added | grep -qw None >/dev/null 2>/dev/null; echo $?)" = '1' ]; then
-    warn "This server have pending firewall rules or ufw is already enabled." && \
+    warn "This server have pending firewall rules or ufw is already enabled" && \
       warn "Resetting ufw to default..." && \
       ufw --force disable && \
       ufw --force reset && \
-      info "Reset completed."
+      info "Reset completed"
   fi
   info "Configuring ufw..." && \
     sed -i 's/IPV6=yes/IPV6=no/g' /etc/default/ufw && \
@@ -31,7 +28,7 @@ configure_ufw() {
     ufw allow 59222/tcp comment 'SSH' && \
     info "Enabling ufw..." && \
     ufw --force enable && \
-    info "Firewall configured and enabled."
+    info "Firewall configured and enabled"
 }
 
 
