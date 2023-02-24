@@ -12,4 +12,7 @@ LOGGER_TARGET=deploy.log
 # application ports
 SSH_PORT=59222
 
+# logdna
+LOGDNA_KEY="test"
+
 } # this ensures the entire script is downloaded #
