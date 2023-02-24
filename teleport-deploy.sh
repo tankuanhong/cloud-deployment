@@ -8,8 +8,13 @@ source "${BASH_SOURCE%/*}/deploy.conf" || exit
 
 
 # function to check if command exist
-script_has() {
+command_exist() {
   type "$1" > /dev/null 2>&1
+}
+
+# function to check if service is active
+service_active() {
+  systemctl is-active --quiet $1
 }
 
 if [ $(lsb_release -si) != "Ubuntu" ] || [ $(lsb_release -sr) != "20.04" ]; then
@@ -155,6 +160,10 @@ EOF
     systemctl restart rsyslog && \
     systemctl status rsyslog --no-pager && \
     info "Rsyslog restarted"
+
+  if ! service_active rsyslog; then
+    err "Rsyslog service is not running"
+  fi
 }
 
 install_teleport() {
