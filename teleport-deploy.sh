@@ -183,7 +183,7 @@ EOF
 }
 
 install_teleport() {
-  info "Installing Teleport" && \
+  info "Installing Teleport..." && \
     sudo curl https://apt.releases.teleport.dev/gpg -o /usr/share/keyrings/teleport-archive-keyring.asc && \
     source /etc/os-release && \
     echo "deb [signed-by=/usr/share/keyrings/teleport-archive-keyring.asc] \
@@ -196,6 +196,142 @@ install_teleport() {
       err "Terminating script..."
     else
       info "Teleport installed"
+    fi
+}
+
+install_caddy() {
+  info "Installing Caddy..." && \
+    apt install -y debian-keyring debian-archive-keyring apt-transport-https && \
+    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' \
+      | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg && \
+    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' \
+      | sudo tee /etc/apt/sources.list.d/caddy-stable.list && \
+    apt update && \
+    apt install caddy && \
+    if ! command_exist "caddy"; then
+      err "Caddy not found after installation"
+      err "Terminating script..."
+    else
+      info "Caddy installed"
+    fi
+}
+
+configure_caddy() {
+
+}
+
+configure_teleport() {
+  info "Configuring Teleport..." && \
+    cat > /etc/teleport.yaml <<EOF
+# By default, this file should be stored in /etc/teleport.yaml
+
+# Configuration file version. The current version is "v3".
+version: v3
+
+# This section of the configuration file applies to all teleport services
+teleport:
+  data_dir: /var/lib/teleport
+  diag_addr: "127.0.0.1:3000"
+  connection_limits:
+    max_connections: 1000
+    max_users: 250
+  log:
+    output: stderr
+    severity: INFO
+    format:
+      output: text
+  storage:
+    type: sqlite
+  ciphers:
+    - aes128-ctr
+    - aes192-ctr
+    - aes256-ctr
+    - aes128-gcm@openssh.com
+    - chacha20-poly1305@openssh.com
+  kex_algos:
+    - curve25519-sha256
+    - curve25519-sha256@libssh.org
+    - diffie-hellman-group14-sha256
+  mac_algos:
+    - hmac-sha2-256-etm@openssh.com
+  ciphersuites:
+    - tls-ecdhe-rsa-with-aes-128-gcm-sha256
+    - tls-ecdhe-ecdsa-with-aes-128-gcm-sha256
+    - tls-ecdhe-rsa-with-aes-256-gcm-sha384
+    - tls-ecdhe-ecdsa-with-aes-256-gcm-sha384
+    - tls-ecdhe-rsa-with-chacha20-poly1305
+    - tls-ecdhe-ecdsa-with-chacha20-poly1305
+
+# This section configures the 'auth service'
+auth_service:
+  enabled: "yes"
+  cluster_name: ${TELEPORT_CLUSTER}
+  proxy_protocol: "on"
+  authentication:
+    type: local
+    second_factor: otp
+    require_session_mfa: "yes"
+  listen_addr: 0.0.0.0:${TELEPORT_AUTH_PORT}
+  session_recording: "node"
+  proxy_checks_host_keys: "yes"
+  client_idle_timeout: never
+  client_idle_timeout_message: ""
+  web_idle_timeout: 10m
+  disconnect_expired_cert: "no"
+  keep_alive_interval: 5m
+  keep_alive_count_max: 3
+  message_of_the_day: ""
+  proxy_listener_mode: multiplex
+
+# This section configures the 'node service'
+ssh_service:
+  enabled: "yes"
+  listen_addr: 0.0.0.0:3022
+  commands:
+  - name: hostname
+    command: [hostname]
+    period: 1m0s
+
+# This section configures the 'proxy service'
+proxy_service:
+  enabled: "yes"
+  web_listen_addr: 0.0.0.0:${TELEPORT_PROXY_PORT}
+  public_addr: ${TELEPORT_PUBLIC_ADDR}:${TELEPORT_PROXY_PORT}
+  https_keypairs:
+  - key_file: /etc/ssl/private/teleport.key
+    cert_file: /etc/ssl/certs/teleport.crt
+  https_keypairs_reload_interval: 1h
+  acme: {}
+
+# This section configures the 'application service'
+app_service:
+  enabled: "no"
+
+# This section configures the 'kubernetes service'
+kubernetes_service:
+  enabled: "no"
+
+# This section configures the 'discovery service'
+discovery_service:
+  enabled: "no"
+
+# This section configures the 'database service'
+db_service:
+  enabled: "no"
+
+# This section configures the windows desktop service
+windows_desktop_service:
+  enabled: "no"
+EOF
+
+  info "Starting Teleport..." && \
+    systemctl enable teleport && \
+    systemctl start teleport && \
+    systemctl status teleport --no-pager && \
+    if ! service_active teleport; then
+      warn "Teleport service is not running"
+    else
+      info "Teleport configured and started"
     fi
 }
 

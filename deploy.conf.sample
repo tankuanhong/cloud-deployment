@@ -9,10 +9,17 @@ LOGGER_STDERR_LEVEL=4
 LOGGER_COLOR=auto
 LOGGER_TARGET=deploy.log
 
-# application ports
+# ssh
 SSH_PORT=59222
 
 # logdna
 LOGDNA_KEY="test"
+
+# teleport
+TELEPORT_CLUSTER=Playground
+TELEPORT_AUTH_PORT=3025
+TELEPORT_PROXY_PORT=3080
+TELEPORT_PUBLIC_ADDR=console.example.com
+
 
 } # this ensures the entire script is downloaded #
