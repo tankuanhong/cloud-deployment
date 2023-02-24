@@ -21,5 +21,11 @@ TELEPORT_AUTH_PORT=3025
 TELEPORT_PROXY_PORT=3080
 TELEPORT_PUBLIC_ADDR=console.example.com
 
+# caddy
+CADDY_ACME_EMAIL=admin@example.com
+CADDY_ROOT_DOMAIN=example.com
+
+# cloudflare
+CLOUDFLARE_API_TOKEN=test
 
 } # this ensures the entire script is downloaded #

@@ -217,6 +217,37 @@ install_caddy() {
 }
 
 configure_caddy() {
+  info "Configuring Caddy..." && \
+    cat > /etc/caddy/Caddyfile <<EOL
+# The Caddyfile is an easy way to configure your Caddy web server.
+#
+# Unless the file starts with a global options block, the first
+# uncommented line is always the address of your site.
+#
+# To use your own domain name (with automatic HTTPS), first make
+# sure your domain's A/AAAA DNS records are properly pointed to
+# this machine's public IP, then replace ":80" below with your
+# domain name.
+
+{
+  email ${CADDY_ACME_EMAIL}
+}
+
+*.${CADDY_ROOT_DOMAIN} ${CADDY_ROOT_DOMAIN} {
+  tls {
+    dns cloudflare ${CLOUDFLARE_API_TOKEN}
+  }
+}
+
+${TELEPORT_PUBLIC_ADDR} {
+  tls {
+    
+  }
+}
+
+# Refer to the Caddy docs for more information:
+# https://caddyserver.com/docs/caddyfile
+EOL
 
 }
 
@@ -343,6 +374,7 @@ main() {
   harden_sshd
   configure_remote_syslog
   install_teleport
+  install_caddy
 }
 
 main
