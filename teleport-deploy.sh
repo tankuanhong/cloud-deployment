@@ -40,7 +40,13 @@ configure_ufw() {
     info "Enabling ufw..." && \
     ufw --force enable && \
     ufw status numbered && \
-    info "Firewall configured and enabled"
+    if [ "$(ufw status | grep -qw active >/dev/null 2>/dev/null; echo $?)" != '0' ]; then
+      err "ufw is not active"
+      err "Terminating script..."
+      exit 1
+    else
+      info "ufw configured and enabled"
+    fi
 }
 
 upgrade_packages() {
@@ -63,7 +69,11 @@ setup_ntp() {
   info "Installing chrony and configuring timezone..." && \
     apt-get -y install chrony && \
     timedatectl set-timezone Asia/Singapore && \
-    info "Network time configured"
+    if ! service_active chrony; then
+      warn "chrony service is not running"
+    else
+      info "chrony installed and configured"
+    fi
 }
 
 harden_sshd() {
@@ -105,7 +115,13 @@ EOF
     info "Restarting SSH daemon..." && \
     systemctl restart sshd && \
     systemctl status sshd --no-pager && \
-    info "SSH daemon restarted"
+    if ! service_active sshd; then
+      err "SSH daemon is not running"
+      err "Terminating script..."
+      exit 1
+    else
+      info "SSH daemon configured and restarted"
+    fi
 }
 
 configure_remote_syslog() {
@@ -159,23 +175,28 @@ EOF
     info "Restarting rsyslog..." && \
     systemctl restart rsyslog && \
     systemctl status rsyslog --no-pager && \
-    info "Rsyslog restarted"
-
-  if ! service_active rsyslog; then
-    err "Rsyslog service is not running"
-  fi
+    if ! service_active rsyslog; then
+      warn "Rsyslog service is not running"
+    else
+      info "Rsyslog configured and restarted"
+    fi
 }
 
 install_teleport() {
   info "Installing Teleport" && \
-  sudo curl https://apt.releases.teleport.dev/gpg -o /usr/share/keyrings/teleport-archive-keyring.asc && \
+    sudo curl https://apt.releases.teleport.dev/gpg -o /usr/share/keyrings/teleport-archive-keyring.asc && \
     source /etc/os-release && \
     echo "deb [signed-by=/usr/share/keyrings/teleport-archive-keyring.asc] \
       https://apt.releases.teleport.dev/${ID?} ${VERSION_CODENAME?} stable/v12" \
       | sudo tee /etc/apt/sources.list.d/teleport.list > /dev/null && \
     sudo apt-get update && \
-      sudo apt-get install teleport && \
+    sudo apt-get install teleport && \
+    if ! command_exist "teleport"; then
+      err "Teleport not found after installation"
+      err "Terminating script..."
+    else
       info "Teleport installed"
+    fi
 }
 
 main() {
