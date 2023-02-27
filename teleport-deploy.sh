@@ -218,35 +218,84 @@ install_caddy() {
 
 configure_caddy() {
   info "Configuring Caddy..." && \
-    cat > /etc/caddy/Caddyfile <<EOL
-# The Caddyfile is an easy way to configure your Caddy web server.
-#
-# Unless the file starts with a global options block, the first
-# uncommented line is always the address of your site.
-#
-# To use your own domain name (with automatic HTTPS), first make
-# sure your domain's A/AAAA DNS records are properly pointed to
-# this machine's public IP, then replace ":80" below with your
-# domain name.
-
+    cat > /etc/caddy/caddy.json <<EOL
 {
-  email ${CADDY_ACME_EMAIL}
-}
-
-*.${CADDY_ROOT_DOMAIN} ${CADDY_ROOT_DOMAIN} {
-  tls {
-    dns cloudflare ${CLOUDFLARE_API_TOKEN}
+  "apps": {
+    "http": {
+      "servers": {
+        "srv0": {
+          "listen": [
+            ":443"
+          ],
+          "routes": [
+            {
+              "match": [
+                {
+                  "host": [
+                    "${TELEPORT_PUBLIC_ADDR}"
+                  ]
+                }
+              ],
+              "handle": [
+                {
+                  "handler": "subroute",
+                  "routes": [
+                    {
+                      "handle": [
+                        {
+                          "handler": "reverse_proxy",
+                          "upstreams": [
+                            {
+                              "dial": "localhost:3080"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "terminal": true
+            }
+          ]
+        }
+      }
+    },
+    "tls": {
+      "certificates": {
+        "automate": [
+          "*.${CADDY_ROOT_DOMAIN}",
+          "${CADDY_ROOT_DOMAIN}"
+        ]
+      },
+      "automation": {
+        "policies": [
+          {
+            "subjects": [
+              "*.${CADDY_ROOT_DOMAIN}",
+              "${CADDY_ROOT_DOMAIN}"
+            ],
+            "issuers": [
+              {
+                "ca": "https://acme-staging-v02.api.letsencrypt.org/directory",
+                "challenges": {
+                  "dns": {
+                    "provider": {
+                      "api_token": "${CLOUDFLARE_API_TOKEN}",
+                      "name": "cloudflare"
+                    }
+                  }
+                },
+                "email": "${CADDY_ACME_EMAIL}",
+                "module": "acme"
+              }
+            ]
+          }
+        ]
+      }
+    }
   }
 }
-
-${TELEPORT_PUBLIC_ADDR} {
-  tls {
-    
-  }
-}
-
-# Refer to the Caddy docs for more information:
-# https://caddyserver.com/docs/caddyfile
 EOL
 
 }
