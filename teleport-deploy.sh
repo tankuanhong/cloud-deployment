@@ -257,23 +257,24 @@ configure_caddy() {
               ],
               "terminal": true
             }
-          ]
+          ],
+          "automatic_https": {
+            "disable": true
+          }
         }
       }
     },
     "tls": {
       "certificates": {
         "automate": [
-          "*.${CADDY_ROOT_DOMAIN}",
-          "${CADDY_ROOT_DOMAIN}"
+          "*.${CADDY_ROOT_DOMAIN}"
         ]
       },
       "automation": {
         "policies": [
           {
             "subjects": [
-              "*.${CADDY_ROOT_DOMAIN}",
-              "${CADDY_ROOT_DOMAIN}"
+              "*.${CADDY_ROOT_DOMAIN}"
             ],
             "issuers": [
               {
