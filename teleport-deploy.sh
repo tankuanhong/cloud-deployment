@@ -258,6 +258,15 @@ configure_caddy() {
               "terminal": true
             }
           ],
+          "tls_connection_policies": [
+            {
+              "match": {
+                "sni": [
+                  "*.${CADDY_ROOT_DOMAIN}"
+                ]
+              }
+            }
+          ],
           "automatic_https": {
             "disable": true
           }
@@ -299,6 +308,10 @@ configure_caddy() {
 }
 EOL
 
+  info "Set Caddy service to use JSON config..." && \
+    sed -i 's/\/etc\/caddy\/Caddyfile/\/etc\/caddy\/caddy.json/g' /lib/systemd/system/caddy.service && \
+    systemctl daemon-reload && \
+    systemctl restart caddy
 }
 
 configure_teleport() {
