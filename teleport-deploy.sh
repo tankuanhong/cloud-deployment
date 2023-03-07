@@ -246,6 +246,10 @@ configure_caddy() {
                       "handle": [
                         {
                           "handler": "reverse_proxy",
+                          "transport": {
+                            "protocol": "http",
+                            "tls": {}
+                          },
                           "upstreams": [
                             {
                               "dial": "localhost:3080"
