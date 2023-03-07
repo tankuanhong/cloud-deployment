@@ -36,6 +36,8 @@ configure_ufw() {
     ufw default deny incoming && \
     ufw default allow outgoing && \
     ufw allow 22/tcp comment 'Default SSH' && \
+    ufw allow http && \
+    ufw allow https && \
     ufw allow ${SSH_PORT}/tcp comment 'Custom SSH' && \
     info "Enabling ufw..." && \
     ufw --force enable && \
@@ -390,7 +392,7 @@ ssh_service:
 proxy_service:
   enabled: "yes"
   web_listen_addr: 0.0.0.0:${TELEPORT_PROXY_PORT}
-  public_addr: ${TELEPORT_PUBLIC_ADDR}:${TELEPORT_PROXY_PORT}
+  public_addr: ${TELEPORT_PUBLIC_ADDR}:443
   https_keypairs:
   - key_file: /etc/ssl/private/teleport.key
     cert_file: /etc/ssl/certs/teleport.crt
@@ -438,6 +440,8 @@ main() {
   configure_remote_syslog
   install_teleport
   install_caddy
+  configure_caddy
+  configure_teleport
 }
 
 main

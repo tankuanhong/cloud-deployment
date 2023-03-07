@@ -19,11 +19,11 @@ LOGDNA_KEY="test"
 TELEPORT_CLUSTER=Playground
 TELEPORT_AUTH_PORT=3025
 TELEPORT_PROXY_PORT=3080
-TELEPORT_PUBLIC_ADDR=console.example.com
+TELEPORT_PUBLIC_ADDR=console.dev.kuanhong.org
 
 # caddy
-CADDY_ACME_EMAIL=admin@example.com
-CADDY_ROOT_DOMAIN=example.com
+CADDY_ACME_EMAIL=admin@dev.kuanhong.org
+CADDY_ROOT_DOMAIN=dev.kuanhong.org
 
 # cloudflare
 CLOUDFLARE_API_TOKEN=test
