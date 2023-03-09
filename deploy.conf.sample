@@ -15,17 +15,21 @@ SSH_PORT=59222
 # logdna
 LOGDNA_KEY="test"
 
+# caddy
+CADDY_ROOT_DOMAIN=dev.kuanhong.org
+CADDY_SUBDOMAIN=console
+CADDY_ACME_EMAIL=admin@dev.kuanhong.org
+CADDY_BACKEND=${CADDY_SUBDOMAIN}-be.${CADDY_ROOT_DOMAIN}
+
 # teleport
 TELEPORT_CLUSTER=Playground
 TELEPORT_AUTH_PORT=3025
 TELEPORT_PROXY_PORT=3080
-TELEPORT_PUBLIC_ADDR=console.dev.kuanhong.org
+TELEPORT_PUBLIC_ADDR=${CADDY_SUBDOMAIN}.${CADDY_ROOT_DOMAIN}
 
-# caddy
-CADDY_ACME_EMAIL=admin@dev.kuanhong.org
-CADDY_ROOT_DOMAIN=dev.kuanhong.org
-CADDY_CA_URL=https://acme-staging-v02.api.letsencrypt.org/directory
-#CADDY_CA_URL=https://acme-v02.api.letsencrypt.org/directory
+# letsencrypt endpoint
+LE_ENDPOINT=acme-staging-v02.api.letsencrypt.org
+#LE_ENDPOINT=acme-v02.api.letsencrypt.org
 
 # cloudflare
 CLOUDFLARE_API_TOKEN=test

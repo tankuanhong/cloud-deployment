@@ -280,7 +280,7 @@ configure_caddy() {
                           },
                           "upstreams": [
                             {
-                              "dial": "localhost:3080"
+                              "dial": "${CADDY_BACKEND}:3080"
                             }
                           ]
                         }
@@ -321,7 +321,7 @@ configure_caddy() {
             ],
             "issuers": [
               {
-                "ca": "${CADDY_CA_URL}",
+                "ca": "https://${ACME_ENDPOINT}/directory",
                 "challenges": {
                   "dns": {
                     "provider": {
@@ -341,6 +341,9 @@ configure_caddy() {
   }
 }
 EOL
+
+  info "Add Caddy backend to hosts file..." && \
+    echo "127.0.0.1 ${CADDY_BACKEND}" | sudo tee -a /etc/hosts
 
   info "Set Caddy service to use JSON config..." && \
     sed -i 's/\/etc\/caddy\/Caddyfile/\/etc\/caddy\/caddy.json/g' /lib/systemd/system/caddy.service && \
@@ -426,8 +429,8 @@ proxy_service:
   web_listen_addr: 0.0.0.0:${TELEPORT_PROXY_PORT}
   public_addr: ${TELEPORT_PUBLIC_ADDR}:443
   https_keypairs:
-  - key_file: /etc/ssl/private/teleport.key
-    cert_file: /etc/ssl/certs/teleport.crt
+  - key_file: /var/lib/caddy/.local/share/caddy/certificates/${ACME_ENDPOINT}-directory/wildcard_.${CADDY_ROOT_DOMAIN}/wildcard_.${CADDY_ROOT_DOMAIN}.key
+    cert_file: /var/lib/caddy/.local/share/caddy/certificates/${ACME_ENDPOINT}-directory/wildcard_.${CADDY_ROOT_DOMAIN}/wildcard_.${CADDY_ROOT_DOMAIN}.crt
   https_keypairs_reload_interval: 1h
   acme: {}
 
@@ -451,6 +454,10 @@ db_service:
 windows_desktop_service:
   enabled: "no"
 EOF
+
+  info "Sleep 1 minute for Caddy certificate request..." && \
+    sleep 60 && \
+    info "Wake after 1 minute"
 
   info "Starting Teleport..." && \
     systemctl enable teleport && \
