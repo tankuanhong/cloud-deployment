@@ -25,6 +25,7 @@ TELEPORT_PUBLIC_ADDR=console.dev.kuanhong.org
 CADDY_ACME_EMAIL=admin@dev.kuanhong.org
 CADDY_ROOT_DOMAIN=dev.kuanhong.org
 CADDY_CA_URL=https://acme-staging-v02.api.letsencrypt.org/directory
+#CADDY_CA_URL=https://acme-v02.api.letsencrypt.org/directory
 
 # cloudflare
 CLOUDFLARE_API_TOKEN=test
