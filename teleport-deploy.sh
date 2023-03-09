@@ -401,7 +401,6 @@ auth_service:
   authentication:
     type: local
     second_factor: otp
-    require_session_mfa: "yes"
   listen_addr: 0.0.0.0:${TELEPORT_AUTH_PORT}
   session_recording: "node"
   proxy_checks_host_keys: "yes"
