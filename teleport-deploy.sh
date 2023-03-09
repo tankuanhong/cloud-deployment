@@ -203,12 +203,37 @@ install_teleport() {
 
 install_caddy() {
   info "Installing Caddy..." && \
+    info "Creating caddy user..." && \
+    groupadd --system caddy && \
+    useradd --system \
+      --gid caddy \
+      --create-home \
+      --home-dir /var/lib/caddy \
+      --shell /usr/sbin/nologin \
+      --comment "Caddy web server" \
+      caddy && \
+    if getent group www-data >/dev/null; then
+      usermod -aG www-data caddy
+    fi && \
+    info "Creating caddy directories..." && \
+    mkdir -p /etc/caddy && \
+    mkdir -p /var/log/caddy && \
+    mkdir -p /var/lib/caddy && \
+    info "Copying caddy binary..." && \
     cp caddy/caddy_*_linux_amd64_cloudflare /usr/bin/caddy && \
     chmod +x /usr/bin/caddy && \
-    /usr/bin/caddy completion bash | sudo tee /etc/bash_completion.d/caddy && \
+    info "Setting permissions..." && \
+    chown caddy:caddy /usr/bin/caddy && \
+    chown -R caddy:caddy /etc/caddy && \
+    chown -R caddy:caddy /var/log/caddy && \
+    chown -R caddy:caddy /var/lib/caddy && \
+    info "Creating caddy service files..." && \
     cp caddy/caddy.service /lib/systemd/system/caddy.service && \
     cp caddy/caddy-api.service /lib/systemd/system/caddy-api.service && \
     systemctl daemon-reload && \
+    info "Setting up caddy bash completion..." && \
+    /usr/bin/caddy completion bash | sudo tee /etc/bash_completion.d/caddy && \
+    info "Setting up caddy man pages..." && \
     /usr/bin/caddy manpage --directory man && \
     gzip -r man/ && \
     cp man/* /usr/share/man/man8/ && \
