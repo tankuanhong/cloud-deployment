@@ -203,13 +203,16 @@ install_teleport() {
 
 install_caddy() {
   info "Installing Caddy..." && \
-    apt install -y debian-keyring debian-archive-keyring apt-transport-https && \
-    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' \
-      | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg && \
-    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' \
-      | sudo tee /etc/apt/sources.list.d/caddy-stable.list && \
-    apt update && \
-    apt install caddy && \
+    cp caddy/caddy_*_linux_amd64_cloudflare /usr/bin/caddy && \
+    chmod +x /usr/bin/caddy && \
+    /usr/bin/caddy completion bash | sudo tee /etc/bash_completion.d/caddy && \
+    cp caddy/caddy.service /lib/systemd/system/caddy.service && \
+    cp caddy/caddy-api.service /lib/systemd/system/caddy-api.service && \
+    systemctl daemon-reload && \
+    /usr/bin/caddy manpage --directory man && \
+    gzip -r man/ && \
+    cp man/* /usr/share/man/man8/ && \
+    mandb && \
     if ! command_exist "caddy"; then
       err "Caddy not found after installation"
       err "Terminating script..."
