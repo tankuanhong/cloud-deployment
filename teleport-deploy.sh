@@ -293,7 +293,7 @@ configure_caddy() {
             ],
             "issuers": [
               {
-                "ca": "https://acme-staging-v02.api.letsencrypt.org/directory",
+                "ca": "${CADDY_CA_URL}",
                 "challenges": {
                   "dns": {
                     "provider": {
