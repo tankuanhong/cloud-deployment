@@ -321,7 +321,7 @@ configure_caddy() {
             ],
             "issuers": [
               {
-                "ca": "https://${ACME_ENDPOINT}/directory",
+                "ca": "https://${LE_ENDPOINT}/directory",
                 "challenges": {
                   "dns": {
                     "provider": {
@@ -429,8 +429,8 @@ proxy_service:
   web_listen_addr: 0.0.0.0:${TELEPORT_PROXY_PORT}
   public_addr: ${TELEPORT_PUBLIC_ADDR}:443
   https_keypairs:
-  - key_file: /var/lib/caddy/.local/share/caddy/certificates/${ACME_ENDPOINT}-directory/wildcard_.${CADDY_ROOT_DOMAIN}/wildcard_.${CADDY_ROOT_DOMAIN}.key
-    cert_file: /var/lib/caddy/.local/share/caddy/certificates/${ACME_ENDPOINT}-directory/wildcard_.${CADDY_ROOT_DOMAIN}/wildcard_.${CADDY_ROOT_DOMAIN}.crt
+  - key_file: /var/lib/caddy/.local/share/caddy/certificates/${LE_ENDPOINT}-directory/wildcard_.${CADDY_ROOT_DOMAIN}/wildcard_.${CADDY_ROOT_DOMAIN}.key
+    cert_file: /var/lib/caddy/.local/share/caddy/certificates/${LE_ENDPOINT}-directory/wildcard_.${CADDY_ROOT_DOMAIN}/wildcard_.${CADDY_ROOT_DOMAIN}.crt
   https_keypairs_reload_interval: 1h
   acme: {}
 
