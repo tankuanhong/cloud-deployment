@@ -251,7 +251,7 @@ configure_caddy() {
     cat > /etc/caddy/caddy.json <<EOL
 {
   "apps": {
-    "http": {
+    "layer4": {
       "servers": {
         "srv0": {
           "listen": [
@@ -261,49 +261,27 @@ configure_caddy() {
             {
               "match": [
                 {
-                  "host": [
-                    "${TELEPORT_PUBLIC_ADDR}"
-                  ]
+                  "tls": {
+                    "sni": [
+                      "${TELEPORT_PUBLIC_ADDR}"
+                    ]
+                  }
                 }
               ],
               "handle": [
                 {
-                  "handler": "subroute",
-                  "routes": [
+                  "handler": "proxy",
+                  "upstreams": [
                     {
-                      "handle": [
-                        {
-                          "handler": "reverse_proxy",
-                          "transport": {
-                            "protocol": "http",
-                            "tls": {}
-                          },
-                          "upstreams": [
-                            {
-                              "dial": "${CADDY_BACKEND}:3080"
-                            }
-                          ]
-                        }
+                      "dial": [
+                        "${CADDY_BACKEND}:3080"
                       ]
                     }
                   ]
                 }
-              ],
-              "terminal": true
+              ]
             }
-          ],
-          "tls_connection_policies": [
-            {
-              "match": {
-                "sni": [
-                  "*.${CADDY_ROOT_DOMAIN}"
-                ]
-              }
-            }
-          ],
-          "automatic_https": {
-            "disable": true
-          }
+          ]
         }
       }
     },
