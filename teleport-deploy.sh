@@ -250,6 +250,26 @@ configure_caddy() {
   info "Configuring Caddy..." && \
     cat > /etc/caddy/caddy.json <<EOL
 {
+  "logging": {
+    "logs": {
+      "default": {
+        "writer": {
+          "filename": "/var/log/caddy/caddy.log",
+          "output": "file"
+        },
+        "encoder": {
+          "format": "console"
+        },
+        "level": "DEBUG",
+        "include": [
+            "http.log.access",
+            "layer4",
+            "layer4.handlers.proxy",
+            "layer4.matchers.tls"
+        ]
+      }
+    }
+  },
   "apps": {
     "layer4": {
       "servers": {
