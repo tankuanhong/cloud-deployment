@@ -220,7 +220,7 @@ install_caddy() {
     mkdir -p /var/log/caddy && \
     mkdir -p /var/lib/caddy && \
     info "Copying caddy binary..." && \
-    cp caddy/caddy_*_linux_amd64_cloudflare /usr/bin/caddy && \
+    cp caddy/caddy_*_linux_amd64_cloudflare_layer4_l4tls_l4proxy /usr/bin/caddy && \
     chmod +x /usr/bin/caddy && \
     info "Setting permissions..." && \
     chown caddy:caddy /usr/bin/caddy && \
@@ -251,7 +251,7 @@ configure_caddy() {
     cat > /etc/caddy/caddy.json <<EOL
 {
   "apps": {
-    "http": {
+    "layer4": {
       "servers": {
         "srv0": {
           "listen": [
@@ -261,49 +261,27 @@ configure_caddy() {
             {
               "match": [
                 {
-                  "host": [
-                    "${TELEPORT_PUBLIC_ADDR}"
-                  ]
+                  "tls": {
+                    "sni": [
+                      "${TELEPORT_PUBLIC_ADDR}"
+                    ]
+                  }
                 }
               ],
               "handle": [
                 {
-                  "handler": "subroute",
-                  "routes": [
+                  "handler": "proxy",
+                  "upstreams": [
                     {
-                      "handle": [
-                        {
-                          "handler": "reverse_proxy",
-                          "transport": {
-                            "protocol": "http",
-                            "tls": {}
-                          },
-                          "upstreams": [
-                            {
-                              "dial": "${CADDY_BACKEND}:3080"
-                            }
-                          ]
-                        }
+                      "dial": [
+                        "${CADDY_BACKEND}:3080"
                       ]
                     }
                   ]
                 }
-              ],
-              "terminal": true
+              ]
             }
-          ],
-          "tls_connection_policies": [
-            {
-              "match": {
-                "sni": [
-                  "*.${CADDY_ROOT_DOMAIN}"
-                ]
-              }
-            }
-          ],
-          "automatic_https": {
-            "disable": true
-          }
+          ]
         }
       }
     },
