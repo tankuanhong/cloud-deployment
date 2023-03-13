@@ -255,10 +255,13 @@ configure_caddy() {
       "default": {
         "writer": {
           "filename": "/var/log/caddy/caddy.log",
-          "output": "file"
+          "output": "file",
+          "roll_keep": 5,
+          "roll_size_mb": 100
         },
         "encoder": {
-          "format": "console"
+          "format": "json",
+          "time_format": "iso8601"
         },
         "level": "DEBUG",
         "include": [
@@ -465,6 +468,37 @@ EOF
     else
       info "Teleport configured and started"
     fi
+}
+
+install_fail2ban() {
+  info "Installing fail2ban..." && \
+    apt-get -y install fail2ban && \
+    if ! service_active fail2ban; then
+      warn "fail2ban service is not running"
+    else
+      info "fail2ban installed"
+    fi
+}
+
+configure_fail2ban() {
+  info "Configuring fail2ban..." && \
+    cat > /etc/fail2ban/filter.d/caddy.conf <<EOF
+[Definition]
+failregex = .*"level":"debug".*"remote":"<HOST>:.*"matched":false.*
+ignoreregex =
+EOF
+
+  cat > /etc/fail2ban/jail.d/caddy.conf <<EOF
+[caddy]
+enabled = true
+filter = caddy
+logpath = /var/log/caddy/caddy.log
+maxretry = 3
+findtime = 3600
+bantime = 900
+action = iptables-allports
+EOF
+# WIP
 }
 
 main() {
