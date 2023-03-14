@@ -485,7 +485,7 @@ configure_fail2ban() {
     info "Creating caddy filter..." && \
     cat > /etc/fail2ban/filter.d/caddy.conf <<EOF
 [Definition]
-failregex = .*"level":"debug".*"remote":"<HOST>:.*"matcher":"layer4\.matchers\.tls","matched":false.*
+failregex = ^{"level":"debug","ts":"","logger":"layer4","msg":"matching","remote":"<HOST>:[0-9]{0,5}","matcher":"layer4\.matchers\.tls","matched":false}$
 ignoreregex =
 EOF
 
