@@ -482,20 +482,34 @@ install_fail2ban() {
 
 configure_fail2ban() {
   info "Configuring fail2ban..." && \
-    info "Creating caddy filter..." && \
+    info "Set default jail config..." && \
+    cat > /etc/fail2ban/jail.d/main.conf <<EOF
+[sshd]
+port = ${SSH_PORT}
+EOF
+
+  info "Creating caddy filter..." && \
     cat > /etc/fail2ban/filter.d/caddy.conf <<EOF
 [Definition]
 failregex = ^{"level":"debug","ts":"","logger":"layer4","msg":"matching","remote":"<HOST>:[0-9]{0,5}","matcher":"layer4\.matchers\.tls","matched":false}$
 ignoreregex =
 EOF
 
-  info "Creating caddy jail..." && \
-    cat > /etc/fail2ban/jail.d/caddy.conf <<EOF
+  info "Creating custom jail..." && \
+    cat > /etc/fail2ban/jail.d/main.conf <<EOF
+[DEFAULT]
+bantime.increment = true
+bantime.factor = 1
+bantime.maxtime = 3w
+
+[sshd]
+mode = aggressive
+
 [caddy]
 enabled = true
 filter = caddy
 logpath = /var/log/caddy/caddy.log
-maxretry = 3
+maxretry = 10
 findtime = 3600
 bantime = 900
 action = iptables-allports
