@@ -482,13 +482,15 @@ install_fail2ban() {
 
 configure_fail2ban() {
   info "Configuring fail2ban..." && \
+    info "Creating caddy filter..." && \
     cat > /etc/fail2ban/filter.d/caddy.conf <<EOF
 [Definition]
-failregex = .*"level":"debug".*"remote":"<HOST>:.*"matched":false.*
+failregex = .*"level":"debug".*"remote":"<HOST>:.*"matcher":"layer4\.matchers\.tls","matched":false.*
 ignoreregex =
 EOF
 
-  cat > /etc/fail2ban/jail.d/caddy.conf <<EOF
+  info "Creating caddy jail..." && \
+    cat > /etc/fail2ban/jail.d/caddy.conf <<EOF
 [caddy]
 enabled = true
 filter = caddy
@@ -498,7 +500,15 @@ findtime = 3600
 bantime = 900
 action = iptables-allports
 EOF
-# WIP
+
+  info "Restarting fail2ban with new configuration" && \
+    systemctl restart fail2ban && \
+    systemctl status fail2ban --no-pager && \
+    if ! service_active fail2ban; then
+      warn "fail2ban service is not running"
+    else
+      info "fail2ban configured and started"
+    fi
 }
 
 main() {
@@ -512,6 +522,8 @@ main() {
   install_caddy
   configure_caddy
   configure_teleport
+  install_fail2ban
+  configure_fail2ban
 }
 
 main
