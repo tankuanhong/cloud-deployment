@@ -403,7 +403,7 @@ auth_service:
     type: local
     second_factor: otp
   listen_addr: 0.0.0.0:${TELEPORT_AUTH_PORT}
-  session_recording: "node"
+  session_recording: "node-sync"
   proxy_checks_host_keys: "yes"
   client_idle_timeout: never
   client_idle_timeout_message: ""
