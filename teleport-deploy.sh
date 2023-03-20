@@ -17,6 +17,7 @@ service_active() {
   systemctl is-active --quiet $1
 }
 
+# this script is only tested on Ubuntu 20.04
 if [ $(lsb_release -si) != "Ubuntu" ] || [ $(lsb_release -sr) != "20.04" ]; then
   err "This server is not running Ubuntu 20.04"
   err "Terminating script..."
@@ -525,6 +526,21 @@ EOF
     fi
 }
 
+install_kopia() {
+  info "Installing kopia..." && \
+    curl -s https://kopia.io/signing-key | sudo gpg --dearmor -o /usr/share/keyrings/kopia-keyring.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/kopia-keyring.gpg] http://packages.kopia.io/apt/ stable main" | sudo tee /etc/apt/sources.list.d/kopia.list && \
+    apt update && \
+    apt install kopia
+  
+  if ! service_active kopia; then
+    warn "kopia service is not running"
+  else
+    info "kopia configured and restarted"
+  fi
+
+}
+
 main() {
   configure_ufw
   upgrade_packages
@@ -538,6 +554,7 @@ main() {
   configure_teleport
   install_fail2ban
   configure_fail2ban
+  install_kopia
 }
 
 main
