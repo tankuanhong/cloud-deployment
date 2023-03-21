@@ -531,14 +531,13 @@ install_kopia() {
     curl -s https://kopia.io/signing-key | sudo gpg --dearmor -o /usr/share/keyrings/kopia-keyring.gpg && \
     echo "deb [signed-by=/usr/share/keyrings/kopia-keyring.gpg] http://packages.kopia.io/apt/ stable main" | sudo tee /etc/apt/sources.list.d/kopia.list && \
     apt update && \
-    apt install kopia
-  
-  if ! service_active kopia; then
-    warn "kopia service is not running"
-  else
-    info "kopia configured and restarted"
-  fi
-
+    apt install kopia && \
+    if ! command_exist "kopia"; then
+      err "kopia not found after installation"
+      err "Terminating script..."
+    else
+      info "kopia installed"
+    fi
 }
 
 main() {
