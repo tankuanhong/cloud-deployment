@@ -34,4 +34,9 @@ LE_ENDPOINT=acme-staging-v02.api.letsencrypt.org
 # cloudflare
 CLOUDFLARE_API_TOKEN=test
 
+# kopia
+KOPIA_SUBDOMAIN=console-backup
+KOPIA_PUBLIC_ADDR=${KOPIA_SUBDOMAIN}.${CADDY_ROOT_DOMAIN}
+KOPIA_BACKEND=${KOPIA_SUBDOMAIN}-be.${CADDY_ROOT_DOMAIN}
+
 } # this ensures the entire script is downloaded #

@@ -304,6 +304,29 @@ configure_caddy() {
                   ]
                 }
               ]
+            },
+            {
+              "match": [
+                {
+                  "tls": {
+                    "sni": [
+                      "${KOPIA_PUBLIC_ADDR}"
+                    ]
+                  }
+                }
+              ],
+              "handle": [
+                {
+                  "handler": "proxy",
+                  "upstreams": [
+                    {
+                      "dial": [
+                        "${KOPIA_BACKEND}:51515"
+                      ]
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }
@@ -345,7 +368,7 @@ configure_caddy() {
 EOL
 
   info "Add Caddy backend to hosts file..." && \
-    echo "127.0.0.1 ${CADDY_BACKEND}" | sudo tee -a /etc/hosts
+    echo "127.0.0.1 ${CADDY_BACKEND} ${KOPIA_BACKEND}" | sudo tee -a /etc/hosts
 
   info "Set Caddy service to use JSON config..." && \
     sed -i 's/\/etc\/caddy\/Caddyfile/\/etc\/caddy\/caddy.json/g' /lib/systemd/system/caddy.service && \
@@ -540,6 +563,42 @@ install_kopia() {
     fi
 }
 
+configuring_kopia() {
+  info "Configuring kopia..." && \
+    cat > /etc/systemd/system/kopia.service <<EOF
+[Unit]
+Description=Kopia Server
+Documentation=https://kopia.io/docs/
+Wants=basic.target
+After=basic.target network.target
+
+[Service]
+ExecStart=kopia server start \
+  --address 0.0.0.0:51515 \
+  --tls-cert-file /var/lib/caddy/.local/share/caddy/certificates/${LE_ENDPOINT}-directory/wildcard_.${CADDY_ROOT_DOMAIN}/wildcard_.${CADDY_ROOT_DOMAIN}.crt \
+  --tls-key-file /var/lib/caddy/.local/share/caddy/certificates/${LE_ENDPOINT}-directory/wildcard_.${CADDY_ROOT_DOMAIN}/wildcard_.${CADDY_ROOT_DOMAIN}.key \
+  --insecure \
+  --without-password
+Restart=on-failure
+RestartSec=1
+SuccessExitStatus=3 4
+RestartForceExitStatus=3 4
+
+[Install]
+WantedBy=default.target
+EOF
+
+  info "Starting kopia service..." && \
+    systemctl daemon-reload && \
+    systemctl start kopia && \
+    systemctl status kopia --no-pager && \
+    if ! service_active kopia; then
+      warn "kopia service is not running"
+    else
+      info "kopia configured and started"
+    fi
+}
+
 main() {
   configure_ufw
   upgrade_packages
@@ -554,6 +613,7 @@ main() {
   install_fail2ban
   configure_fail2ban
   install_kopia
+  configuring_kopia
 }
 
 main
