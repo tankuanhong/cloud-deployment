@@ -304,29 +304,6 @@ configure_caddy() {
                   ]
                 }
               ]
-            },
-            {
-              "match": [
-                {
-                  "tls": {
-                    "sni": [
-                      "${KOPIA_PUBLIC_ADDR}"
-                    ]
-                  }
-                }
-              ],
-              "handle": [
-                {
-                  "handler": "proxy",
-                  "upstreams": [
-                    {
-                      "dial": [
-                        "${KOPIA_BACKEND}:51515"
-                      ]
-                    }
-                  ]
-                }
-              ]
             }
           ]
         }
@@ -368,7 +345,7 @@ configure_caddy() {
 EOL
 
   info "Add Caddy backend to hosts file..." && \
-    echo "127.0.0.1 ${CADDY_BACKEND} ${KOPIA_BACKEND}" | sudo tee -a /etc/hosts
+    echo "127.0.0.1 ${CADDY_BACKEND}" | sudo tee -a /etc/hosts
 
   info "Set Caddy service to use JSON config..." && \
     sed -i 's/\/etc\/caddy\/Caddyfile/\/etc\/caddy\/caddy.json/g' /lib/systemd/system/caddy.service && \
@@ -573,12 +550,7 @@ Wants=basic.target
 After=basic.target network.target
 
 [Service]
-ExecStart=kopia server start \
-  --address 0.0.0.0:51515 \
-  --tls-cert-file /var/lib/caddy/.local/share/caddy/certificates/${LE_ENDPOINT}-directory/wildcard_.${CADDY_ROOT_DOMAIN}/wildcard_.${CADDY_ROOT_DOMAIN}.crt \
-  --tls-key-file /var/lib/caddy/.local/share/caddy/certificates/${LE_ENDPOINT}-directory/wildcard_.${CADDY_ROOT_DOMAIN}/wildcard_.${CADDY_ROOT_DOMAIN}.key \
-  --insecure \
-  --without-password
+ExecStart=kopia server start --address 127.0.0.1:51515 --insecure --without-password
 Restart=on-failure
 RestartSec=1
 SuccessExitStatus=3 4
