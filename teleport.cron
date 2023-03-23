@@ -1,0 +1,2 @@
+MAILTO=""
+15 * * * *    touch /root/teleport_backup.yaml && chmod 600 /root/teleport_backup.yaml && /usr/local/bin/tctl get all --with-secrets > /root/teleport_backup.yaml

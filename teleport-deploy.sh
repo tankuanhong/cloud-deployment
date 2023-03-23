@@ -571,6 +571,15 @@ EOF
     fi
 }
 
+install_cron() {
+  info "Install cron jobs..."
+  if [ "$(crontab teleport.cron; echo $?)" = '0' ]; then
+    info "Cron installed successfully"
+  else
+    warn "Failed to install cron jobs"
+  fi
+}
+
 main() {
   configure_ufw
   upgrade_packages
@@ -586,6 +595,7 @@ main() {
   configure_fail2ban
   install_kopia
   configuring_kopia
+  install_cron
 }
 
 main
