@@ -97,7 +97,7 @@ ChallengeResponseAuthentication no
 KerberosAuthentication no
 GSSAPIAuthentication no
 UsePAM yes
-AllowTcpForwarding no
+AllowTcpForwarding yes
 X11Forwarding no
 ClientAliveInterval 300
 ClientAliveCountMax 3
