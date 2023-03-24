@@ -549,14 +549,31 @@ Documentation=https://kopia.io/docs/reference/
 After=basic.target network.target
 
 [Service]
-ExecStart=/usr/bin/kopia server start --address http://127.0.0.1:51515 --insecure --without-password --cache-directory "/var/kopia-cache"
+ExecStart=/usr/bin/kopia server start --address="http://127.0.0.1:51515" --insecure --without-password --cache-directory="/var/kopia-cache" --config-file="/opt/kopia/repository.config"
 ExecStop=/usr/bin/kopia server shutdown
-ExecReload=/usr/bin/kopia server refresh --address http://127.0.0.1:51515
+ExecReload=/usr/bin/kopia server refresh --address="http://127.0.0.1:51515"
 Restart=always
 
 [Install]
 WantedBy=multi-user.target
 EOF
+
+  info "Connecting to backup repository..."
+  if [ "$(/usr/bin/kopia repository connect s3 --endpoint="${KOPIA_S3_URL}" --bucket="${KOPIA_S3_BUCKET}" --access-key="${KOPIA_S3_KEY}" --secret-access-key="${KOPIA_S3_SECRET}" --password="${KOPIA_REPO_PASSWORD}" --config-file="${KOPIA_CONFIG_PATH}"; echo $?)" != '0' ]; then
+    warn "Error connecting or repository not initialized"
+    if ${KOPIA_REPO_INIT}; then
+      info "Attempting to initialize repository"
+      if [ "$(/usr/bin/kopia repository create s3 --endpoint="${KOPIA_S3_URL}" --bucket="${KOPIA_S3_BUCKET}" --access-key="${KOPIA_S3_KEY}" --secret-access-key="${KOPIA_S3_SECRET}" --password="${KOPIA_REPO_PASSWORD}" --config-file="${KOPIA_CONFIG_PATH}"; echo $?)" != '0' ]; then
+        warn "Unable to connect to repository"
+      else
+        info "Repository initialized"
+      fi
+    else
+      warn "Check repository credentials then manually connect through kopia Web UI"
+    fi
+  else
+    info "Repository connected"
+  fi
 
   info "Starting kopia service..." && \
     systemctl daemon-reload && \

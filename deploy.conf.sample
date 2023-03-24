@@ -34,4 +34,13 @@ LE_ENDPOINT=acme-staging-v02.api.letsencrypt.org
 # cloudflare
 CLOUDFLARE_API_TOKEN=test
 
+# kopia
+KOPIA_REPO_INIT=false
+KOPIA_REPO_PASSWORD=P@ssw0rd123
+KOPIA_CONFIG_PATH=/opt/kopia/repository.config
+KOPIA_S3_URL=storage.googleapis.com
+KOPIA_S3_BUCKET=kopia-backup-test
+KOPIA_S3_KEY="key"
+KOPIA_S3_SECRET="secret"
+
 } # this ensures the entire script is downloaded #
