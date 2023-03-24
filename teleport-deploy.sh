@@ -350,6 +350,7 @@ EOL
   info "Set Caddy service to use JSON config..." && \
     sed -i 's/\/etc\/caddy\/Caddyfile/\/etc\/caddy\/caddy.json/g' /lib/systemd/system/caddy.service && \
     systemctl daemon-reload && \
+    systemctl enable caddy
     systemctl restart caddy
 }
 
@@ -517,6 +518,7 @@ action = iptables-allports
 EOF
 
   info "Restarting fail2ban with new configuration" && \
+    systemctl enable fail2ban && \
     systemctl restart fail2ban && \
     systemctl status fail2ban --no-pager && \
     if ! service_active fail2ban; then
@@ -577,6 +579,7 @@ EOF
 
   info "Starting kopia service..." && \
     systemctl daemon-reload && \
+    systemctl enable kopia && \
     systemctl start kopia && \
     systemctl status kopia --no-pager && \
     if ! service_active kopia; then
