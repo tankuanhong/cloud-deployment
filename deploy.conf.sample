@@ -35,6 +35,8 @@ LE_ENDPOINT=acme-staging-v02.api.letsencrypt.org
 CLOUDFLARE_API_TOKEN=test
 
 # kopia
+KOPIA_WEB_UI="http://127.0.0.1:51515"
+KOPIA_CACHE_PATH=/var/kopia-cache
 KOPIA_REPO_INIT=false
 KOPIA_REPO_PASSWORD=P@ssw0rd123
 KOPIA_CONFIG_PATH=/opt/kopia/repository.config
