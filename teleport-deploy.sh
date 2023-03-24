@@ -544,20 +544,18 @@ configuring_kopia() {
   info "Configuring kopia..." && \
     cat > /etc/systemd/system/kopia.service <<EOF
 [Unit]
-Description=Kopia Server
-Documentation=https://kopia.io/docs/
-Wants=basic.target
+Description=Kopia HTTP Server
+Documentation=https://kopia.io/docs/reference/
 After=basic.target network.target
 
 [Service]
-ExecStart=kopia server start --address 127.0.0.1:51515 --insecure --without-password
-Restart=on-failure
-RestartSec=1
-SuccessExitStatus=3 4
-RestartForceExitStatus=3 4
+ExecStart=/usr/bin/kopia server start --address http://127.0.0.1:51515 --insecure --without-password --cache-directory "/var/kopia-cache"
+ExecStop=/usr/bin/kopia server shutdown
+ExecReload=/usr/bin/kopia server refresh --address http://127.0.0.1:51515
+Restart=always
 
 [Install]
-WantedBy=default.target
+WantedBy=multi-user.target
 EOF
 
   info "Starting kopia service..." && \
