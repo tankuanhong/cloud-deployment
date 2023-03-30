@@ -1,0 +1,48 @@
+#!/bin/bash
+
+{ # this ensures the entire script is downloaded #
+
+# log library
+LOGGER_LEVEL=0
+LOGGER_ERROR_TRACE=0
+LOGGER_STDERR_LEVEL=4
+LOGGER_COLOR=auto
+LOGGER_TARGET=deploy.log
+
+# ssh
+SSH_PORT=59222
+
+# logdna
+LOGDNA_KEY="test"
+
+# caddy
+CADDY_ROOT_DOMAIN=dev.kuanhong.org
+CADDY_SUBDOMAIN=console
+CADDY_ACME_EMAIL=admin@dev.kuanhong.org
+CADDY_BACKEND=${CADDY_SUBDOMAIN}-be.${CADDY_ROOT_DOMAIN}
+
+# teleport
+TELEPORT_CLUSTER=Playground
+TELEPORT_AUTH_PORT=3025
+TELEPORT_PROXY_PORT=3080
+TELEPORT_PUBLIC_ADDR=${CADDY_SUBDOMAIN}.${CADDY_ROOT_DOMAIN}
+
+# letsencrypt endpoint
+LE_ENDPOINT=acme-staging-v02.api.letsencrypt.org
+#LE_ENDPOINT=acme-v02.api.letsencrypt.org
+
+# cloudflare
+CLOUDFLARE_API_TOKEN=test
+
+# kopia
+KOPIA_WEB_UI="http://127.0.0.1:51515"
+KOPIA_CACHE_PATH=/var/kopia-cache
+KOPIA_REPO_INIT=false
+KOPIA_REPO_PASSWORD=P@ssw0rd123
+KOPIA_CONFIG_PATH=/opt/kopia/repository.config
+KOPIA_S3_URL=storage.googleapis.com
+KOPIA_S3_BUCKET=kopia-backup-test
+KOPIA_S3_KEY="key"
+KOPIA_S3_SECRET="secret"
+
+} # this ensures the entire script is downloaded #
