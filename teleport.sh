@@ -4,7 +4,7 @@
 
 # import
 source "${BASH_SOURCE%/*}/shell-logger/shell-logger" || exit
-source "${BASH_SOURCE%/*}/deploy.conf" || exit
+source "${BASH_SOURCE%/*}/teleport.conf" || exit
 
 
 # function to check if command exist
