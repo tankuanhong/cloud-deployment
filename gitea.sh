@@ -188,6 +188,7 @@ EOF
 install_mariadb() {
   info "Installing MariaDB server..." && \
     apt-get -y install mariadb-server && \
+    info "Securing MariaDB installation..." && \
     mysql -u root << EOF
 UPDATE mysql.user SET Password=PASSWORD('$MYSQL_ROOT_PASSWORD') WHERE User='root';
 DELETE FROM mysql.user WHERE user='root' AND host NOT IN ('localhost', '127.0.0.1', '::1');
@@ -195,25 +196,77 @@ DELETE FROM mysql.user WHERE user='';
 DROP DATABASE IF EXISTS test;
 FLUSH PRIVILEGES;
 EOF
+
+  if ! service_active mariadb; then
+    warn "MariaDB service is not running"
+  else
+    info "MariaDB installed and running"
+  fi
+}
+
+configure_mariadb() {
+  info "Preparing database..." && \
+    mysql -u root << EOF
+SET old_passwords=0;
+CREATE USER 'gitea' IDENTIFIED BY 'gitea';
+CREATE DATABASE giteadb CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_unicode_ci';
+GRANT ALL PRIVILEGES ON giteadb.* TO 'gitea';
+FLUSH PRIVILEGES;
+EOF
+
+  if [ "$(mysql -u gitea -p$DB_PASS -e "SHOW DATABASES LIKE 'giteadb';" >/dev/null 2>/dev/null; echo $?)" = '0' ]; then
+    info "Database configured successfully"
+  else
+    warn "Failed to setup database"
+  fi
+}
+
+create_service_account() {
+  info "Creating Gitea service account..." && \
+    adduser --system --shell /bin/bash --gecos 'Gitea' --group --disabled-password --home /home/gitea gitea
+}
+
+configure_ext_volume() {
+  info "Configuring external volume..." && \
+    mkdir /mnt/HC_VOL/repo && \
+    chown gitea:gitea /mnt/HC_VOL/repo && \
+    chmod 755 /mnt/HC_VOL/repo && \
+    ln -s /mnt/HC_VOL/repo /home/gitea/repo
 }
 
 install_gitea() {
   info "Installing Gitea..." && \
-    info "Creating Gitea service account..." && \
-    adduser --system --shell /bin/bash --gecos 'Gitea' --group --disabled-password --home /home/gitea gitea && \
+    info "Installing prerequisites..." && \
+    apt-get -y install git && \
     info "Creating Gitea directories..." && \
     mkdir -p /var/lib/gitea/{custom,data,log} && \
     chown -R gitea:gitea /var/lib/gitea/ && \
     chmod -R 750 /var/lib/gitea/ && \
     mkdir /etc/gitea && \
-    chown root:git /etc/gitea && \
-    chmod 750 /etc/gitea
+    chown root:gitea /etc/gitea && \
+    chmod 750 /etc/gitea && \
     info "Installing Gitea binary..." && \
-    wget -O gitea https://dl.gitea.com/gitea/1.19.0/gitea-1.19.0-linux-amd64 && \
-    wget -O gitea https://dl.gitea.com/gitea/1.19.0/gitea-1.19.0-linux-amd64.sha256 && \
-    echo "$(cat gitea-1.19.0-linux-amd64.sha256)" | sha256sum --check && \
+    wget https://dl.gitea.com/gitea/1.19.0/gitea-1.19.0-linux-amd64 && \
+    wget https://dl.gitea.com/gitea/1.19.0/gitea-1.19.0-linux-amd64.sha256 && \
+    if [ "$(cat gitea-1.19.0-linux-amd64.sha256 | sha256sum --check --status; echo $?)" = '0' ]; then
+      info "Gitea checksum verified"
+    else
+      err "Gitea checksum incorrect"
+      err "Terminating script..."
+      exit 1
+    fi
     mv gitea-1.19.0-linux-amd64 /usr/local/bin/gitea && \
     chmod +x /usr/local/bin/gitea && \
+    if ! command_exist "gitea"; then
+      err "Gitea not found after installation"
+      err "Terminating script..."
+    else
+      info "Gitea installed"
+    fi
+}
+
+configure_gitea() {
+  info "Configuring Gitea..." && \
     info "Installing Gitea service..." && \
     cat > /etc/systemd/system/gitea.service <<EOF
 [Unit]
@@ -237,11 +290,122 @@ Environment=USER=gitea HOME=/home/gitea GITEA_WORK_DIR=/var/lib/gitea
 WantedBy=multi-user.target
 EOF
 
-    if ! command_exist "gitea"; then
-      err "Gitea not found after installation"
-      err "Terminating script..."
+  info "Generating Gitea secrets..." && \
+    GITEA_INT_TOKEN=$(gitea generate secret INTERNAL_TOKEN) && \
+    GITEA_JWT_SECRET=$(gitea generate secret JWT_SECRET) && \
+    GITEA_SECRET_KEY=$(gitea generate secret SECRET_KEY) && \
+    cat > /etc/gitea/app.ini <<EOF
+APP_NAME = Codec
+RUN_USER = gitea
+RUN_MODE = prod
+
+[oauth2]
+JWT_SECRET = $GITEA_JWT_SECRET
+
+[security]
+INTERNAL_TOKEN      = $GITEA_INT_TOKEN
+INSTALL_LOCK        = true
+SECRET_KEY          = $GITEA_SECRET_KEY
+MIN_PASSWORD_LENGTH = 12
+PASSWORD_COMPLEXITY = lower, upper, digit
+
+[database]
+DB_TYPE  = mysql
+HOST     = 127.0.0.1:3306
+NAME     = gitea
+USER     = gitea
+PASSWD   = password
+SSL_MODE = disable
+CHARSET  = utf8mb4
+LOG_SQL  = false
+
+[repository]
+ROOT = /home/gitea/repo
+
+[server]
+SSH_DOMAIN       = git.kuanhong.org
+DOMAIN           = git.kuanhong.org
+HTTP_PORT        = 3000
+ROOT_URL         = https://codec.kuanhong.org/
+DISABLE_SSH      = true
+LFS_START_SERVER = false
+OFFLINE_MODE     = true
+
+[mailer]
+ENABLED        = true
+MAILER_TYPE    = smtp
+HOST           = email-smtp.ap-southeast-1.amazonaws.com:587
+IS_TLS_ENABLED = false
+FROM           = gitea-noreply@kuanhong.org
+USER           = 
+PASSWD         = 
+SUBJECT_PREFIX = [Gitea] 
+
+[service]
+REGISTER_EMAIL_CONFIRM            = false
+REGISTER_MANUAL_CONFIRM           = true
+ENABLE_NOTIFY_MAIL                = false
+DISABLE_REGISTRATION              = true
+ALLOW_ONLY_EXTERNAL_REGISTRATION  = false
+ENABLE_CAPTCHA                    = false
+REQUIRE_SIGNIN_VIEW               = true
+DEFAULT_KEEP_EMAIL_PRIVATE        = false
+DEFAULT_ALLOW_CREATE_ORGANIZATION = true
+DEFAULT_ENABLE_TIMETRACKING       = true
+ENABLE_BASIC_AUTHENTICATION       = false
+NO_REPLY_ADDRESS                  = codec.kuanhong.org
+
+[api]
+ENABLE_SWAGGER = false
+
+[picture]
+DISABLE_GRAVATAR        = true
+ENABLE_FEDERATED_AVATAR = false
+
+[openid]
+ENABLE_OPENID_SIGNIN = false
+ENABLE_OPENID_SIGNUP = false
+
+[session]
+PROVIDER = file
+
+[log]
+ROOT_PATH            = /var/lib/gitea/log
+MODE                 = console,file
+LEVEL                = info
+REDIRECT_MACARON_LOG = true
+MACARON              = console,file
+ROUTER               = console,file
+ENABLE_ACCESS_LOG    = true
+ACCESS               = file
+
+[log.console]
+COLORIZE = false
+
+[log.file]
+LOG_ROTATE     = true
+MAX_SIZE_SHIFT = 28
+DAILY_ROTATE   = true
+MAX_DAYS       = 90
+COMPRESS       = true
+
+[other]
+SHOW_FOOTER_VERSION            = false
+SHOW_FOOTER_TEMPLATE_LOAD_TIME = false
+EOF
+
+  info "Protecting Gitea configuration file ..." && \
+    chown root:gitea /etc/gitea/app.ini && \
+    chmod 640 /etc/gitea/app.ini && \
+    info "Starting Gitea service ..." && \
+    systemctl daemon-reload && \
+    systemctl enable gitea && \
+    systemctl start gitea && \
+    systemctl status gitea --no-pager && \
+    if ! service_active gitea; then
+      warn "Gitea service is not running"
     else
-      info "Gitea installed"
+      info "Gitea configured and started"
     fi
 }
 
@@ -395,124 +559,6 @@ EOL
     systemctl daemon-reload && \
     systemctl enable caddy
     systemctl restart caddy
-}
-
-configure_teleport() {
-  info "Configuring Teleport..." && \
-    cat > /etc/teleport.yaml <<EOF
-# By default, this file should be stored in /etc/teleport.yaml
-
-# Configuration file version. The current version is "v3".
-version: v3
-
-# This section of the configuration file applies to all teleport services
-teleport:
-  data_dir: /var/lib/teleport
-  diag_addr: "127.0.0.1:3000"
-  connection_limits:
-    max_connections: 1000
-    max_users: 250
-  log:
-    output: stderr
-    severity: INFO
-    format:
-      output: text
-  storage:
-    type: sqlite
-  ciphers:
-    - aes128-ctr
-    - aes192-ctr
-    - aes256-ctr
-    - aes128-gcm@openssh.com
-    - chacha20-poly1305@openssh.com
-  kex_algos:
-    - curve25519-sha256
-    - curve25519-sha256@libssh.org
-    - diffie-hellman-group14-sha256
-  mac_algos:
-    - hmac-sha2-256-etm@openssh.com
-  ciphersuites:
-    - tls-ecdhe-rsa-with-aes-128-gcm-sha256
-    - tls-ecdhe-ecdsa-with-aes-128-gcm-sha256
-    - tls-ecdhe-rsa-with-aes-256-gcm-sha384
-    - tls-ecdhe-ecdsa-with-aes-256-gcm-sha384
-    - tls-ecdhe-rsa-with-chacha20-poly1305
-    - tls-ecdhe-ecdsa-with-chacha20-poly1305
-
-# This section configures the 'auth service'
-auth_service:
-  enabled: "yes"
-  cluster_name: ${TELEPORT_CLUSTER}
-  proxy_protocol: "on"
-  authentication:
-    type: local
-    second_factor: otp
-  listen_addr: 0.0.0.0:${TELEPORT_AUTH_PORT}
-  session_recording: "node-sync"
-  proxy_checks_host_keys: "yes"
-  client_idle_timeout: never
-  client_idle_timeout_message: ""
-  web_idle_timeout: 10m
-  disconnect_expired_cert: "no"
-  keep_alive_interval: 5m
-  keep_alive_count_max: 3
-  message_of_the_day: ""
-  proxy_listener_mode: multiplex
-
-# This section configures the 'node service'
-ssh_service:
-  enabled: "yes"
-  listen_addr: 0.0.0.0:3022
-  commands:
-  - name: hostname
-    command: [hostname]
-    period: 1m0s
-
-# This section configures the 'proxy service'
-proxy_service:
-  enabled: "yes"
-  web_listen_addr: 0.0.0.0:${TELEPORT_PROXY_PORT}
-  public_addr: ${TELEPORT_PUBLIC_ADDR}:443
-  https_keypairs:
-  - key_file: /var/lib/caddy/.local/share/caddy/certificates/${LE_ENDPOINT}-directory/wildcard_.${CADDY_ROOT_DOMAIN}/wildcard_.${CADDY_ROOT_DOMAIN}.key
-    cert_file: /var/lib/caddy/.local/share/caddy/certificates/${LE_ENDPOINT}-directory/wildcard_.${CADDY_ROOT_DOMAIN}/wildcard_.${CADDY_ROOT_DOMAIN}.crt
-  https_keypairs_reload_interval: 1h
-  acme: {}
-
-# This section configures the 'application service'
-app_service:
-  enabled: "no"
-
-# This section configures the 'kubernetes service'
-kubernetes_service:
-  enabled: "no"
-
-# This section configures the 'discovery service'
-discovery_service:
-  enabled: "no"
-
-# This section configures the 'database service'
-db_service:
-  enabled: "no"
-
-# This section configures the windows desktop service
-windows_desktop_service:
-  enabled: "no"
-EOF
-
-  info "Sleep 1 minute for Caddy certificate request..." && \
-    sleep 60 && \
-    info "Wake after 1 minute"
-
-  info "Starting Teleport..." && \
-    systemctl enable teleport && \
-    systemctl start teleport && \
-    systemctl status teleport --no-pager && \
-    if ! service_active teleport; then
-      warn "Teleport service is not running"
-    else
-      info "Teleport configured and started"
-    fi
 }
 
 install_fail2ban() {
