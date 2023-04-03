@@ -209,13 +209,13 @@ configure_mariadb() {
   info "Preparing database..." && \
     mysql -u root << EOF
 SET old_passwords=0;
-CREATE USER 'gitea' IDENTIFIED BY 'gitea';
-CREATE DATABASE giteadb CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_unicode_ci';
-GRANT ALL PRIVILEGES ON giteadb.* TO 'gitea';
+CREATE USER '$MYSQL_GITEA_USER' IDENTIFIED BY '$MYSQL_GITEA_PASSWORD';
+CREATE DATABASE $MYSQL_GITEA_DB CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_unicode_ci';
+GRANT ALL PRIVILEGES ON $MYSQL_GITEA_DB.* TO '$MYSQL_GITEA_USER';
 FLUSH PRIVILEGES;
 EOF
 
-  if [ "$(mysql -u gitea -p$DB_PASS -e "SHOW DATABASES LIKE 'giteadb';" >/dev/null 2>/dev/null; echo $?)" = '0' ]; then
+  if [ "$(mysql -u $MYSQL_GITEA_USER -p$MYSQL_GITEA_PASSWORD -e "SHOW DATABASES LIKE '$MYSQL_GITEA_DB';" >/dev/null 2>/dev/null; echo $?)" = '0' ]; then
     info "Database configured successfully"
   else
     warn "Failed to setup database"
@@ -224,15 +224,15 @@ EOF
 
 create_service_account() {
   info "Creating Gitea service account..." && \
-    adduser --system --shell /bin/bash --gecos 'Gitea' --group --disabled-password --home /home/gitea gitea
+    adduser --system --shell /bin/bash --gecos 'Gitea' --group --disabled-password --home /home/$GITEA_SERVICE_ACCOUNT $GITEA_SERVICE_ACCOUNT
 }
 
 configure_ext_volume() {
   info "Configuring external volume..." && \
-    mkdir /mnt/HC_VOL/repo && \
-    chown gitea:gitea /mnt/HC_VOL/repo && \
-    chmod 755 /mnt/HC_VOL/repo && \
-    ln -s /mnt/HC_VOL/repo /home/gitea/repo
+    mkdir $GITEA_REPO_VOL && \
+    chown gitea:gitea $GITEA_REPO_VOL && \
+    chmod 755 $GITEA_REPO_VOL && \
+    ln -s $GITEA_REPO_VOL $GITEA_REPO_PATH
 }
 
 install_gitea() {
@@ -247,16 +247,17 @@ install_gitea() {
     chown root:gitea /etc/gitea && \
     chmod 750 /etc/gitea && \
     info "Installing Gitea binary..." && \
-    wget https://dl.gitea.com/gitea/1.19.0/gitea-1.19.0-linux-amd64 && \
-    wget https://dl.gitea.com/gitea/1.19.0/gitea-1.19.0-linux-amd64.sha256 && \
-    if [ "$(cat gitea-1.19.0-linux-amd64.sha256 | sha256sum --check --status; echo $?)" = '0' ]; then
+    wget $GITEA_BINARY_URL && \
+    wget $GITEA_BINARY_URL.sha256 && \
+    if [ "$(cat gitea*.sha256 | sha256sum --check --status; echo $?)" = '0' ]; then
       info "Gitea checksum verified"
+      rm -f gitea*.sha256
     else
       err "Gitea checksum incorrect"
       err "Terminating script..."
       exit 1
     fi
-    mv gitea-1.19.0-linux-amd64 /usr/local/bin/gitea && \
+    mv gitea* /usr/local/bin/gitea && \
     chmod +x /usr/local/bin/gitea && \
     if ! command_exist "gitea"; then
       err "Gitea not found after installation"
@@ -280,12 +281,12 @@ After=network.target
 # LimitNOFILE=524288:524288
 RestartSec=2s
 Type=simple
-User=gitea
-Group=gitea
+User=$GITEA_SERVICE_ACCOUNT
+Group=$GITEA_SERVICE_ACCOUNT
 WorkingDirectory=/var/lib/gitea/
 ExecStart=/usr/local/bin/gitea web --config /etc/gitea/app.ini
 Restart=always
-Environment=USER=gitea HOME=/home/gitea GITEA_WORK_DIR=/var/lib/gitea
+Environment=USER=$GITEA_SERVICE_ACCOUNT HOME=/home/$GITEA_SERVICE_ACCOUNT GITEA_WORK_DIR=/var/lib/gitea
 
 [Install]
 WantedBy=multi-user.target
@@ -296,8 +297,8 @@ EOF
     GITEA_JWT_SECRET=$(gitea generate secret JWT_SECRET) && \
     GITEA_SECRET_KEY=$(gitea generate secret SECRET_KEY) && \
     cat > /etc/gitea/app.ini <<EOF
-APP_NAME = Codec
-RUN_USER = gitea
+APP_NAME = $GITEA_SITE_NAME
+RUN_USER = $GITEA_SERVICE_ACCOUNT
 RUN_MODE = prod
 
 [oauth2]
@@ -314,20 +315,20 @@ PASSWORD_COMPLEXITY = lower, upper, digit
 DB_TYPE  = mysql
 HOST     = 127.0.0.1:3306
 NAME     = gitea
-USER     = gitea
-PASSWD   = password
+USER     = $MYSQL_GITEA_USER
+PASSWD   = $MYSQL_GITEA_PASSWORD
 SSL_MODE = disable
 CHARSET  = utf8mb4
 LOG_SQL  = false
 
 [repository]
-ROOT = /home/gitea/repo
+ROOT = $GITEA_REPO_PATH
 
 [server]
-SSH_DOMAIN       = git.kuanhong.org
-DOMAIN           = git.kuanhong.org
-HTTP_PORT        = 3000
-ROOT_URL         = https://codec.kuanhong.org/
+SSH_DOMAIN       = $GITEA_DOMAIN
+DOMAIN           = $GITEA_DOMAIN
+HTTP_PORT        = $GITEA_PORT
+ROOT_URL         = https://$GITEA_DOMAIN/
 DISABLE_SSH      = true
 LFS_START_SERVER = false
 OFFLINE_MODE     = true
@@ -335,12 +336,12 @@ OFFLINE_MODE     = true
 [mailer]
 ENABLED        = true
 MAILER_TYPE    = smtp
-HOST           = email-smtp.ap-southeast-1.amazonaws.com:587
+HOST           = $GITEA_SMTP_HOST
 IS_TLS_ENABLED = false
-FROM           = gitea-noreply@kuanhong.org
-USER           = 
-PASSWD         = 
-SUBJECT_PREFIX = [Gitea] 
+FROM           = $GITEA_SMTP_FROM
+USER           = $GITEA_SMTP_USER
+PASSWD         = $GITEA_SMTP_PASS
+SUBJECT_PREFIX = $GITEA_SMTP_SUBJECT_PREFIX
 
 [service]
 REGISTER_EMAIL_CONFIRM            = false
@@ -354,14 +355,14 @@ DEFAULT_KEEP_EMAIL_PRIVATE        = false
 DEFAULT_ALLOW_CREATE_ORGANIZATION = true
 DEFAULT_ENABLE_TIMETRACKING       = true
 ENABLE_BASIC_AUTHENTICATION       = false
-NO_REPLY_ADDRESS                  = codec.kuanhong.org
+NO_REPLY_ADDRESS                  = $GITEA_NOREPLY_ADD
 
 [api]
-ENABLE_SWAGGER = false
+ENABLE_SWAGGER = $GITEA_SWAGGER
 
 [picture]
-DISABLE_GRAVATAR        = true
-ENABLE_FEDERATED_AVATAR = false
+DISABLE_GRAVATAR        = $GITEA_DISABLE_GRAVATAR
+ENABLE_FEDERATED_AVATAR = $GITEA_ENABLE_LIBRAVATAR
 
 [openid]
 ENABLE_OPENID_SIGNIN = false
@@ -396,7 +397,7 @@ SHOW_FOOTER_TEMPLATE_LOAD_TIME = false
 EOF
 
   info "Protecting Gitea configuration file ..." && \
-    chown root:gitea /etc/gitea/app.ini && \
+    chown root:$GITEA_SERVICE_ACCOUNT /etc/gitea/app.ini && \
     chmod 640 /etc/gitea/app.ini && \
     info "Starting Gitea service ..." && \
     systemctl daemon-reload && \
