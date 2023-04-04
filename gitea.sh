@@ -316,7 +316,7 @@ PASSWORD_COMPLEXITY = lower, upper, digit
 [database]
 DB_TYPE  = mysql
 HOST     = 127.0.0.1:3306
-NAME     = gitea
+NAME     = $MYSQL_GITEA_DB
 USER     = $MYSQL_GITEA_USER
 PASSWD   = $MYSQL_GITEA_PASSWORD
 SSL_MODE = disable
@@ -477,13 +477,16 @@ configure_caddy() {
         },
         "level": "DEBUG",
         "include": [
-            "http.log.access"
+            "http.log.access",
+            "layer4",
+            "layer4.handlers.proxy",
+            "layer4.matchers.tls"
         ]
       }
     }
   },
   "apps": {
-    "http": {
+    "layer4": {
       "servers": {
         "srv0": {
           "listen": [
@@ -493,71 +496,37 @@ configure_caddy() {
             {
               "match": [
                 {
-                  "host": [
-                    "${GITEA_DOMAIN}"
-                  ]
+                  "tls": {
+                    "sni": [
+                      "${GITEA_DOMAIN}"
+                    ]
+                  }
                 }
               ],
               "handle": [
                 {
-                  "handler": "subroute",
-                  "routes": [
+                  "handler": "tls",
+                  "connection_policies": [
                     {
-                      "handle": [
-                        {
-                          "handler": "headers",
-                          "response": {
-                            "deferred": true,
-                            "delete": [
-                              "Server"
-                            ],
-                            "set": {
-                              "Content-Security-Policy": [
-                                "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src * data:; font-src 'self' data:; worker-src 'self'"
-                              ],
-                              "Referrer-Policy": [
-                                "no-referrer-when-downgrade"
-                              ],
-                              "Strict-Transport-Security": [
-                                "max-age=31536000;"
-                              ],
-                              "X-Content-Type-Options": [
-                                "nosniff"
-                              ],
-                              "X-Xss-Protection": [
-                                "1; mode=block"
-                              ]
-                            }
-                          }
-                        },
-                        {
-                          "handler": "reverse_proxy",
-                          "upstreams": [
-                            {
-                              "dial": "localhost:3000"
-                            }
-                          ]
-                        }
+                      "alpn": [
+                        "http/1.1"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "handler": "proxy",
+                  "upstreams": [
+                    {
+                      "dial": [
+                        "localhost:3000"
                       ]
                     }
                   ]
                 }
-              ],
-              "terminal": true
+              ]
             }
-          ],
-          "tls_connection_policies": [
-            {
-              "match": {
-                "sni": [
-                  "*.${CADDY_ROOT_DOMAIN}"
-                ]
-              }
-            }
-          ],
-          "automatic_https": {
-            "disable": true
-          }
+          ]
         }
       }
     },
