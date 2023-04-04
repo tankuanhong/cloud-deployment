@@ -2,6 +2,19 @@
 
 { # this ensures the entire script is downloaded #
 
+# caddy
+CADDY_ROOT_DOMAIN=dev.kuanhong.org
+CADDY_SUBDOMAIN=git
+CADDY_ACME_EMAIL=admin@dev.kuanhong.org
+CADDY_BACKEND=${CADDY_SUBDOMAIN}-be.${CADDY_ROOT_DOMAIN}
+
+# letsencrypt endpoint
+LE_ENDPOINT=acme-staging-v02.api.letsencrypt.org
+#LE_ENDPOINT=acme-v02.api.letsencrypt.org
+
+# cloudflare
+CLOUDFLARE_API_TOKEN=test
+
 # mysql
 MYSQL_ROOT_PASSWORD='password'
 MYSQL_GITEA_USER='gitea'
@@ -14,7 +27,7 @@ GITEA_REPO_VOL='/mnt/HC_VOL/repo'
 GITEA_REPO_PATH='/home/gitea/repo'
 GITEA_BINARY_URL='https://dl.gitea.com/gitea/1.19.0/gitea-1.19.0-linux-amd64'
 GITEA_SITE_NAME='Codec'
-GITEA_DOMAIN='git.dev.kuanhong.org'
+GITEA_DOMAIN=${CADDY_SUBDOMAIN}.${CADDY_ROOT_DOMAIN}
 GITEA_PORT='3000'
 
 # gitea smtp
@@ -25,7 +38,7 @@ GITEA_SMTP_PASS=''
 GITEA_SMTP_SUBJECT_PREFIX='[Gitea] '
 
 # gitea features
-GITEA_NOREPLY_ADD='git.dev.kuanhong.org'
+GITEA_NOREPLY_ADD=${CADDY_SUBDOMAIN}.${CADDY_ROOT_DOMAIN}
 GITEA_SWAGGER='false'
 GITEA_DISABLE_GRAVATAR='true'
 GITEA_ENABLE_LIBRAVATAR='false'

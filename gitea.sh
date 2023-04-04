@@ -496,7 +496,7 @@ configure_caddy() {
                 {
                   "tls": {
                     "sni": [
-                      "${TELEPORT_PUBLIC_ADDR}"
+                      "${GITEA_DOMAIN}"
                     ]
                   }
                 }
@@ -507,7 +507,7 @@ configure_caddy() {
                   "upstreams": [
                     {
                       "dial": [
-                        "${CADDY_BACKEND}:3080"
+                        "${CADDY_BACKEND}:3000"
                       ]
                     }
                   ]
@@ -696,15 +696,14 @@ main() {
   setup_ntp
   harden_sshd
   configure_remote_syslog
-  install_teleport
+  install_mariadb
+  configure_mariadb
+  create_service_account
+  configure_ext_volume
+  install_gitea
+  configure_gitea
   install_caddy
   configure_caddy
-  configure_teleport
-  install_fail2ban
-  configure_fail2ban
-  install_kopia
-  configuring_kopia
-  install_cron
 }
 
 main
