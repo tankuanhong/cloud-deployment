@@ -249,16 +249,18 @@ install_gitea() {
     info "Installing Gitea binary..." && \
     wget $GITEA_BINARY_URL && \
     wget $GITEA_BINARY_URL.sha256 && \
-    if [ "$(cat gitea*.sha256 | sha256sum --check --status; echo $?)" = '0' ]; then
+    if [ "$(cat gitea-*.sha256 | sha256sum --check --status; echo $?)" = '0' ]; then
       info "Gitea checksum verified"
-      rm -f gitea*.sha256
+      rm -f gitea-*.sha256
     else
       err "Gitea checksum incorrect"
       err "Terminating script..."
       exit 1
     fi
-    mv gitea* /usr/local/bin/gitea && \
-    chmod +x /usr/local/bin/gitea && \
+    
+    mv gitea-* /usr/local/bin/gitea && \
+    chmod +x /usr/local/bin/gitea
+
     if ! command_exist "gitea"; then
       err "Gitea not found after installation"
       err "Terminating script..."
