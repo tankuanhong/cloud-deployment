@@ -6,7 +6,6 @@
 CADDY_ROOT_DOMAIN=dev.kuanhong.org
 CADDY_SUBDOMAIN=git
 CADDY_ACME_EMAIL=admin@dev.kuanhong.org
-CADDY_BACKEND=${CADDY_SUBDOMAIN}-be.${CADDY_ROOT_DOMAIN}
 
 # letsencrypt endpoint
 LE_ENDPOINT=acme-staging-v02.api.letsencrypt.org

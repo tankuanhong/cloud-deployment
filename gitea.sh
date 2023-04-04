@@ -257,7 +257,7 @@ install_gitea() {
       err "Terminating script..."
       exit 1
     fi
-    
+
     mv gitea-* /usr/local/bin/gitea && \
     chmod +x /usr/local/bin/gitea
 
@@ -432,7 +432,7 @@ install_caddy() {
     mkdir -p /var/log/caddy && \
     mkdir -p /var/lib/caddy && \
     info "Copying caddy binary..." && \
-    cp caddy/linux/2.6.4/caddy-cloudflare-layer4-l4tls-l4proxy-security /usr/bin/caddy && \
+    cp caddy/linux/2.6.4/caddy-cloudflare /usr/bin/caddy && \
     chmod +x /usr/bin/caddy && \
     info "Setting permissions..." && \
     chown caddy:caddy /usr/bin/caddy && \
@@ -477,16 +477,13 @@ configure_caddy() {
         },
         "level": "DEBUG",
         "include": [
-            "http.log.access",
-            "layer4",
-            "layer4.handlers.proxy",
-            "layer4.matchers.tls"
+            "http.log.access"
         ]
       }
     }
   },
   "apps": {
-    "layer4": {
+    "http": {
       "servers": {
         "srv0": {
           "listen": [
@@ -496,27 +493,71 @@ configure_caddy() {
             {
               "match": [
                 {
-                  "tls": {
-                    "sni": [
-                      "${GITEA_DOMAIN}"
-                    ]
-                  }
+                  "host": [
+                    "${GITEA_DOMAIN}"
+                  ]
                 }
               ],
               "handle": [
                 {
-                  "handler": "proxy",
-                  "upstreams": [
+                  "handler": "subroute",
+                  "routes": [
                     {
-                      "dial": [
-                        "${CADDY_BACKEND}:3000"
+                      "handle": [
+                        {
+                          "handler": "headers",
+                          "response": {
+                            "deferred": true,
+                            "delete": [
+                              "Server"
+                            ],
+                            "set": {
+                              "Content-Security-Policy": [
+                                "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src * data:; font-src 'self' data:; worker-src 'self'"
+                              ],
+                              "Referrer-Policy": [
+                                "no-referrer-when-downgrade"
+                              ],
+                              "Strict-Transport-Security": [
+                                "max-age=31536000;"
+                              ],
+                              "X-Content-Type-Options": [
+                                "nosniff"
+                              ],
+                              "X-Xss-Protection": [
+                                "1; mode=block"
+                              ]
+                            }
+                          }
+                        },
+                        {
+                          "handler": "reverse_proxy",
+                          "upstreams": [
+                            {
+                              "dial": "localhost:3000"
+                            }
+                          ]
+                        }
                       ]
                     }
                   ]
                 }
-              ]
+              ],
+              "terminal": true
             }
-          ]
+          ],
+          "tls_connection_policies": [
+            {
+              "match": {
+                "sni": [
+                  "*.${CADDY_ROOT_DOMAIN}"
+                ]
+              }
+            }
+          ],
+          "automatic_https": {
+            "disable": true
+          }
         }
       }
     },
@@ -554,9 +595,6 @@ configure_caddy() {
   }
 }
 EOL
-
-  info "Add Caddy backend to hosts file..." && \
-    echo "127.0.0.1 ${CADDY_BACKEND}" | sudo tee -a /etc/hosts
 
   info "Set Caddy service to use JSON config..." && \
     sed -i 's/\/etc\/caddy\/Caddyfile/\/etc\/caddy\/caddy.json/g' /lib/systemd/system/caddy.service && \
