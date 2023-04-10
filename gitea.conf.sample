@@ -42,6 +42,8 @@ GITEA_SWAGGER='false'
 GITEA_DISABLE_GRAVATAR='true'
 GITEA_ENABLE_LIBRAVATAR='false'
 
-
+# gitea admin user
+GITEA_ADMIN_USERNAME='administrator'
+GITEA_ADMIN_EMAIL='admin@dev.kuanhong.org'
 
 } # this ensures the entire script is downloaded #

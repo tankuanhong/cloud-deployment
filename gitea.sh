@@ -400,8 +400,15 @@ EOF
 
   info "Protecting Gitea configuration file ..." && \
     chown root:$GITEA_SERVICE_ACCOUNT /etc/gitea/app.ini && \
-    chmod 640 /etc/gitea/app.ini && \
-    info "Starting Gitea service ..." && \
+    chmod 640 /etc/gitea/app.ini
+
+  info "Customizing Gitea..." && \
+    mkdir -p /var/lib/gitea/custom/templates/custom && \
+    cat > /var/lib/gitea/custom/templates/custom/header.tmpl <<EOF
+<meta name='robots' content='noindex,nofollow' />
+EOF
+
+  info "Starting Gitea service ..." && \
     systemctl daemon-reload && \
     systemctl enable gitea && \
     systemctl start gitea && \
@@ -700,6 +707,11 @@ install_cron() {
   else
     warn "Failed to install cron jobs"
   fi
+}
+
+create_gitea_admin() {
+  info "Creating administrative user" && \
+    su ${GITEA_SERVICE_ACCOUNT} -c "export GITEA_WORK_DIR=/var/lib/gitea && gitea admin user create --username ${GITEA_ADMIN_USERNAME} --random-password --random-password-length 48 --email ${GITEA_ADMIN_EMAIL} --admin -config /etc/gitea/app.ini"
 }
 
 main() {
