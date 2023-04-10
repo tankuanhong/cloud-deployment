@@ -729,6 +729,7 @@ main() {
   configure_gitea
   install_caddy
   configure_caddy
+  create_gitea_admin
 }
 
 main
