@@ -2,19 +2,6 @@
 
 { # this ensures the entire script is downloaded #
 
-# log library
-LOGGER_LEVEL=0
-LOGGER_ERROR_TRACE=0
-LOGGER_STDERR_LEVEL=4
-LOGGER_COLOR=auto
-LOGGER_TARGET=deploy.log
-
-# ssh
-SSH_PORT=59222
-
-# logdna
-LOGDNA_KEY="test"
-
 # caddy
 CADDY_ROOT_DOMAIN=dev.kuanhong.org
 CADDY_SUBDOMAIN=console

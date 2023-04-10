@@ -4,6 +4,7 @@
 
 # import
 source "${BASH_SOURCE%/*}/shell-logger/shell-logger" || exit
+source "${BASH_SOURCE%/*}/common.conf" || exit
 source "${BASH_SOURCE%/*}/teleport.conf" || exit
 
 
