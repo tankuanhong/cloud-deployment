@@ -480,7 +480,11 @@ configure_caddy() {
             "http.log.access",
             "layer4",
             "layer4.handlers.proxy",
-            "layer4.matchers.tls"
+            "layer4.handlers.tls",
+            "layer4.matchers.tls",
+            "tls",
+            "tls.certificates.automate",
+            "tls.issuance.acme"
         ]
       }
     }
