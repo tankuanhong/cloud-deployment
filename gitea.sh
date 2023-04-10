@@ -150,7 +150,7 @@ template(name="LogDNAFormat" type="list") {
     property(name="procid")
     constant(value=" ")
     property(name="msgid")
-    constant(value=" [logdna@48950 key=\"$LOGDNA_KEY\"] ")
+    constant(value=" [logdna@48950 key=\"${LOGDNA_KEY}\"] ")
     property(name="msg")
 }
 
@@ -191,7 +191,7 @@ install_mariadb() {
     apt-get -y install mariadb-server && \
     info "Securing MariaDB installation..." && \
     mysql -u root << EOF
-UPDATE mysql.user SET Password=PASSWORD('$MYSQL_ROOT_PASSWORD') WHERE User='root';
+UPDATE mysql.user SET Password=PASSWORD('${MYSQL_ROOT_PASSWORD}') WHERE User='root';
 DELETE FROM mysql.user WHERE user='root' AND host NOT IN ('localhost', '127.0.0.1', '::1');
 DELETE FROM mysql.user WHERE user='';
 DROP DATABASE IF EXISTS test;
@@ -209,13 +209,13 @@ configure_mariadb() {
   info "Preparing database..." && \
     mysql -u root << EOF
 SET old_passwords=0;
-CREATE USER '$MYSQL_GITEA_USER' IDENTIFIED BY '$MYSQL_GITEA_PASSWORD';
-CREATE DATABASE $MYSQL_GITEA_DB CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_unicode_ci';
-GRANT ALL PRIVILEGES ON $MYSQL_GITEA_DB.* TO '$MYSQL_GITEA_USER';
+CREATE USER '${MYSQL_GITEA_USER}' IDENTIFIED BY '${MYSQL_GITEA_PASSWORD}';
+CREATE DATABASE ${MYSQL_GITEA_DB} CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_unicode_ci';
+GRANT ALL PRIVILEGES ON ${MYSQL_GITEA_DB}.* TO '${MYSQL_GITEA_USER}';
 FLUSH PRIVILEGES;
 EOF
 
-  if [ "$(mysql -u $MYSQL_GITEA_USER -p$MYSQL_GITEA_PASSWORD -e "SHOW DATABASES LIKE '$MYSQL_GITEA_DB';" >/dev/null 2>/dev/null; echo $?)" = '0' ]; then
+  if [ "$(mysql -u ${MYSQL_GITEA_USER} -p${MYSQL_GITEA_PASSWORD} -e "SHOW DATABASES LIKE '${MYSQL_GITEA_DB}';" >/dev/null 2>/dev/null; echo $?)" = '0' ]; then
     info "Database configured successfully"
   else
     warn "Failed to setup database"
@@ -224,15 +224,15 @@ EOF
 
 create_service_account() {
   info "Creating Gitea service account..." && \
-    adduser --system --shell /bin/bash --gecos 'Gitea' --group --disabled-password --home /home/$GITEA_SERVICE_ACCOUNT $GITEA_SERVICE_ACCOUNT
+    adduser --system --shell /bin/bash --gecos 'Gitea' --group --disabled-password --home /home/${GITEA_SERVICE_ACCOUNT} ${GITEA_SERVICE_ACCOUNT}
 }
 
 configure_ext_volume() {
   info "Configuring external volume..." && \
-    mkdir $GITEA_REPO_VOL && \
-    chown gitea:gitea $GITEA_REPO_VOL && \
-    chmod 755 $GITEA_REPO_VOL && \
-    ln -s $GITEA_REPO_VOL $GITEA_REPO_PATH
+    mkdir ${GITEA_REPO_VOL} && \
+    chown gitea:gitea ${GITEA_REPO_VOL} && \
+    chmod 755 ${GITEA_REPO_VOL} && \
+    ln -s ${GITEA_REPO_VOL} ${GITEA_REPO_PATH}
 }
 
 install_gitea() {
@@ -247,8 +247,8 @@ install_gitea() {
     chown root:gitea /etc/gitea && \
     chmod 750 /etc/gitea && \
     info "Installing Gitea binary..." && \
-    wget $GITEA_BINARY_URL && \
-    wget $GITEA_BINARY_URL.sha256 && \
+    wget ${GITEA_BINARY_URL} && \
+    wget ${GITEA_BINARY_URL}.sha256 && \
     if [ "$(cat gitea-*.sha256 | sha256sum --check --status; echo $?)" = '0' ]; then
       info "Gitea checksum verified"
       rm -f gitea-*.sha256
@@ -283,12 +283,12 @@ After=network.target
 # LimitNOFILE=524288:524288
 RestartSec=2s
 Type=simple
-User=$GITEA_SERVICE_ACCOUNT
-Group=$GITEA_SERVICE_ACCOUNT
+User=${GITEA_SERVICE_ACCOUNT}
+Group=${GITEA_SERVICE_ACCOUNT}
 WorkingDirectory=/var/lib/gitea/
 ExecStart=/usr/local/bin/gitea web --config /etc/gitea/app.ini
 Restart=always
-Environment=USER=$GITEA_SERVICE_ACCOUNT HOME=/home/$GITEA_SERVICE_ACCOUNT GITEA_WORK_DIR=/var/lib/gitea
+Environment=USER=${GITEA_SERVICE_ACCOUNT} HOME=/home/${GITEA_SERVICE_ACCOUNT} GITEA_WORK_DIR=/var/lib/gitea
 
 [Install]
 WantedBy=multi-user.target
@@ -299,26 +299,26 @@ EOF
     GITEA_JWT_SECRET=$(gitea generate secret JWT_SECRET) && \
     GITEA_SECRET_KEY=$(gitea generate secret SECRET_KEY) && \
     cat > /etc/gitea/app.ini <<EOF
-APP_NAME = $GITEA_SITE_NAME
-RUN_USER = $GITEA_SERVICE_ACCOUNT
+APP_NAME = ${GITEA_SITE_NAME}
+RUN_USER = ${GITEA_SERVICE_ACCOUNT}
 RUN_MODE = prod
 
 [oauth2]
-JWT_SECRET = $GITEA_JWT_SECRET
+JWT_SECRET = ${GITEA_JWT_SECRET}
 
 [security]
-INTERNAL_TOKEN      = $GITEA_INT_TOKEN
+INTERNAL_TOKEN      = ${GITEA_INT_TOKEN}
 INSTALL_LOCK        = true
-SECRET_KEY          = $GITEA_SECRET_KEY
+SECRET_KEY          = ${GITEA_SECRET_KEY}
 MIN_PASSWORD_LENGTH = 12
 PASSWORD_COMPLEXITY = lower, upper, digit
 
 [database]
 DB_TYPE  = mysql
 HOST     = 127.0.0.1:3306
-NAME     = $MYSQL_GITEA_DB
-USER     = $MYSQL_GITEA_USER
-PASSWD   = $MYSQL_GITEA_PASSWORD
+NAME     = ${MYSQL_GITEA_DB}
+USER     = ${MYSQL_GITEA_USER}
+PASSWD   = ${MYSQL_GITEA_PASSWORD}
 SSL_MODE = disable
 CHARSET  = utf8mb4
 LOG_SQL  = false
@@ -327,10 +327,10 @@ LOG_SQL  = false
 ROOT = $GITEA_REPO_PATH
 
 [server]
-SSH_DOMAIN       = $GITEA_DOMAIN
-DOMAIN           = $GITEA_DOMAIN
-HTTP_PORT        = $GITEA_PORT
-ROOT_URL         = https://$GITEA_DOMAIN/
+SSH_DOMAIN       = ${GITEA_DOMAIN}
+DOMAIN           = ${GITEA_DOMAIN}
+HTTP_PORT        = ${GITEA_PORT}
+ROOT_URL         = https://${GITEA_DOMAIN}/
 DISABLE_SSH      = true
 LFS_START_SERVER = false
 OFFLINE_MODE     = true
@@ -338,12 +338,12 @@ OFFLINE_MODE     = true
 [mailer]
 ENABLED        = true
 MAILER_TYPE    = smtp
-HOST           = $GITEA_SMTP_HOST
+HOST           = ${GITEA_SMTP_HOST}
 IS_TLS_ENABLED = false
-FROM           = $GITEA_SMTP_FROM
-USER           = $GITEA_SMTP_USER
-PASSWD         = $GITEA_SMTP_PASS
-SUBJECT_PREFIX = $GITEA_SMTP_SUBJECT_PREFIX
+FROM           = ${GITEA_SMTP_FROM}
+USER           = ${GITEA_SMTP_USER}
+PASSWD         = ${GITEA_SMTP_PASS}
+SUBJECT_PREFIX = ${GITEA_SMTP_SUBJECT_PREFIX}
 
 [service]
 REGISTER_EMAIL_CONFIRM            = false
@@ -357,14 +357,14 @@ DEFAULT_KEEP_EMAIL_PRIVATE        = false
 DEFAULT_ALLOW_CREATE_ORGANIZATION = true
 DEFAULT_ENABLE_TIMETRACKING       = true
 ENABLE_BASIC_AUTHENTICATION       = false
-NO_REPLY_ADDRESS                  = $GITEA_NOREPLY_ADD
+NO_REPLY_ADDRESS                  = ${GITEA_NOREPLY_ADD}
 
 [api]
-ENABLE_SWAGGER = $GITEA_SWAGGER
+ENABLE_SWAGGER = ${GITEA_SWAGGER}
 
 [picture]
-DISABLE_GRAVATAR        = $GITEA_DISABLE_GRAVATAR
-ENABLE_FEDERATED_AVATAR = $GITEA_ENABLE_LIBRAVATAR
+DISABLE_GRAVATAR        = ${GITEA_DISABLE_GRAVATAR}
+ENABLE_FEDERATED_AVATAR = ${GITEA_ENABLE_LIBRAVATAR}
 
 [openid]
 ENABLE_OPENID_SIGNIN = false
@@ -399,7 +399,7 @@ SHOW_FOOTER_TEMPLATE_LOAD_TIME = false
 EOF
 
   info "Protecting Gitea configuration file ..." && \
-    chown root:$GITEA_SERVICE_ACCOUNT /etc/gitea/app.ini && \
+    chown root:${GITEA_SERVICE_ACCOUNT} /etc/gitea/app.ini && \
     chmod 640 /etc/gitea/app.ini
 
   info "Customizing Gitea..." && \

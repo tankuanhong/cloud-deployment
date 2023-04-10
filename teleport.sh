@@ -150,7 +150,7 @@ template(name="LogDNAFormat" type="list") {
     property(name="procid")
     constant(value=" ")
     property(name="msgid")
-    constant(value=" [logdna@48950 key=\"$LOGDNA_KEY\"] ")
+    constant(value=" [logdna@48950 key=\"${LOGDNA_KEY}\"] ")
     property(name="msg")
 }
 
