@@ -7,7 +7,6 @@ source "${BASH_SOURCE%/*}/../shell-logger/shell-logger" || exit
 source "${BASH_SOURCE%/*}/../conf/common.conf" || exit
 source "${BASH_SOURCE%/*}/../conf/teleport.conf" || exit
 
-
 # function to check if command exist
 command_exist() {
   type "$1" > /dev/null 2>&1
