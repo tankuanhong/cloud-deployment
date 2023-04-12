@@ -3,9 +3,9 @@
 { # this ensures the entire script is downloaded #
 
 # import
-source "${BASH_SOURCE%/*}/../shell-logger/shell-logger" || exit
-source "${BASH_SOURCE%/*}/../conf/common.conf" || exit
-source "${BASH_SOURCE%/*}/../conf/gitea.conf" || exit
+source "${SCRIPT_PATH}/shell-logger/shell-logger" || exit
+source "${SCRIPT_PATH}/conf/common.conf" || exit
+source "${SCRIPT_PATH}/conf/gitea.conf" || exit
 
 # function to check if command exist
 command_exist() {
@@ -438,7 +438,7 @@ install_caddy() {
     mkdir -p /var/log/caddy && \
     mkdir -p /var/lib/caddy && \
     info "Copying caddy binary..." && \
-    cp "${BASH_SOURCE%/*}/../assets/caddy/linux/2.6.4/caddy-cloudflare-layer4-l4tls-l4proxy" /usr/bin/caddy && \
+    cp "${SCRIPT_PATH}/assets/caddy/linux/2.6.4/caddy-cloudflare-layer4-l4tls-l4proxy" /usr/bin/caddy && \
     chmod +x /usr/bin/caddy && \
     info "Setting permissions..." && \
     chown caddy:caddy /usr/bin/caddy && \
@@ -446,8 +446,8 @@ install_caddy() {
     chown -R caddy:caddy /var/log/caddy && \
     chown -R caddy:caddy /var/lib/caddy && \
     info "Creating caddy service files..." && \
-    cp "${BASH_SOURCE%/*}/../assets/caddy/caddy.service" /lib/systemd/system/caddy.service && \
-    cp "${BASH_SOURCE%/*}/../assets/caddy/caddy-api.service" /lib/systemd/system/caddy-api.service && \
+    cp "${SCRIPT_PATH}/assets/caddy/caddy.service" /lib/systemd/system/caddy.service && \
+    cp "${SCRIPT_PATH}/assets/caddy/caddy-api.service" /lib/systemd/system/caddy-api.service && \
     systemctl daemon-reload && \
     info "Setting up caddy bash completion..." && \
     /usr/bin/caddy completion bash | sudo tee /etc/bash_completion.d/caddy && \

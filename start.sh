@@ -2,6 +2,9 @@
 
 { # this ensures the entire script is downloaded #
 
+# constants
+SCRIPT_PATH=$(dirname $(realpath -s $0))
+
 teleport_menu() {
   echo -ne "
 [Teleport]
@@ -17,15 +20,15 @@ Choose an option:  "
   read -r ans
   case $ans in
   1)
-    source "${BASH_SOURCE%/*}/scripts/teleport-deploy-proxy.sh" || exit
+    source "${SCRIPT_PATH}/scripts/teleport-deploy-proxy.sh" || exit
     exit 0
     ;;
   2)
-    source "${BASH_SOURCE%/*}/scripts/teleport-create-admin.sh" || exit
+    source "${SCRIPT_PATH}/scripts/teleport-create-admin.sh" || exit
     exit 0
     ;;
   3)
-    source "${BASH_SOURCE%/*}/scripts/teleport-backup-proxy.sh" || exit
+    source "${SCRIPT_PATH}/scripts/teleport-backup-proxy.sh" || exit
     exit 0
     ;;
   4)
@@ -62,7 +65,7 @@ Choose an option:  "
   read -r ans
   case $ans in
   1)
-    source "${BASH_SOURCE%/*}/scripts/gitea-deploy.sh" || exit
+    source "${SCRIPT_PATH}/scripts/gitea-deploy.sh" || exit
     exit 0
     ;;
   2)

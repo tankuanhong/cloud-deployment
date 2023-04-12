@@ -3,9 +3,9 @@
 { # this ensures the entire script is downloaded #
 
 # import
-source "${BASH_SOURCE%/*}/../shell-logger/shell-logger" || exit
-source "${BASH_SOURCE%/*}/../conf/common.conf" || exit
-source "${BASH_SOURCE%/*}/../conf/teleport.conf" || exit
+source "${SCRIPT_PATH}/shell-logger/shell-logger" || exit
+source "${SCRIPT_PATH}/conf/common.conf" || exit
+source "${SCRIPT_PATH}/conf/teleport.conf" || exit
 
 # function to check if command exist
 command_exist() {

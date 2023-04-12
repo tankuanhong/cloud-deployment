@@ -2,9 +2,6 @@
 
 { # this ensures the entire script is downloaded #
 
-# constants
-SCRIPT_PATH=$(dirname $(realpath -s $0))
-
 # import
 source "${SCRIPT_PATH}/shell-logger/shell-logger" || exit
 source "${SCRIPT_PATH}/conf/common.conf" || exit
