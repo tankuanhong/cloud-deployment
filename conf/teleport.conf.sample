@@ -13,6 +13,14 @@ TELEPORT_CLUSTER=Playground
 TELEPORT_AUTH_PORT=3025
 TELEPORT_PROXY_PORT=3080
 TELEPORT_PUBLIC_ADDR=${CADDY_SUBDOMAIN}.${CADDY_ROOT_DOMAIN}
+TELEPORT_ADMIN_USER=administrator
+
+# teleport restore
+TELEPORT_STATE_RESTORE="${SCRIPT_PATH}/teleport_state.yaml"
+TELEPORT_DATA_RESTORE="${SCRIPT_PATH}/teleport_data_dir.tar"
+
+# caddy restore
+CADDY_DATA_RESTORE="${SCRIPT_PATH}/caddy_data_dir.tar"
 
 # letsencrypt endpoint
 LE_ENDPOINT=acme-staging-v02.api.letsencrypt.org
