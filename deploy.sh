@@ -6,20 +6,30 @@ teleport_menu() {
   echo -ne "
 [Teleport]
 
-1) Deploy Teleport server 
-2) Backup Teleport server
-9) Back to main menu
+1) Deploy Teleport Proxy 
+2) Create Teleport Admin User
+3) Backup Teleport Proxy
+4) Restore Teleport Proxy
+9) Back to Main Menu
 0) Exit
 
 Choose an option:  "
   read -r ans
   case $ans in
   1)
-    echo "Deploying"
+    source "${BASH_SOURCE%/*}/scripts/teleport.sh" || exit
     exit 0
     ;;
   2)
-    echo "Backing up"
+    echo "Creating Teleport Admin User"
+    exit 0
+    ;;
+  3)
+    echo "Backing up Teleport Proxy"
+    exit 0
+    ;;
+  4)
+    echo "Restoring Teleport Proxy"
     exit 0
     ;;
   9)
@@ -27,7 +37,7 @@ Choose an option:  "
     main_menu
     ;;
   0)
-    echo "Bye bye."
+    echo "Good bye."
     exit 0
     ;;
   *)
@@ -54,7 +64,7 @@ Choose an option:  "
     teleport_menu
     ;;
   0)
-    echo "Bye bye."
+    echo "Good bye."
     exit 0
     ;;
   *)
