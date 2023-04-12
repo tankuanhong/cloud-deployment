@@ -6,7 +6,7 @@ teleport_menu() {
   echo -ne "
 [Teleport]
 
-1) Deploy Teleport Proxy 
+1) Deploy Teleport Proxy
 2) Create Teleport Admin User
 3) Backup Teleport Proxy
 4) Restore Teleport Proxy
@@ -17,7 +17,7 @@ Choose an option:  "
   read -r ans
   case $ans in
   1)
-    source "${BASH_SOURCE%/*}/scripts/teleport.sh" || exit
+    source "${BASH_SOURCE%/*}/scripts/teleport-deploy-proxy.sh" || exit
     exit 0
     ;;
   2)
@@ -48,6 +48,47 @@ Choose an option:  "
   esac
 }
 
+gitea_menu() {
+  echo -ne "
+[Gitea]
+
+1) Deploy Gitea
+2) Backup Gitea
+3) Restore Gitea
+9) Back to Main Menu
+0) Exit
+
+Choose an option:  "
+  read -r ans
+  case $ans in
+  1)
+    source "${BASH_SOURCE%/*}/scripts/gitea-deploy.sh" || exit
+    exit 0
+    ;;
+  2)
+    echo "Backing up Gitea"
+    exit 0
+    ;;
+  3)
+    echo "Restoring Gitea"
+    exit 0
+    ;;
+  9)
+    clear
+    main_menu
+    ;;
+  0)
+    echo "Good bye."
+    exit 0
+    ;;
+  *)
+    clear
+    echo "Invalid option $ans"
+    gitea_menu
+    ;;
+  esac
+}
+
 main_menu() {
   echo -ne "
 [Main Menu]
@@ -62,6 +103,10 @@ Choose an option:  "
   1)
     clear
     teleport_menu
+    ;;
+  2)
+    clear
+    gitea_menu
     ;;
   0)
     echo "Good bye."
