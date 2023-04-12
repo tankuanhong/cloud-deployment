@@ -62,8 +62,10 @@ restore_teleport_state() {
   teleport start --config /etc/teleport.yaml --bootstrap ${TELEPORT_STATE_RESTORE} &
   TELEPORT_RESTORE_PID=$!
   info "Teleport started as background process with pid ${TELEPORT_RESTORE_PID}"
-  info "Once restore is complete, verify that you can login to Teleport"
-  info "Terminate the background Teleport process with kill -2 ${TELEPORT_RESTORE_PID}"
+  info "After restore is complete, verify that you can login to Teleport"
+  info "To terminate the background Teleport process, use the following command"
+  info "kill -2 ${TELEPORT_RESTORE_PID}"
+  info "After that, Teleport can started via service"
 }
 
 main() {
