@@ -35,8 +35,8 @@ restore_caddy_data() {
     mkdir /var/lib/caddy && \
     mv ${CADDY_DATA_RESTORE} /var/lib/caddy && \
     cd /var/lib/caddy && \
-    tar xf ${CADDY_DATA_RESTORE} && \
-    rm -f ${CADDY_DATA_RESTORE}
+    tar xf caddy_data_dir.tar && \
+    rm -f caddy_data_dir.tar
 }
 
 deploy_teleport_proxy() {
@@ -53,8 +53,8 @@ restore_teleport_data() {
     mv ${TELEPORT_DATA_RESTORE} /var/lib && \
     cd /var/lib && \
     rm -rf teleport && \
-    tar xf ${TELEPORT_DATA_RESTORE} && \
-    rm -f ${TELEPORT_DATA_RESTORE}
+    tar xf teleport_data_dir.tar && \
+    rm -f teleport_data_dir.tar
 }
 
 restore_teleport_state() {
