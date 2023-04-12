@@ -21,7 +21,7 @@ Choose an option:  "
     exit 0
     ;;
   2)
-    echo "Creating Teleport Admin User"
+    source "${BASH_SOURCE%/*}/scripts/teleport-create-admin.sh" || exit
     exit 0
     ;;
   3)
