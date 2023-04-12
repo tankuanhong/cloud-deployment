@@ -2,10 +2,13 @@
 
 { # this ensures the entire script is downloaded #
 
+# constants
+SCRIPT_PATH=$(dirname $(realpath -s $0))
+
 # import
-source "${BASH_SOURCE%/*}/../shell-logger/shell-logger" || exit
-source "${BASH_SOURCE%/*}/../conf/common.conf" || exit
-source "${BASH_SOURCE%/*}/../conf/teleport.conf" || exit
+source "${SCRIPT_PATH}/shell-logger/shell-logger" || exit
+source "${SCRIPT_PATH}/conf/common.conf" || exit
+source "${SCRIPT_PATH}/conf/teleport.conf" || exit
 
 # function to check if command exist
 command_exist() {
@@ -31,7 +34,7 @@ export_teleport_state() {
     exit 1
   else
     info "Exporting Teleport state"
-    tctl get all --with-secrets > ${BASH_SOURCE%/*}/../teleport_state_$(date "+%y%m%d-%H%M%S").yaml
+    tctl get all --with-secrets > ${SCRIPT_PATH}/teleport_state_$(date "+%y%m%d_%H%M%S").yaml
   fi
 }
 
@@ -47,13 +50,14 @@ export_teleport_data() {
   else
     info "Exporting Teleport data directory..."
     cd /var/lib
-    tar cf $(dirname $(realpath -s $0))/../teleport_data_dir.tar teleport
+    tar cf ${SCRIPT_PATH}/teleport_data_dir.tar teleport
   fi
 }
 
 export_caddy_data() {
+  info "Exporting Caddy data directory..."
   cd /var/lib/caddy
-  tar cf $(dirname $(realpath -s $0))/../caddy_data_dir.tar .local
+  tar cf ${SCRIPT_PATH}/caddy_data_dir.tar .local
 }
 
 main() {
