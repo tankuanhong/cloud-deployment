@@ -32,7 +32,7 @@ Choose an option:  "
     exit 0
     ;;
   4)
-    echo "Restoring Teleport Proxy"
+    source "${SCRIPT_PATH}/scripts/teleport-restore-proxy.sh" || exit
     exit 0
     ;;
   9)
