@@ -25,7 +25,7 @@ Choose an option:  "
     exit 0
     ;;
   3)
-    echo "Backing up Teleport Proxy"
+    source "${BASH_SOURCE%/*}/scripts/teleport-backup-proxy.sh" || exit
     exit 0
     ;;
   4)

@@ -1,0 +1,68 @@
+#!/bin/bash
+
+{ # this ensures the entire script is downloaded #
+
+# import
+source "${BASH_SOURCE%/*}/../shell-logger/shell-logger" || exit
+source "${BASH_SOURCE%/*}/../conf/common.conf" || exit
+source "${BASH_SOURCE%/*}/../conf/teleport.conf" || exit
+
+# function to check if command exist
+command_exist() {
+  type "$1" > /dev/null 2>&1
+}
+
+# function to check if service is active
+service_active() {
+  systemctl is-active --quiet $1
+}
+
+# this script is only tested on Ubuntu 20.04
+if [ $(lsb_release -si) != "Ubuntu" ] || [ $(lsb_release -sr) != "20.04" ]; then
+  err "This server is not running Ubuntu 20.04"
+  err "Terminating script..."
+  exit 1
+fi
+
+export_teleport_state() {
+  info "Checking Teleport service..."
+  if ! service_active teleport; then
+    err "Teleport service is not running"
+    exit 1
+  else
+    info "Exporting Teleport state"
+    tctl get all --with-secrets > ${BASH_SOURCE%/*}/../teleport_state_$(date "+%y%m%d-%H%M%S").yaml
+  fi
+}
+
+stop_teleport_service() {
+  info "Stopping Teleport service..."
+  systemctl stop teleport
+}
+
+export_teleport_data() {
+  if service_active teleport; then
+    err "Teleport service is still running"
+    exit 1
+  else
+    info "Exporting Teleport data directory..."
+    cd /var/lib
+    tar cf $(dirname $(realpath -s $0))/../teleport_data_dir.tar teleport
+  fi
+}
+
+export_caddy_data() {
+  cd /var/lib/caddy
+  tar cf $(dirname $(realpath -s $0))/../caddy_data_dir.tar .local
+}
+
+main() {
+  export_teleport_state
+  stop_teleport_service
+  export_teleport_data
+  export_caddy_data
+}
+
+main
+
+} # this ensures the entire script is downloaded #
