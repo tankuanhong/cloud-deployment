@@ -2,10 +2,20 @@
 
 { # this ensures the entire script is downloaded #
 
-# kubernetes worker nodes
+# kubernetes
+KUBE_VERSION="1.27.0"
+KUBE_ADM_CONFIG_FILE="/etc/systemd/system/kubelet.service.d/10-kubeadm.conf"
+KUBE_POD_NETWORK="10.250.0.0/16"
+KUBE_SVC_NETWORK="10.251.0.0/16"
+
+# kubernetes internal ip
+KUBE_MASTER=10.152.0.2
 KUBE_WORKER_1=10.152.0.3
 KUBE_WORKER_2=10.152.0.4
 KUBE_WORKER_3=10.152.0.5
+
+# calico
+CALICO_VERSION="3.25.1"
 
 # caddy
 CADDY_ROOT_DOMAIN=dev.kuanhong.org
