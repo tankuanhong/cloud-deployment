@@ -234,7 +234,7 @@ EOF
 
   info "Installing kubernetes..." && \
     apt-get update && \
-    apt-get install -y kubelet=1.26.1-00 kubeadm=1.26.1-00 kubectl=1.26.1-00 && \
+    apt-get install -y kubelet=${KUBE_VERSION}-${KUBE_RELEASE} kubeadm=${KUBE_VERSION}-${KUBE_RELEASE} kubectl=${KUBE_VERSION}-${KUBE_RELEASE} && \
     apt-mark hold kubelet kubeadm kubectl
 }
 
