@@ -277,7 +277,8 @@ install_calico() {
   info "Installing Calico networking plugin..." && \
     kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v${CALICO_VERSION}/manifests/tigera-operator.yaml && \
     wget -O "${SCRIPT_PATH}/calico-custom-resources.yaml" https://raw.githubusercontent.com/projectcalico/calico/v${CALICO_VERSION}/manifests/custom-resources.yaml && \
-    
+    sed -i "s@cidr:.*@cidr: ${KUBE_POD_NETWORK}@" "${SCRIPT_PATH}/calico-custom-resources.yaml" && \
+    kubectl create -f "${SCRIPT_PATH}/calico-custom-resources.yaml"
 }
 
 main() {
