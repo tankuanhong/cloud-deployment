@@ -281,19 +281,40 @@ install_calico() {
     kubectl create -f "${SCRIPT_PATH}/calico-custom-resources.yaml"
 }
 
-main() {
-  configure_ufw
-  upgrade_packages
-  disable_autoupgrade
-  setup_ntp
-  harden_sshd
-  configure_remote_syslog
-  setup_kernel
-  install_containerd
-  disable_swap
-  install_kubernetes
+encrypt_etcd() {
+  info "Setting up encryption for etcd..." && \
+    ETCD_SECRET=$(head -c 32 /dev/urandom | base64) && \
+    mkdir /etc/kubernetes/enc && \
+    cat <<EOF | sudo tee /etc/kubernetes/enc/enc.yaml
+apiVersion: apiserver.config.k8s.io/v1
+kind: EncryptionConfiguration
+resources:
+  - resources:
+      - secrets
+    providers:
+      - aescbc:
+          keys:
+            - name: key1
+              secret: ${ETCD_SECRET}
+      - identity: {}
+EOF
+
+  chmod 600 /etc/kubernetes/enc/enc.yaml
 }
 
-main
+configure_ufw
+upgrade_packages
+disable_autoupgrade
+setup_ntp
+harden_sshd
+configure_remote_syslog
+setup_kernel
+install_containerd
+disable_swap
+install_kubernetes
+configure_kubelet
+initialize_kubeadm
+install_calico
+encrypt_etcd
 
 } # this ensures the entire script is downloaded #

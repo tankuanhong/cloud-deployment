@@ -10,10 +10,6 @@ deploy_master() {
     source "${SCRIPT_PATH}/scripts/kubernetes-deploy-master.sh" || exit
 }
 
-main() {
-  deploy_master
-}
-
-main
+deploy_master
 
 } # this ensures the entire script is downloaded #
