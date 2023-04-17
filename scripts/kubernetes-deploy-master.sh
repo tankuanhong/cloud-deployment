@@ -299,7 +299,11 @@ resources:
       - identity: {}
 EOF
 
-  chmod 600 /etc/kubernetes/enc/enc.yaml
+  chmod 600 /etc/kubernetes/enc/enc.yaml && \
+    sed -i '/enable-bootstrap-token-auth/a\    - --encryption-provider-config=\/etc\/kubernetes\/enc\/enc.yaml' /etc/kubernetes/manifests/kube-apiserver.yaml && \
+    sed -i '/volumeMounts:/a\    - name: enc\n      mountPath: \/etc\/kubernetes\/enc\n      readonly: true' /etc/kubernetes/manifests/kube-apiserver.yaml && \
+    sed -i '/volumes:/a\  - name: enc\n    hostPath:\n      path: \/etc\/kubernetes\/enc\n      type: DirectoryOrCreate' /etc/kubernetes/manifests/kube-apiserver.yaml && \
+    until kubectl get nodes; do sleep 10; done
 }
 
 configure_ufw
