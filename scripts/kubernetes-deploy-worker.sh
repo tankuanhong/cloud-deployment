@@ -38,6 +38,7 @@ configure_ufw() {
     ufw default allow outgoing && \
     ufw allow 22/tcp comment 'Default SSH' && \
     ufw allow ${SSH_PORT}/tcp comment 'Custom SSH' && \
+    ufw allow from ${KUBE_INT_NET} && \
     info "Enabling ufw..." && \
     ufw --force enable && \
     ufw status numbered && \
@@ -245,9 +246,9 @@ configure_kubelet() {
     err "Node IP is already set in kubelet configuration file"
     exit 1
   elif grep "KUBELET_EXTRA_ARGS=" ${KUBE_ADM_CONFIG_FILE} &> /dev/null; then
-    sed -i "s@KUBELET_EXTRA_ARGS=@KUBELET_EXTRA_ARGS=--node-ip=${KUBE_MASTER} @g" ${KUBE_ADM_CONFIG_FILE}
+    sed -i "s@KUBELET_EXTRA_ARGS=@KUBELET_EXTRA_ARGS=--node-ip=${PDSH_CONNECTION[2]} @g" ${KUBE_ADM_CONFIG_FILE}
   else
-    sed -i "/^\[Service\]/a\Environment=\"KUBELET_EXTRA_ARGS=--node-ip=${KUBE_MASTER}\"" ${KUBE_ADM_CONFIG_FILE}
+    sed -i "/^\[Service\]/a\Environment=\"KUBELET_EXTRA_ARGS=--node-ip=${PDSH_CONNECTION[2]}\"" ${KUBE_ADM_CONFIG_FILE}
   fi
 
   systemctl daemon-reload && \

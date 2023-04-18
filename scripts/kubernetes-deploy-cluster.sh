@@ -5,14 +5,26 @@
 # import
 source "${SCRIPT_PATH}/shell-logger/shell-logger" || exit
 
-install_pssh() {
-  info "Installing pssh..." && \
-    apt-get -y install pssh
+install_parallel_utilities() {
+  info "Installing pssh and pdsh..." && \
+    apt-get -y install pssh pdsh
 }
 
 deploy_master() {
   info "Deploying master node" && \
     source "${SCRIPT_PATH}/scripts/kubernetes-deploy-master.sh" || exit
+}
+
+generate_ssh_key() {
+  info "Generating ssh key on master node" && \
+    ssh-keygen -t ed25519 -N "" -f "$HOME/.ssh/id_ed25519" && \
+    info "Run the following command manually at all the worker nodes:" && \
+    info "" && \
+    info "mkdir -p .ssh && chmod 700 .ssh && touch .ssh/authorized_keys && chmod 644 .ssh/authorized_keys && echo $(cat $HOME/.ssh/id_ed25519.pub) > .ssh/authorized_keys" && \
+    info "" && \
+    until ssh -q ${KUBE_WORKER_1} exit; do warn "Waiting for ${KUBE_WORKER_1}..." && sleep 10; done && \
+    until ssh -q ${KUBE_WORKER_2} exit; do warn "Waiting for ${KUBE_WORKER_2}..." && sleep 10; done && \
+    until ssh -q ${KUBE_WORKER_3} exit; do warn "Waiting for ${KUBE_WORKER_3}..." && sleep 10; done
 }
 
 copy_files_to_workers() {
@@ -23,8 +35,15 @@ copy_files_to_workers() {
     parallel-scp -H "${KUBE_WORKER_1} ${KUBE_WORKER_2} ${KUBE_WORKER_3}" -l root -O "StrictHostKeyChecking=no" ${SCRIPT_PATH}/scripts/kubernetes-deploy-worker.sh /root/
 }
 
-install_pssh
+deploy_workers() {
+  info "Deploying worker nodes" && \
+    pdsh -w ${KUBE_WORKER_1},${KUBE_WORKER_2},${KUBE_WORKER_3} "/bin/bash /root/kubernetes-deploy-worker.sh"
+}
+
+install_parallel_utilities
 deploy_master
+generate_ssh_key
 copy_files_to_workers
+deploy_workers
 
 } # this ensures the entire script is downloaded #

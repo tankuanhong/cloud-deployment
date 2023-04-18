@@ -38,6 +38,7 @@ configure_ufw() {
     ufw default allow outgoing && \
     ufw allow 22/tcp comment 'Default SSH' && \
     ufw allow ${SSH_PORT}/tcp comment 'Custom SSH' && \
+    ufw allow from ${KUBE_INT_NET} && \
     info "Enabling ufw..." && \
     ufw --force enable && \
     ufw status numbered && \
