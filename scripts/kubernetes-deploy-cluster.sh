@@ -4,6 +4,7 @@
 
 # import
 source "${SCRIPT_PATH}/shell-logger/shell-logger" || exit
+source "${SCRIPT_PATH}/conf/kubernetes.conf" || exit
 
 install_parallel_utilities() {
   info "Installing pssh and pdsh..." && \
@@ -22,9 +23,9 @@ generate_ssh_key() {
     info "" && \
     info "mkdir -p .ssh && chmod 700 .ssh && touch .ssh/authorized_keys && chmod 644 .ssh/authorized_keys && echo $(cat $HOME/.ssh/id_ed25519.pub) > .ssh/authorized_keys" && \
     info "" && \
-    until ssh -q ${KUBE_WORKER_1} exit; do warn "Waiting for ${KUBE_WORKER_1}..." && sleep 10; done && \
-    until ssh -q ${KUBE_WORKER_2} exit; do warn "Waiting for ${KUBE_WORKER_2}..." && sleep 10; done && \
-    until ssh -q ${KUBE_WORKER_3} exit; do warn "Waiting for ${KUBE_WORKER_3}..." && sleep 10; done
+    until ssh -o StrictHostKeyChecking=no -q ${KUBE_WORKER_1} exit; do warn "Waiting for ${KUBE_WORKER_1}..." && sleep 10; done && \
+    until ssh -o StrictHostKeyChecking=no -q ${KUBE_WORKER_2} exit; do warn "Waiting for ${KUBE_WORKER_2}..." && sleep 10; done && \
+    until ssh -o StrictHostKeyChecking=no -q ${KUBE_WORKER_3} exit; do warn "Waiting for ${KUBE_WORKER_3}..." && sleep 10; done
 }
 
 copy_files_to_workers() {
