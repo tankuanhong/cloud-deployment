@@ -24,8 +24,17 @@ install_parallel_utilities() {
 }
 
 deploy_master() {
-  info "Deploying master node" && \
-    source "${SCRIPT_PATH}/scripts/kubernetes-deploy-master.sh" || exit
+  info "Deploying master node..." && \
+    source "${SCRIPT_PATH}/scripts/kubernetes-deploy-master.sh" && \
+    touch "${SCRIPT_PATH}/master_rebooted" && \
+    info "Rebooting master node..." && \
+    info "Rerun start.sh upon master node startup" && \
+    reboot
+}
+
+init_master() {
+  info "Initializing master node..." && \
+    source "${SCRIPT_PATH}/scripts/kubernetes-init-master.sh"
 }
 
 generate_ssh_key() {
@@ -54,14 +63,28 @@ copy_files_to_workers() {
 deploy_workers() {
   info "Deploying worker nodes" && \
     PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-o StrictHostKeyChecking=no" pdsh -w ${KUBE_WORKER_1},${KUBE_WORKER_2},${KUBE_WORKER_3} "/bin/bash /root/kubernetes-deploy-worker.sh" && \
+    PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT} -o StrictHostKeyChecking=no" pdsh -w ${KUBE_WORKER_1},${KUBE_WORKER_2},${KUBE_WORKER_3} "reboot"
+
+    info "Sleep 1 minute for worker nodes to reboot..." && \
+    sleep 60 && \
+    info "Wake after 1 minute"
+
+    until ssh -p ${SSH_PORT} -o StrictHostKeyChecking=no -q ${KUBE_WORKER_1} exit; do warn "Waiting for ${KUBE_WORKER_1}..." && sleep 10; done && \
+    until ssh -p ${SSH_PORT} -o StrictHostKeyChecking=no -q ${KUBE_WORKER_2} exit; do warn "Waiting for ${KUBE_WORKER_2}..." && sleep 10; done && \
+    until ssh -p ${SSH_PORT} -o StrictHostKeyChecking=no -q ${KUBE_WORKER_3} exit; do warn "Waiting for ${KUBE_WORKER_3}..." && sleep 10; done
+
     PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT} -o StrictHostKeyChecking=no" pdsh -w ${KUBE_WORKER_1},${KUBE_WORKER_2},${KUBE_WORKER_3} "kubeadm join ${KUBE_MASTER}:6443 --token $(kubeadm token list -o=jsonpath='{$.token}') --discovery-token-ca-cert-hash sha256:$(openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //')"
 }
 
 req_check_master
-install_parallel_utilities
-deploy_master
-generate_ssh_key
-copy_files_to_workers
-deploy_workers
+if [ -f "${SCRIPT_PATH}/master_rebooted" ]; then
+  init_master
+  generate_ssh_key
+  copy_files_to_workers
+  deploy_workers
+else
+  install_parallel_utilities
+  deploy_master
+fi
 
 } # this ensures the entire script is downloaded #
