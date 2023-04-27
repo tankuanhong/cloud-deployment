@@ -7,6 +7,16 @@ source "${SCRIPT_PATH}/shell-logger/shell-logger" || exit
 source "${SCRIPT_PATH}/conf/common.conf" || exit
 source "${SCRIPT_PATH}/conf/kubernetes.conf" || exit
 
+req_check_master() {
+  info "Checking no. of CPU cores..." && \
+    if [ $(nproc) -lt "2" ]; then
+      err "Kubernetes master does not meet min CPU requirement of 2"
+      exit 1
+    else
+      info "Kubernetes master meets min CPU requirement of 2"
+    fi
+}
+
 install_parallel_utilities() {
   info "Installing pssh and pdsh..." && \
     apt-get update && \
@@ -47,6 +57,7 @@ deploy_workers() {
     PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT} -o StrictHostKeyChecking=no" pdsh -w ${KUBE_WORKER_1},${KUBE_WORKER_2},${KUBE_WORKER_3} "kubeadm join ${KUBE_MASTER}:6443 --token $(kubeadm token list -o=jsonpath='{$.token}') --discovery-token-ca-cert-hash sha256:$(openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //')"
 }
 
+req_check_master
 install_parallel_utilities
 deploy_master
 generate_ssh_key
