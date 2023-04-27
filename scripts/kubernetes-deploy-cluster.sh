@@ -9,6 +9,7 @@ source "${SCRIPT_PATH}/conf/kubernetes.conf" || exit
 
 install_parallel_utilities() {
   info "Installing pssh and pdsh..." && \
+    apt-get update && \
     apt-get -y install pssh pdsh
 }
 
