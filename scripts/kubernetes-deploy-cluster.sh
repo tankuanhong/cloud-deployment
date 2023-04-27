@@ -63,7 +63,7 @@ copy_files_to_workers() {
 deploy_workers() {
   info "Deploying worker nodes" && \
     PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-o StrictHostKeyChecking=no" pdsh -w ${KUBE_WORKER_1},${KUBE_WORKER_2},${KUBE_WORKER_3} "/bin/bash /root/kubernetes-deploy-worker.sh" && \
-    PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-o ${SSH_PORT} -o StrictHostKeyChecking=no" pdsh -w ${KUBE_WORKER_1},${KUBE_WORKER_2},${KUBE_WORKER_3} "reboot"
+    PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT} -o StrictHostKeyChecking=no" pdsh -w ${KUBE_WORKER_1},${KUBE_WORKER_2},${KUBE_WORKER_3} "reboot"
 
     info "Sleep 1 minute for worker nodes to reboot..." && \
     sleep 60 && \
