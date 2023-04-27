@@ -24,8 +24,17 @@ install_parallel_utilities() {
 }
 
 deploy_master() {
-  info "Deploying master node" && \
-    source "${SCRIPT_PATH}/scripts/kubernetes-deploy-master.sh" || exit
+  info "Deploying master node..." && \
+    source "${SCRIPT_PATH}/scripts/kubernetes-deploy-master.sh" && \
+    touch "${SCRIPT_PATH}/master_rebooted" && \
+    info "Rebooting master node..." && \
+    info "Rerun start.sh upon master node startup" && \
+    reboot
+}
+
+init_master() {
+  info "Initializing master node..." && \
+    source "${SCRIPT_PATH}/scripts/kubernetes-init-master.sh"
 }
 
 generate_ssh_key() {
@@ -58,10 +67,14 @@ deploy_workers() {
 }
 
 req_check_master
-install_parallel_utilities
-deploy_master
-generate_ssh_key
-copy_files_to_workers
-deploy_workers
+if [ -f "${SCRIPT_PATH}/master_rebooted" ]; then
+  init_master
+  generate_ssh_key
+  copy_files_to_workers
+  deploy_workers
+else
+  install_parallel_utilities
+  deploy_master
+fi
 
 } # this ensures the entire script is downloaded #
