@@ -49,6 +49,7 @@ longhorn_preflight() {
 install_longhorn() {
   info "Installing longhorn..." && \
     kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v${LONGHORN_VERSION}/deploy/longhorn.yaml && \
+    info "Waiting for longhorn pods to be ready..."
     kubectl wait pods -n longhorn-system --all --for condition=Ready --timeout=120s
 }
 
@@ -59,10 +60,16 @@ configure_longhorn() {
     kubectl apply -f ${SCRIPT_PATH}/node-down-pod-deletion-policy.yaml
 }
 
+show_longhorn_ui_svc() {
+  info "Printing longhorn web ui service address..." && \
+    kubectl get svc longhorn-frontend -n longhorn-system
+}
+
 install_prereq
 configure_multipathd
 longhorn_preflight
 install_longhorn
 configure_longhorn
+show_longhorn_ui_svc
 
 } # this ensures the entire script is downloaded #
