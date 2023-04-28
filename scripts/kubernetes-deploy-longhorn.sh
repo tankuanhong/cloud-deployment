@@ -38,11 +38,11 @@ longhorn_preflight() {
     apt-get -y install jq && \
     wget -O ${SCRIPT_PATH}/longhorn_environment_check.sh https://raw.githubusercontent.com/longhorn/longhorn/v${LONGHORN_VERSION}/scripts/environment_check.sh && \
 
-  if [ "$(/bin/bash ${SCRIPT_PATH}/longhorn_environment_check.sh; echo $?)" != '0' ]; then
+  if /bin/bash ${SCRIPT_PATH}/longhorn_environment_check.sh; then
+    info "Longhorn environment check passed"
+  else
     err "Longhorn environment check failed"
     exit 1
-  else
-    info "Longhorn environment check passed"
   fi
 }
 
