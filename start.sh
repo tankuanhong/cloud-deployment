@@ -97,6 +97,7 @@ kubernetes_menu() {
 [Kubernetes]
 
 1) Deploy Kubernetes Cluster
+2) Deploy Longhorn Storage
 9) Back to Main Menu
 0) Exit
 
@@ -105,6 +106,10 @@ Choose an option:  "
   case $ans in
   1)
     source "${SCRIPT_PATH}/scripts/kubernetes-deploy-cluster.sh" || exit
+    exit 0
+    ;;
+  2)
+    source "${SCRIPT_PATH}/scripts/kubernetes-deploy-longhorn.sh" || exit
     exit 0
     ;;
   9)

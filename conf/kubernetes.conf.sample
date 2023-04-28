@@ -24,6 +24,9 @@ PDSH_CONNECTION=($SSH_CONNECTION)
 # calico
 CALICO_VERSION="3.25.1"
 
+# longhorn
+LONGHORN_VERSION="1.4.1"
+
 # caddy
 CADDY_ROOT_DOMAIN=dev.kuanhong.org
 CADDY_SUBDOMAIN=git
