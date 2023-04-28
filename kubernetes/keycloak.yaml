@@ -108,3 +108,22 @@ spec:
           claimName: pvc-keycloak
       securityContext:
         fsGroup: 1001
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-keycloak
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+  - host: keycloak.kuanhong.org
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: svc-keycloak-http
+            port:
+              number: 8080
