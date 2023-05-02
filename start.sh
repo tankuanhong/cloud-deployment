@@ -98,6 +98,7 @@ kubernetes_menu() {
 
 1) Deploy Kubernetes Cluster
 2) Deploy Longhorn Storage
+3) Deploy Ingress NGINX Controller
 9) Back to Main Menu
 0) Exit
 
@@ -110,6 +111,10 @@ Choose an option:  "
     ;;
   2)
     source "${SCRIPT_PATH}/scripts/kubernetes-deploy-longhorn.sh" || exit
+    exit 0
+    ;;
+  3)
+    source "${SCRIPT_PATH}/scripts/kubernetes-deploy-ingress-nginx.sh" || exit
     exit 0
     ;;
   9)
