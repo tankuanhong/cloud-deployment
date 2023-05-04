@@ -364,13 +364,13 @@ spec:
   ports:
   - appProtocol: http
     name: http
-    nodePort: CLOUD_LB_HTTP
+    nodePort: CLOUD_LB_HTTP_PORT
     port: 80
     protocol: TCP
     targetPort: http
   - appProtocol: https
     name: https
-    nodePort: CLOUD_LB_HTTPS
+    nodePort: CLOUD_LB_HTTPS_PORT
     port: 443
     protocol: TCP
     targetPort: https
