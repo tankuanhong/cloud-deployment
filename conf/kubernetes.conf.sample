@@ -27,6 +27,11 @@ CALICO_VERSION="3.25.1"
 # longhorn
 LONGHORN_VERSION="1.4.1"
 
+# ingress nginx
+CLOUD_LB_NAME="frontend"
+CLOUD_LB_HTTP=32554
+CLOUD_LB_HTTPS=31006
+
 # caddy
 CADDY_ROOT_DOMAIN=dev.kuanhong.org
 CADDY_SUBDOMAIN=git

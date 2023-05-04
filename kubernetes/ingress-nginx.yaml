@@ -354,7 +354,7 @@ metadata:
   name: ingress-nginx-controller
   namespace: ingress-nginx
   annotations:
-    load-balancer.hetzner.cloud/name: "frontend"
+    load-balancer.hetzner.cloud/name: "CLOUD_LB_NAME"
     load-balancer.hetzner.cloud/uses-proxyprotocol: "false"
 spec:
   externalTrafficPolicy: Local
@@ -364,13 +364,13 @@ spec:
   ports:
   - appProtocol: http
     name: http
-    nodePort: 32554
+    nodePort: CLOUD_LB_HTTP
     port: 80
     protocol: TCP
     targetPort: http
   - appProtocol: https
     name: https
-    nodePort: 31006
+    nodePort: CLOUD_LB_HTTPS
     port: 443
     protocol: TCP
     targetPort: https

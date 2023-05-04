@@ -24,7 +24,11 @@ install_custom_headers() {
 }
 
 install_ingress_ctl() {
-  info "Installing ingress nginx controller..." && \
+  info "Setting custom ingress nginx parameters..." && \
+    sed -i "s/CLOUD_LB_NAME/${CLOUD_LB_NAME}/g" "${SCRIPT_PATH}/kubernetes/ingress-nginx.yaml" && \
+    sed -i "s/CLOUD_LB_HTTP/${CLOUD_LB_HTTP}/g" "${SCRIPT_PATH}/kubernetes/ingress-nginx.yaml" && \
+    sed -i "s/CLOUD_LB_HTTPS/${CLOUD_LB_HTTPS}/g" "${SCRIPT_PATH}/kubernetes/ingress-nginx.yaml" && \
+    info "Installing ingress nginx controller..." && \
     kubectl apply -f "${SCRIPT_PATH}/kubernetes/ingress-nginx.yaml"
 }
 
