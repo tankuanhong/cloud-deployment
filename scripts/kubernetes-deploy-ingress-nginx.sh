@@ -25,9 +25,10 @@ install_custom_headers() {
 
 install_ingress_ctl() {
   info "Setting custom ingress nginx parameters..." && \
-    sed -i "s/CLOUD_LB_NAME/${CLOUD_LB_NAME}/g" "${SCRIPT_PATH}/kubernetes/ingress-nginx.yaml" && \
-    sed -i "s/CLOUD_LB_HTTP_PORT/${CLOUD_LB_HTTP_PORT}/g" "${SCRIPT_PATH}/kubernetes/ingress-nginx.yaml" && \
-    sed -i "s/CLOUD_LB_HTTPS_PORT/${CLOUD_LB_HTTPS_PORT}/g" "${SCRIPT_PATH}/kubernetes/ingress-nginx.yaml" && \
+    tmpfile=$(mktemp) && \
+    cp --attributes-only --preserve "${SCRIPT_PATH}/kubernetes/ingress-nginx.yaml" $tmpfile && \
+    cat "${SCRIPT_PATH}/kubernetes/ingress-nginx.yaml" | envsubst > $tmpfile && \
+    mv $tmpfile "${SCRIPT_PATH}/kubernetes/ingress-nginx.yaml" && \
     info "Installing ingress nginx controller..." && \
     kubectl apply -f "${SCRIPT_PATH}/kubernetes/ingress-nginx.yaml"
 }
