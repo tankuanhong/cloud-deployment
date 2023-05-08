@@ -1,0 +1,14 @@
+#!/bin/bash
+
+{ # this ensures the entire script is downloaded #
+
+# keycloak database
+export KEYCLOAK_DB_PVC_SIZE="2Gi"
+export KEYCLOAK_DB_IMAGE="bitnami/postgresql:14.5.0"
+export KEYCLOAK_DB_USERNAME="bn_keycloak"
+export KEYCLOAK_DB_DATABASE="bitnami_keycloak"
+
+# keycloak
+export KEYCLOAK_PVC_SIZE="2Gi"
+
+} # this ensures the entire script is downloaded #
