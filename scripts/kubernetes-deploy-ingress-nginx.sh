@@ -20,6 +20,7 @@ check_kube_ready() {
 
 install_custom_headers() {
   info "Installing custom nginx header configmap..." && \
+    kubectl create namespace ingress-nginx && \
     kubectl apply -f "${SCRIPT_PATH}/kubernetes/ingress-nginx-custom-headers.yaml"
 }
 
