@@ -133,6 +133,37 @@ Choose an option:  "
   esac
 }
 
+containers_menu() {
+  echo -ne "
+[Containers]
+
+1) Deploy Keycloak
+9) Back to Main Menu
+0) Exit
+
+Choose an option:  "
+  read -r ans
+  case $ans in
+  1)
+    source "${SCRIPT_PATH}/scripts/containers-deploy-keycloak.sh" || exit
+    exit 0
+    ;;
+  9)
+    clear
+    main_menu
+    ;;
+  0)
+    echo "Good bye."
+    exit 0
+    ;;
+  *)
+    clear
+    echo "Invalid option $ans"
+    containers_menu
+    ;;
+  esac
+}
+
 main_menu() {
   echo -ne "
 [Main Menu]
@@ -140,6 +171,7 @@ main_menu() {
 1) Teleport
 2) Gitea
 3) Kubernetes
+4) Containers
 0) Exit
 
 Choose an option:  "
@@ -156,6 +188,10 @@ Choose an option:  "
   3)
     clear
     kubernetes_menu
+    ;;
+  4)
+    clear
+    containers_menu
     ;;
   0)
     echo "Good bye."

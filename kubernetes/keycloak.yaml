@@ -12,7 +12,7 @@ spec:
   storageClassName: longhorn
   resources:
     requests:
-      storage: 2Gi
+      storage: ${KEYCLOAK_PVC_SIZE}
 ---
 apiVersion: v1
 kind: Service
