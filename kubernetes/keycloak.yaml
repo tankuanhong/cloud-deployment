@@ -113,9 +113,8 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ing-keycloak
-  annotations:
-    kubernetes.io/ingress.class: nginx
 spec:
+  ingressClassName: nginx
   rules:
   - host: keycloak.kuanhong.org
     http:
