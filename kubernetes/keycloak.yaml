@@ -94,6 +94,10 @@ spec:
           value: "true"
         - name: KEYCLOAK_MOUNTED_CONF_DIR
           value: "/bitnami/keycloak/configuration/"
+        - name: KEYCLOAK_PRODUCTION
+          value: "true"
+        - name: KEYCLOAK_PROXY
+          value: "edge"
         ports:
         - containerPort: 8080
           protocol: TCP
