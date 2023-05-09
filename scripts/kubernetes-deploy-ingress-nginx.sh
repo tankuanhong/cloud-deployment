@@ -31,7 +31,9 @@ install_ingress_ctl() {
     cat "${SCRIPT_PATH}/kubernetes/ingress-nginx.yaml" | envsubst > $tmpfile && \
     mv $tmpfile "${SCRIPT_PATH}/kubernetes/ingress-nginx.yaml" && \
     info "Installing ingress nginx controller..." && \
-    kubectl apply -f "${SCRIPT_PATH}/kubernetes/ingress-nginx.yaml"
+    kubectl apply -f "${SCRIPT_PATH}/kubernetes/ingress-nginx.yaml" && \
+    info "Waiting for ingress nginx pods to be ready..." && \
+    kubectl wait pods -n ingress-nginx --all --for condition=Ready --timeout=120s
 }
 
 check_kube_ready
