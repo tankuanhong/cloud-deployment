@@ -1,0 +1,12 @@
+# pass custom list of headers to the upstream server
+# https://kubernetes.github.io/ingress-nginx/examples/customization/custom-headers/
+
+apiVersion: v1
+data:
+  X-Custom-Headers-Serial: "2023-05-04-0855"
+  X-SSL-Cert: $ssl_client_escaped_cert
+  X-Client-Port: $remote_port
+kind: ConfigMap
+metadata:
+  name: custom-headers
+  namespace: ingress-nginx

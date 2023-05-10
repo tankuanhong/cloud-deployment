@@ -1,0 +1,132 @@
+# https://github.com/bitnami/containers/blob/main/bitnami/keycloak/19/debian-11/rootfs/opt/bitnami/scripts/keycloak-env.sh
+# https://hub.docker.com/r/bitnami/keycloak
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-keycloak
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: ${KEYCLOAK_PVC_SIZE}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-keycloak-http
+spec:
+  ports:
+  - port: 8080
+  selector:
+    app: app-keycloak
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-keycloak-https
+spec:
+  ports:
+  - port: 8443
+  selector:
+    app: app-keycloak
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dep-keycloak
+  labels:
+    app: app-keycloak
+spec:
+  selector:
+    matchLabels:
+      app: app-keycloak
+  template:
+    metadata:
+      labels:
+        app: app-keycloak
+    spec:
+      restartPolicy: Always
+      containers:
+      - image: bitnami/keycloak:latest
+        name: pod-keycloak
+        env:
+        - name: KEYCLOAK_HOSTNAME
+          value: "keycloak.kuanhong.org"
+        - name: KEYCLOAK_ADMIN_USER
+          value: "admin"
+        - name: KEYCLOAK_ADMIN_PASSWORD
+          value: "bitnami"
+        - name: KEYCLOAK_DATABASE_HOST
+          value: "svc-keycloak-db"
+        - name: KEYCLOAK_DATABASE_PORT
+          value: "5432"
+        - name: KEYCLOAK_DATABASE_NAME
+          value: "bitnami_keycloak"
+        - name: KEYCLOAK_DATABASE_USER
+          value: "bn_keycloak"
+        - name: KEYCLOAK_DATABASE_PASSWORD
+          value: "password123"
+        - name: KEYCLOAK_DATABASE_SCHEMA
+          value: "public"
+        - name: KEYCLOAK_JDBC_PARAMS
+          value: ""
+        - name: KEYCLOAK_HTTP_PORT
+          value: "8080"
+        - name: KEYCLOAK_HTTPS_PORT
+          value: "8443"
+        - name: KEYCLOAK_BIND_ADDRESS
+          value: "0.0.0.0"
+        - name: KEYCLOAK_ENABLE_TLS
+          value: "false"
+        - name: KEYCLOAK_TLS_KEYSTORE_FILE
+          value: "/opt/bitnami/keycloak/certs/keystore.jks"
+        - name: KEYCLOAK_TLS_TRUSTSTORE_FILE
+          value: "/opt/bitnami/keycloak/certs/truststore.jks"
+        - name: KEYCLOAK_TLS_KEYSTORE_PASSWORD
+          value: ""
+        - name: KEYCLOAK_TLS_TRUSTSTORE_PASSWORD
+          value: ""
+        - name: KEYCLOAK_ENABLE_STATISTICS
+          value: "true"
+        - name: KEYCLOAK_MOUNTED_CONF_DIR
+          value: "/bitnami/keycloak/configuration/"
+        - name: KEYCLOAK_PRODUCTION
+          value: "true"
+        - name: KEYCLOAK_PROXY
+          value: "edge"
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        - containerPort: 8443
+          protocol: TCP
+        volumeMounts:
+        - name: vol-keycloak
+          mountPath: /bitnami
+      volumes:
+      - name: vol-keycloak
+        persistentVolumeClaim:
+          claimName: pvc-keycloak
+      securityContext:
+        fsGroup: 1001
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-keycloak
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: keycloak.kuanhong.org
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: svc-keycloak-http
+            port:
+              number: 8080

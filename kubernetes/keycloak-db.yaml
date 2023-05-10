@@ -1,0 +1,66 @@
+# https://github.com/bitnami/containers/blob/main/bitnami/postgresql/14/debian-11/rootfs/opt/bitnami/scripts/postgresql-env.sh
+# https://hub.docker.com/r/bitnami/postgresql
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-keycloak-db
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: ${KEYCLOAK_DB_PVC_SIZE}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-keycloak-db
+spec:
+  ports:
+  - port: 5432
+  selector:
+    app: app-keycloak-db
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dep-keycloak-db
+  labels:
+    app: app-keycloak-db
+spec:
+  selector:
+    matchLabels:
+      app: app-keycloak-db
+  template:
+    metadata:
+      labels:
+        app: app-keycloak-db
+    spec:
+      restartPolicy: Always
+      containers:
+      - image: ${KEYCLOAK_DB_IMAGE}
+        name: pod-keycloak-db
+        env:
+        - name: POSTGRESQL_POSTGRES_PASSWORD
+          value: "postgrespassword"
+        - name: POSTGRESQL_USERNAME
+          value: "${KEYCLOAK_DB_USERNAME}"
+        - name: POSTGRESQL_PASSWORD
+          value: "password123"
+        - name: POSTGRESQL_DATABASE
+          value: "${KEYCLOAK_DB_DATABASE}"
+        ports:
+        - containerPort: 5432
+          protocol: TCP
+        volumeMounts:
+        - name: vol-keycloak-db
+          mountPath: /bitnami/postgresql
+      volumes:
+      - name: vol-keycloak-db
+        persistentVolumeClaim:
+          claimName: pvc-keycloak-db
+      securityContext:
+        fsGroup: 1001
