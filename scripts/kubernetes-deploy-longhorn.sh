@@ -58,12 +58,19 @@ configure_longhorn() {
     kubectl get settings node-down-pod-deletion-policy -n longhorn-system -o yaml > ${SCRIPT_PATH}/node-down-pod-deletion-policy.yaml && \
     sed -i 's/do-nothing/delete-both-statefulset-and-deployment-pod/g' ${SCRIPT_PATH}/node-down-pod-deletion-policy.yaml && \
     kubectl apply -f ${SCRIPT_PATH}/node-down-pod-deletion-policy.yaml
-  
-  # info "Setting allow-recurring-job-while-volume-detached"
-  # change from false to true
 
-  # info "Setting backup-target"
-  # change from "" to nfs://192.168.255.3:/home/longhorn
+  info "Setting allow-recurring-job-while-volume-detached" && \
+    kubectl get settings allow-recurring-job-while-volume-detached -n longhorn-system -o yaml > ${SCRIPT_PATH}/allow-recurring-job-while-volume-detached.yaml && \
+    sed -i 's/false/true/g' ${SCRIPT_PATH}/allow-recurring-job-while-volume-detached.yaml && \
+    kubectl apply -f ${SCRIPT_PATH}/allow-recurring-job-while-volume-detached.yaml
+
+  info "Setting backup-target" && \
+    kubectl get settings backup-target -n longhorn-system -o yaml > ${SCRIPT_PATH}/backup-target.yaml && \
+    sed -i "s@\"\"@nfs://${KUBE_MASTER}:${MOUNT_PATH}/longhorn@g" ${SCRIPT_PATH}/backup-target.yaml && \
+    kubectl apply -f ${SCRIPT_PATH}/backup-target.yaml
+
+  info "Configuring hourly backup of volumes..." && \
+    kubectl apply -f ${SCRIPT_PATH}/kubernetes/longhorn-hourly-backup.yaml
 }
 
 show_longhorn_ui_svc() {

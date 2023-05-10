@@ -542,7 +542,7 @@ install_kopia() {
     fi
 }
 
-configuring_kopia() {
+configure_kopia() {
   info "Configuring kopia..." && \
     cat > /etc/systemd/system/kopia.service <<EOF
 [Unit]
@@ -553,7 +553,7 @@ After=basic.target network.target
 [Service]
 ExecStart=/usr/bin/kopia server start --address="${KOPIA_WEB_UI}" --insecure --without-password --cache-directory="${KOPIA_CACHE_PATH}" --config-file="${KOPIA_CONFIG_PATH}"
 ExecStop=/usr/bin/kopia server shutdown
-ExecReload=/usr/bin/kopia server refresh --address="http://127.0.0.1:51515"
+ExecReload=/usr/bin/kopia server refresh --address="${KOPIA_WEB_UI}"
 Restart=always
 
 [Install]
@@ -612,7 +612,7 @@ main() {
   install_fail2ban
   configure_fail2ban
   install_kopia
-  configuring_kopia
+  configure_kopia
   install_cron
 }
 
