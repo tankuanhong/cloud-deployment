@@ -355,7 +355,7 @@ metadata:
   namespace: ingress-nginx
   annotations:
     load-balancer.hetzner.cloud/name: "${CLOUD_LB_NAME}"
-    load-balancer.hetzner.cloud/uses-proxyprotocol: "false"
+    load-balancer.hetzner.cloud/uses-proxyprotocol: "true"
 spec:
   externalTrafficPolicy: Local
   ipFamilies:
