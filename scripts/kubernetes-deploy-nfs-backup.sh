@@ -81,7 +81,7 @@ EOF
 install_nfs_server() {
   info "Installing NFS server..." && \
     apt update && \
-    apt install nfs-kernel-server && \
+    apt -y install nfs-kernel-server && \
     if ! service_active nfs-kernel-server; then
       warn "nfs server is not running"
     else
