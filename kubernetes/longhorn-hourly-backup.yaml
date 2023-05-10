@@ -1,0 +1,14 @@
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: hourly-backup
+  namespace: longhorn-system
+spec:
+  concurrency: 1
+  cron: 30 * * * *
+  groups:
+  - default
+  labels: {}
+  name: hourly-backup
+  retain: 24
+  task: backup

@@ -68,6 +68,9 @@ configure_longhorn() {
     kubectl get settings backup-target -n longhorn-system -o yaml > ${SCRIPT_PATH}/backup-target.yaml && \
     sed -i "s@\"\"@nfs://${KUBE_MASTER}:${MOUNT_PATH}/longhorn@g" ${SCRIPT_PATH}/backup-target.yaml && \
     kubectl apply -f ${SCRIPT_PATH}/backup-target.yaml
+
+  info "Configuring hourly backup of volumes..." && \
+    kubectl apply -f ${SCRIPT_PATH}/kubernetes/longhorn-hourly-backup.yaml
 }
 
 show_longhorn_ui_svc() {
