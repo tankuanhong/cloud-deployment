@@ -542,7 +542,7 @@ install_kopia() {
     fi
 }
 
-configuring_kopia() {
+configure_kopia() {
   info "Configuring kopia..." && \
     cat > /etc/systemd/system/kopia.service <<EOF
 [Unit]
@@ -612,7 +612,7 @@ main() {
   install_fail2ban
   configure_fail2ban
   install_kopia
-  configuring_kopia
+  configure_kopia
   install_cron
 }
 
