@@ -33,7 +33,8 @@ install_ingress_ctl() {
     info "Installing ingress nginx controller..." && \
     kubectl apply -f "${SCRIPT_PATH}/kubernetes/ingress-nginx.yaml" && \
     info "Waiting for ingress nginx pods to be ready..." && \
-    kubectl wait pods -n ingress-nginx --all --for condition=Ready --timeout=120s
+    kubectl wait jobs -n ingress-nginx --all --for condition=Complete --timeout=120s
+    kubectl wait pods -n ingress-nginx -l app.kubernetes.io/component=controller --for condition=Ready --timeout=120s
 }
 
 check_kube_ready
