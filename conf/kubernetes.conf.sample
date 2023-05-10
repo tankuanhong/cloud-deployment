@@ -24,6 +24,20 @@ PDSH_CONNECTION=($SSH_CONNECTION)
 # calico
 CALICO_VERSION="3.25.1"
 
+# kopia
+KOPIA_WEB_UI="http://127.0.0.1:51515"
+KOPIA_CACHE_PATH=/var/kopia-cache
+KOPIA_REPO_INIT=false
+KOPIA_REPO_PASSWORD=P@ssw0rd123
+KOPIA_CONFIG_PATH=/opt/kopia/repository.config
+KOPIA_S3_URL=storage.googleapis.com
+KOPIA_S3_BUCKET=kopia-backup-test
+KOPIA_S3_KEY="key"
+KOPIA_S3_SECRET="secret"
+
+# nfs
+MOUNT_PATH="/mnt/HC_Volume_27226181"
+
 # longhorn
 LONGHORN_VERSION="1.4.1"
 
