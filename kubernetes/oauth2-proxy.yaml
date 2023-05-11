@@ -40,7 +40,7 @@ spec:
         - --auth-logging=true
         - --client-id=oauth2-${OAUTH2_PROXY_SUFFIX}
         - --client-secret=KJxnZB1BWaYl2fgw93BySGj3t6vt3PyZ
-        - --cookie-domain=".kuanhong.org"
+        - --cookie-domain=".${OAUTH2_PROXY_SUFFIX}"
         - --cookie-expire="168h0m0s"
         - --cookie-httponly=true
         - --cookie-secret=TlVKWkN2bWpqNU5sS05iTFVXWldTRUdC
@@ -64,7 +64,7 @@ spec:
         - --insecure-oidc-allow-unverified-email=false
         - --insecure-oidc-skip-issuer-verification=false
         - --insecure-oidc-skip-nonce=true
-        - --oidc-issuer-url=https://keycloak.kuanhong.org/realms/dev
+        - --oidc-issuer-url=${OAUTH2_OIDC_ISSUER}
         - --oidc-email-claim="email"
         - --oidc-groups-claim="groups"
         - --oidc-audience-claim="aud"
@@ -76,7 +76,7 @@ spec:
         - --pass-user-headers=true
         - --prompt=""
         - --provider=keycloak-oidc
-        - --provider-display-name="Keycloak Auth"
+        - --provider-display-name="${OAUTH2_PROVIDER_NAME}"
         - --ping-path="/ping"
         - --ping-user-agent=""
         - --metrics-address=""
@@ -102,7 +102,7 @@ spec:
         - --ssl-upstream-insecure-skip-verify=false
         - --standard-logging=true
         - --allowed-role=users
-        - --whitelist-domain=".kuanhong.org"
+        - --whitelist-domain=".${OAUTH2_PROXY_SUFFIX}"
         ports:
         - containerPort: 4180
           protocol: TCP
