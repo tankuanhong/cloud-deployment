@@ -100,6 +100,7 @@ kubernetes_menu() {
 2) Deploy NFS Backup Server
 3) Deploy Longhorn Storage
 4) Deploy Ingress NGINX Controller
+5) Deploy oAuth2 Proxy
 9) Back to Main Menu
 0) Exit
 
@@ -120,6 +121,10 @@ Choose an option:  "
     ;;
   4)
     source "${SCRIPT_PATH}/scripts/kubernetes-deploy-ingress-nginx.sh" || exit
+    exit 0
+    ;;
+  5)
+    source "${SCRIPT_PATH}/scripts/kubernetes-deploy-oauth2-proxy.sh" || exit
     exit 0
     ;;
   9)
