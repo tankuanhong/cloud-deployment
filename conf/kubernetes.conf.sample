@@ -46,4 +46,7 @@ export CLOUD_LB_NAME="frontend"
 export CLOUD_LB_HTTP_PORT=32554
 export CLOUD_LB_HTTPS_PORT=31006
 
+# oauth2 proxy
+export OAUTH2_PROXY_IMAGE="bitnami/oauth2-proxy:latest"
+
 } # this ensures the entire script is downloaded #
