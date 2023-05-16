@@ -102,7 +102,7 @@ spec:
         - --ssl-upstream-insecure-skip-verify=false
         - --standard-logging=true
         - --allowed-role=users
-        - --whitelist-domain=".${OAUTH2_PROXY_SUFFIX}"
+        - --whitelist-domain=".${OAUTH2_PROXY_DOMAIN}"
         ports:
         - containerPort: 4180
           protocol: TCP

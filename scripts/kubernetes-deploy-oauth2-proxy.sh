@@ -26,7 +26,7 @@ get_domain_name() {
   if [[ -z "${proxy_domain}" ]]; then
     err "Empty input"
     exit 1
-  elif [[ "${proxy_domain}" =~ $regex ]]; then
+  elif [[ "$(echo "${proxy_domain}" | grep -Pq "$regex"; echo $?)" = '0' ]]; then
     info "Domain validated"
     export OAUTH2_PROXY_DOMAIN=${proxy_domain}
     export OAUTH2_PROXY_SUFFIX=${proxy_domain//./}
