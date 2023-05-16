@@ -147,7 +147,8 @@ containers_menu() {
   echo -ne "
 [Containers]
 
-1) Deploy Keycloak
+1) Deploy Keycloak to new PersistentVolume
+2) Restore Keycloak from existing PersistentVolume
 9) Back to Main Menu
 0) Exit
 
@@ -155,7 +156,11 @@ Choose an option:  "
   read -r ans
   case $ans in
   1)
-    source "${SCRIPT_PATH}/scripts/containers-deploy-keycloak.sh" || exit
+    source "${SCRIPT_PATH}/scripts/keycloak-deploy.sh" || exit
+    exit 0
+    ;;
+  2)
+    source "${SCRIPT_PATH}/scripts/keycloak-restore.sh" || exit
     exit 0
     ;;
   9)
