@@ -47,11 +47,11 @@ spec:
         name: pod-keycloak-db
         env:
         - name: POSTGRESQL_POSTGRES_PASSWORD
-          value: "postgrespassword"
+          value: "${POSTGRESQL_POSTGRES_PASSWORD}"
         - name: POSTGRESQL_USERNAME
           value: "${KEYCLOAK_DB_USERNAME}"
         - name: POSTGRESQL_PASSWORD
-          value: "password123"
+          value: "${POSTGRESQL_PASSWORD}"
         - name: POSTGRESQL_DATABASE
           value: "${KEYCLOAK_DB_DATABASE}"
         ports:

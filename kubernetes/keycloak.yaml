@@ -61,7 +61,7 @@ spec:
         - name: KEYCLOAK_ADMIN_USER
           value: "${KEYCLOAK_ADMIN_USER}"
         - name: KEYCLOAK_ADMIN_PASSWORD
-          value: "bitnami"
+          value: "${KEYCLOAK_ADMIN_PASSWORD}"
         - name: KEYCLOAK_DATABASE_HOST
           value: "svc-keycloak-db"
         - name: KEYCLOAK_DATABASE_PORT
@@ -71,7 +71,7 @@ spec:
         - name: KEYCLOAK_DATABASE_USER
           value: "bn_keycloak"
         - name: KEYCLOAK_DATABASE_PASSWORD
-          value: "password123"
+          value: "${POSTGRESQL_PASSWORD}"
         - name: KEYCLOAK_DATABASE_SCHEMA
           value: "public"
         - name: KEYCLOAK_JDBC_PARAMS
