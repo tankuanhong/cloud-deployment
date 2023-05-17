@@ -1,0 +1,124 @@
+# https://github.com/kubernetes/ingress-nginx/blob/main/docs/examples/auth/oauth-external-auth/oauth2-proxy.yaml
+
+# https://docs.syseleven.de/metakube/de/tutorials/setup-ingress-auth-to-use-keycloak-oauth
+# https://stackoverflow.com/questions/65548562/what-is-proper-design-for-authentication-in-kubernetes-using-nginx-ingress-and-k
+# https://github.com/bitnami/containers/tree/main/bitnami/oauth2-proxy
+# https://oauth2-proxy.github.io/oauth2-proxy/docs/configuration/oauth_provider#keycloak-oidc-auth-provider
+# https://oauth2-proxy.github.io/oauth2-proxy/docs/configuration/overview/
+
+# Dynamic callback url
+# https://github.com/oauth2-proxy/oauth2-proxy/issues/109
+# https://elsesiy.com/blog/oauth2-proxy-dynamic-callback-urls
+
+# TODO
+# Standardize and cleanup allowed roles
+# Get sign_out endpoint working https://oauth2-proxy.github.io/oauth2-proxy/docs/features/endpoints/
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: app-oauth2-${OAUTH2_PROXY_SUFFIX}
+  name: dep-oauth2-${OAUTH2_PROXY_SUFFIX}
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-oauth2-${OAUTH2_PROXY_SUFFIX}
+  template:
+    metadata:
+      labels:
+        app: app-oauth2-${OAUTH2_PROXY_SUFFIX}
+    spec:
+      containers:
+      - image: ${OAUTH2_PROXY_IMAGE}
+        imagePullPolicy: Always
+        name: pod-oauth2-${OAUTH2_PROXY_SUFFIX}
+        args:
+        - --approval-prompt="force"
+        - --auth-logging=true
+        - --client-id=oauth2-${OAUTH2_PROXY_SUFFIX}
+        - --client-secret=KJxnZB1BWaYl2fgw93BySGj3t6vt3PyZ
+        - --cookie-domain=".${OAUTH2_PROXY_DOMAIN}"
+        - --cookie-expire=168h0m0s
+        - --cookie-httponly=true
+        - --cookie-secret=TlVKWkN2bWpqNU5sS05iTFVXWldTRUdC
+        - --cookie-secure=true
+        - --cookie-samesite=
+        - --cookie-csrf-per-request=false
+        - --cookie-csrf-expire=15m
+        # - --custom-sign-in-logo=""
+        - --email-domain=*
+        - --flush-interval=1s
+        - --force-https=false
+        - --force-json-errors=false
+        # - --banner=""
+        # - --footer=""
+        - --http-address=0.0.0.0:4180
+        - --logging-compress=false
+        - --logging-local-time=true
+        - --logging-max-age=7
+        - --logging-max-backups=0
+        - --logging-max-size=100
+        - --insecure-oidc-allow-unverified-email=false
+        - --insecure-oidc-skip-issuer-verification=false
+        - --insecure-oidc-skip-nonce=true
+        - --oidc-issuer-url=${OAUTH2_OIDC_ISSUER}
+        # - --oidc-email-claim="email"
+        - --oidc-groups-claim="groups"
+        - --oidc-audience-claim="aud"
+        - --pass-access-token=true
+        - --pass-authorization-header=true
+        - --pass-basic-auth=true
+        - --prefer-email-to-user=false
+        - --pass-host-header=true
+        - --pass-user-headers=true
+        - --prompt=""
+        - --provider=keycloak-oidc
+        - --provider-display-name="${OAUTH2_PROVIDER_NAME}"
+        - --ping-path="/ping"
+        - --ping-user-agent=""
+        - --metrics-address=
+        # - --proxy-prefix="/oauth2"
+        - --proxy-websockets=true
+        - --real-client-ip-header="X-Real-IP"
+        - --request-id-header="X-Request-Id"
+        - --request-logging=true
+        - --reverse-proxy=false
+        - --session-cookie-minimal=false
+        - --session-store-type=cookie
+        - --set-xauthrequest=false
+        - --set-authorization-header=false
+        - --set-basic-auth=false
+        - --show-debug-on-error=false
+        - --silence-ping-logging=false
+        - --skip-auth-preflight=false
+        - --skip-auth-strip-headers=true
+        - --skip-jwt-bearer-tokens=false
+        - --skip-oidc-discovery=false
+        - --skip-provider-button=false
+        - --ssl-insecure-skip-verify=false
+        - --ssl-upstream-insecure-skip-verify=false
+        - --standard-logging=true
+        - --allowed-role=users
+        - --whitelist-domain=".${OAUTH2_PROXY_DOMAIN}"
+        ports:
+        - containerPort: 4180
+          protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: app-oauth2-${OAUTH2_PROXY_SUFFIX}
+  name: svc-oauth2-${OAUTH2_PROXY_SUFFIX}-http
+  namespace: default
+spec:
+  ports:
+  - name: http
+    port: 4180
+    protocol: TCP
+    targetPort: 4180
+  selector:
+    app: app-oauth2-${OAUTH2_PROXY_SUFFIX}

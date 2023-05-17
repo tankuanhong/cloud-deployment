@@ -46,4 +46,12 @@ export CLOUD_LB_NAME="frontend"
 export CLOUD_LB_HTTP_PORT=32554
 export CLOUD_LB_HTTPS_PORT=31006
 
+# oauth2 proxy
+# OAUTH2_PROXY_DOMAIN should be obtained interactively
+# OAUTH2_PROXY_DOMAIN="kuanhong.org"
+# strip non-alphanumeric characters to create OAUTH2_PROXY_SUFFIX
+export OAUTH2_PROXY_IMAGE="bitnami/oauth2-proxy:latest"
+export OAUTH2_OIDC_ISSUER="https://keycloak.kuanhong.org/realms/dev"
+export OAUTH2_PROVIDER_NAME="Keycloak Auth"
+
 } # this ensures the entire script is downloaded #
