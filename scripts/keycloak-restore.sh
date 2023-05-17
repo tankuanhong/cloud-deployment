@@ -25,7 +25,7 @@ check_kube_ready() {
 
 check_pvc_exist() {
   info "Checking that required volumes exist..." && \
-    if [ "$(kubectl get pvc pvc-keycloak-db; echo $?)" != '0' ] || [ "$(kubectl get pvc pvc-keycloak; echo $?)" != '0' ]; then
+    if [ "$(kubectl get pvc pvc-keycloak-db >/dev/null 2>/dev/null; echo $?)" != '0' ] || [ "$(kubectl get pvc pvc-keycloak >/dev/null 2>/dev/null; echo $?)" != '0' ]; then
       err "Required persistent volume claims do not exist"
       err "Check that pvc-keycloak-db and pvc-keycloak are present"
       err "Exiting..."
