@@ -39,7 +39,7 @@ spec:
         - --approval-prompt="force"
         - --auth-logging=true
         - --client-id=oauth2-${OAUTH2_PROXY_SUFFIX}
-        - --client-secret=KJxnZB1BWaYl2fgw93BySGj3t6vt3PyZ
+        - --client-secret=${OAUTH2_CLIENT_SECRET}
         - --cookie-domain=".${OAUTH2_PROXY_DOMAIN}"
         - --cookie-expire=168h0m0s
         - --cookie-httponly=true

@@ -10,5 +10,7 @@ export KEYCLOAK_DB_DATABASE="bitnami_keycloak"
 
 # keycloak
 export KEYCLOAK_PVC_SIZE="2Gi"
+export KEYCLOAK_HOSTNAME="keycloak.kuanhong.org"
+export KEYCLOAK_ADMIN_USER="admin"
 
 } # this ensures the entire script is downloaded #
