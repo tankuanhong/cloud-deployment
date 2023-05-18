@@ -43,7 +43,7 @@ spec:
         - --cookie-domain=".${OAUTH2_PROXY_DOMAIN}"
         - --cookie-expire=168h0m0s
         - --cookie-httponly=true
-        - --cookie-secret=TlVKWkN2bWpqNU5sS05iTFVXWldTRUdC
+        - --cookie-secret="${OAUTH2_COOKIE_SECRET}"
         - --cookie-secure=true
         - --cookie-samesite=
         - --cookie-csrf-per-request=false
