@@ -42,14 +42,15 @@ configure_ufw() {
     ufw allow ${SSH_PORT}/tcp comment 'Custom SSH' && \
     info "Enabling ufw..." && \
     ufw --force enable && \
-    ufw status numbered && \
-    if [ "$(ufw status | grep -qw active >/dev/null 2>/dev/null; echo $?)" != '0' ]; then
-      err "ufw is not active"
-      err "Terminating script..."
-      exit 1
-    else
-      info "ufw configured and enabled"
-    fi
+    ufw status numbered
+
+  if [ "$(ufw status | grep -qw active >/dev/null 2>/dev/null; echo $?)" != '0' ]; then
+    err "ufw is not active"
+    err "Terminating script..."
+    exit 1
+  else
+    info "ufw configured and enabled"
+  fi
 }
 
 upgrade_packages() {
@@ -71,12 +72,13 @@ disable_autoupgrade() {
 setup_ntp() {
   info "Installing chrony and configuring timezone..." && \
     apt-get -y install chrony && \
-    timedatectl set-timezone Asia/Singapore && \
-    if ! service_active chrony; then
-      warn "chrony service is not running"
-    else
-      info "chrony installed and configured"
-    fi
+    timedatectl set-timezone Asia/Singapore
+
+  if ! service_active chrony; then
+    warn "chrony service is not running"
+  else
+    info "chrony installed and configured"
+  fi
 }
 
 harden_sshd() {
@@ -117,14 +119,15 @@ EOF
     mv /etc/ssh/moduli.tmp /etc/ssh/moduli && \
     info "Restarting SSH daemon..." && \
     systemctl restart sshd && \
-    systemctl status sshd --no-pager && \
-    if ! service_active sshd; then
-      err "SSH daemon is not running"
-      err "Terminating script..."
-      exit 1
-    else
-      info "SSH daemon configured and restarted"
-    fi
+    systemctl status sshd --no-pager
+
+  if ! service_active sshd; then
+    err "SSH daemon is not running"
+    err "Terminating script..."
+    exit 1
+  else
+    info "SSH daemon configured and restarted"
+  fi
 }
 
 configure_remote_syslog() {
@@ -193,13 +196,15 @@ install_teleport() {
       https://apt.releases.teleport.dev/${ID?} ${VERSION_CODENAME?} stable/v12" \
       | sudo tee /etc/apt/sources.list.d/teleport.list > /dev/null && \
     sudo apt-get update && \
-    sudo apt-get install teleport && \
-    if ! command_exist "teleport"; then
-      err "Teleport not found after installation"
-      err "Terminating script..."
-    else
-      info "Teleport installed"
-    fi
+    sudo apt-get install teleport
+
+  if ! command_exist "teleport"; then
+    err "Teleport not found after installation"
+    err "Terminating script..."
+    exit 1
+  else
+    info "Teleport installed"
+  fi
 }
 
 install_caddy() {
@@ -238,13 +243,15 @@ install_caddy() {
     /usr/bin/caddy manpage --directory man && \
     gzip -r man/ && \
     cp man/* /usr/share/man/man8/ && \
-    mandb && \
-    if ! command_exist "caddy"; then
-      err "Caddy not found after installation"
-      err "Terminating script..."
-    else
-      info "Caddy installed"
-    fi
+    mandb
+
+  if ! command_exist "caddy"; then
+    err "Caddy not found after installation"
+    err "Terminating script..."
+    exit 1
+  else
+    info "Caddy installed"
+  fi
 }
 
 configure_caddy() {
@@ -464,22 +471,24 @@ EOF
   info "Starting Teleport..." && \
     systemctl enable teleport && \
     systemctl start teleport && \
-    systemctl status teleport --no-pager && \
-    if ! service_active teleport; then
-      warn "Teleport service is not running"
-    else
-      info "Teleport configured and started"
-    fi
+    systemctl status teleport --no-pager
+
+  if ! service_active teleport; then
+    warn "Teleport service is not running"
+  else
+    info "Teleport configured and started"
+  fi
 }
 
 install_fail2ban() {
   info "Installing fail2ban..." && \
-    apt-get -y install fail2ban && \
-    if ! service_active fail2ban; then
-      warn "fail2ban service is not running"
-    else
-      info "fail2ban installed"
-    fi
+    apt-get -y install fail2ban
+
+  if ! service_active fail2ban; then
+    warn "fail2ban service is not running"
+  else
+    info "fail2ban installed"
+  fi
 }
 
 configure_fail2ban() {
@@ -581,12 +590,13 @@ EOF
     systemctl daemon-reload && \
     systemctl enable kopia && \
     systemctl start kopia && \
-    systemctl status kopia --no-pager && \
-    if ! service_active kopia; then
-      warn "kopia service is not running"
-    else
-      info "kopia configured and started"
-    fi
+    systemctl status kopia --no-pager
+
+  if ! service_active kopia; then
+    warn "kopia service is not running"
+  else
+    info "kopia configured and started"
+  fi
 }
 
 install_cron() {

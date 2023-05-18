@@ -41,14 +41,15 @@ configure_ufw() {
     ufw allow from ${KUBE_INT_NET} && \
     info "Enabling ufw..." && \
     ufw --force enable && \
-    ufw status numbered && \
-    if [ "$(ufw status | grep -qw active >/dev/null 2>/dev/null; echo $?)" != '0' ]; then
-      err "ufw is not active"
-      err "Terminating script..."
-      exit 1
-    else
-      info "ufw configured and enabled"
-    fi
+    ufw status numbered
+
+  if [ "$(ufw status | grep -qw active >/dev/null 2>/dev/null; echo $?)" != '0' ]; then
+    err "ufw is not active"
+    err "Terminating script..."
+    exit 1
+  else
+    info "ufw configured and enabled"
+  fi
 }
 
 upgrade_packages() {
@@ -70,12 +71,13 @@ disable_autoupgrade() {
 setup_ntp() {
   info "Installing chrony and configuring timezone..." && \
     apt-get -y install chrony && \
-    timedatectl set-timezone Asia/Singapore && \
-    if ! service_active chrony; then
-      warn "chrony service is not running"
-    else
-      info "chrony installed and configured"
-    fi
+    timedatectl set-timezone Asia/Singapore
+
+  if ! service_active chrony; then
+    warn "chrony service is not running"
+  else
+    info "chrony installed and configured"
+  fi
 }
 
 harden_sshd() {
@@ -116,14 +118,15 @@ EOF
     mv /etc/ssh/moduli.tmp /etc/ssh/moduli && \
     info "Restarting SSH daemon..." && \
     systemctl restart sshd && \
-    systemctl status sshd --no-pager && \
-    if ! service_active sshd; then
-      err "SSH daemon is not running"
-      err "Terminating script..."
-      exit 1
-    else
-      info "SSH daemon configured and restarted"
-    fi
+    systemctl status sshd --no-pager
+
+  if ! service_active sshd; then
+    err "SSH daemon is not running"
+    err "Terminating script..."
+    exit 1
+  else
+    info "SSH daemon configured and restarted"
+  fi
 }
 
 configure_remote_syslog() {
@@ -176,12 +179,13 @@ EOF
     wget https://assets.logdna.com/rootca/ld-root-ca.crt -O /etc/ld-root-ca.crt && \
     info "Restarting rsyslog..." && \
     systemctl restart rsyslog && \
-    systemctl status rsyslog --no-pager && \
-    if ! service_active rsyslog; then
-      warn "Rsyslog service is not running"
-    else
-      info "Rsyslog configured and restarted"
-    fi
+    systemctl status rsyslog --no-pager
+
+  if ! service_active rsyslog; then
+    warn "Rsyslog service is not running"
+  else
+    info "Rsyslog configured and restarted"
+  fi
 }
 
 setup_kernel() {
@@ -208,12 +212,13 @@ install_containerd() {
     mkdir -p /etc/containerd && \
     containerd config default | sudo tee /etc/containerd/config.toml && \
     systemctl restart containerd && \
-    systemctl status containerd --no-pager && \
-    if ! service_active containerd; then
-      warn "Containerd service is not running"
-    else
-      info "Containerd configured and started"
-    fi
+    systemctl status containerd --no-pager
+
+  if ! service_active containerd; then
+    warn "Containerd service is not running"
+  else
+    info "Containerd configured and started"
+  fi
 }
 
 disable_swap() {
@@ -254,12 +259,12 @@ configure_kubelet() {
   systemctl daemon-reload && \
     systemctl restart kubelet
 
-  systemctl status kubelet --no-pager && \
-    if ! service_active kubelet; then
-      warn "Kubelet service is not running"
-    else
-      info "Kubelet configured and restarted"
-    fi
+  systemctl status kubelet --no-pager
+  if ! service_active kubelet; then
+    warn "Kubelet service is not running"
+  else
+    info "Kubelet configured and restarted"
+  fi
 }
 
 configure_ufw

@@ -22,13 +22,15 @@ install_kopia() {
     curl -s https://kopia.io/signing-key | sudo gpg --dearmor -o /usr/share/keyrings/kopia-keyring.gpg && \
     echo "deb [signed-by=/usr/share/keyrings/kopia-keyring.gpg] http://packages.kopia.io/apt/ stable main" | sudo tee /etc/apt/sources.list.d/kopia.list && \
     apt update && \
-    apt install kopia && \
-    if ! command_exist "kopia"; then
-      err "kopia not found after installation"
-      err "Terminating script..."
-    else
-      info "kopia installed"
-    fi
+    apt install kopia
+
+  if ! command_exist "kopia"; then
+    err "kopia not found after installation"
+    err "Terminating script..."
+    exit 1
+  else
+    info "kopia installed"
+  fi
 }
 
 configure_kopia() {
@@ -70,23 +72,25 @@ EOF
     systemctl daemon-reload && \
     systemctl enable kopia && \
     systemctl start kopia && \
-    systemctl status kopia --no-pager && \
-    if ! service_active kopia; then
-      warn "kopia service is not running"
-    else
-      info "kopia configured and started"
-    fi
+    systemctl status kopia --no-pager
+
+  if ! service_active kopia; then
+    warn "kopia service is not running"
+  else
+    info "kopia configured and started"
+  fi
 }
 
 install_nfs_server() {
   info "Installing NFS server..." && \
     apt update && \
-    apt -y install nfs-kernel-server && \
-    if ! service_active nfs-kernel-server; then
-      warn "nfs server is not running"
-    else
-      info "nfs server installed"
-    fi
+    apt -y install nfs-kernel-server
+
+  if ! service_active nfs-kernel-server; then
+    warn "nfs server is not running"
+  else
+    info "nfs server installed"
+  fi
 }
 
 configure_nfs_server() {
@@ -94,12 +98,13 @@ configure_nfs_server() {
     mkdir -p "${MOUNT_PATH}/longhorn" && \
     chown nobody:nogroup "${MOUNT_PATH}/longhorn" && \
     echo "${MOUNT_PATH}/longhorn    ${KUBE_INT_NET}(rw,sync,no_subtree_check)" | sudo tee -a /etc/exports && \
-    systemctl restart nfs-kernel-server && \
-    if ! service_active nfs-kernel-server; then
-      warn "nfs server is not running"
-    else
-      info "nfs server configured"
-    fi
+    systemctl restart nfs-kernel-server
+
+  if ! service_active nfs-kernel-server; then
+    warn "nfs server is not running"
+  else
+    info "nfs server configured"
+  fi
 }
 
 install_kopia
