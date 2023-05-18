@@ -598,24 +598,20 @@ install_cron() {
   fi
 }
 
-main() {
-  configure_ufw
-  upgrade_packages
-  disable_autoupgrade
-  setup_ntp
-  harden_sshd
-  configure_remote_syslog
-  install_teleport
-  install_caddy
-  configure_caddy
-  configure_teleport
-  install_fail2ban
-  configure_fail2ban
-  install_kopia
-  configure_kopia
-  install_cron
-}
-
-main
+configure_ufw
+upgrade_packages
+disable_autoupgrade
+setup_ntp
+harden_sshd
+configure_remote_syslog
+install_teleport
+install_caddy
+configure_caddy
+configure_teleport
+install_fail2ban
+configure_fail2ban
+install_kopia
+configure_kopia
+install_cron
 
 } # this ensures the entire script is downloaded #

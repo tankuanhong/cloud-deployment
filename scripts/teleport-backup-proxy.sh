@@ -57,13 +57,9 @@ export_caddy_data() {
   tar cf ${SCRIPT_PATH}/caddy_data_dir.tar .local
 }
 
-main() {
-  export_teleport_state
-  stop_teleport_service
-  export_teleport_data
-  export_caddy_data
-}
-
-main
+export_teleport_state
+stop_teleport_service
+export_teleport_data
+export_caddy_data
 
 } # this ensures the entire script is downloaded #

@@ -68,15 +68,11 @@ restore_teleport_state() {
   info "After that, Teleport can started via service"
 }
 
-main() {
-  check_restore_files
-  restore_caddy_data
-  deploy_teleport_proxy
-  stop_teleport_service
-  restore_teleport_data
-  restore_teleport_state
-}
-
-main
+check_restore_files
+restore_caddy_data
+deploy_teleport_proxy
+stop_teleport_service
+restore_teleport_data
+restore_teleport_state
 
 } # this ensures the entire script is downloaded #

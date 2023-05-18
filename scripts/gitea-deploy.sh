@@ -713,24 +713,20 @@ create_gitea_admin() {
     su ${GITEA_SERVICE_ACCOUNT} -c "export GITEA_WORK_DIR=/var/lib/gitea && gitea admin user create --username ${GITEA_ADMIN_USERNAME} --random-password --random-password-length 48 --email ${GITEA_ADMIN_EMAIL} --admin -config /etc/gitea/app.ini"
 }
 
-main() {
-  configure_ufw
-  upgrade_packages
-  disable_autoupgrade
-  setup_ntp
-  harden_sshd
-  configure_remote_syslog
-  install_mariadb
-  configure_mariadb
-  create_service_account
-  configure_ext_volume
-  install_gitea
-  configure_gitea
-  install_caddy
-  configure_caddy
-  create_gitea_admin
-}
-
-main
+configure_ufw
+upgrade_packages
+disable_autoupgrade
+setup_ntp
+harden_sshd
+configure_remote_syslog
+install_mariadb
+configure_mariadb
+create_service_account
+configure_ext_volume
+install_gitea
+configure_gitea
+install_caddy
+configure_caddy
+create_gitea_admin
 
 } # this ensures the entire script is downloaded #
