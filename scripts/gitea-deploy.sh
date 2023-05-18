@@ -42,14 +42,15 @@ configure_ufw() {
     ufw allow ${SSH_PORT}/tcp comment 'Custom SSH' && \
     info "Enabling ufw..." && \
     ufw --force enable && \
-    ufw status numbered && \
-    if [ "$(ufw status | grep -qw active >/dev/null 2>/dev/null; echo $?)" != '0' ]; then
-      err "ufw is not active"
-      err "Terminating script..."
-      exit 1
-    else
-      info "ufw configured and enabled"
-    fi
+    ufw status numbered
+
+  if [ "$(ufw status | grep -qw active >/dev/null 2>/dev/null; echo $?)" != '0' ]; then
+    err "ufw is not active"
+    err "Terminating script..."
+    exit 1
+  else
+    info "ufw configured and enabled"
+  fi
 }
 
 upgrade_packages() {
@@ -71,12 +72,13 @@ disable_autoupgrade() {
 setup_ntp() {
   info "Installing chrony and configuring timezone..." && \
     apt-get -y install chrony && \
-    timedatectl set-timezone Asia/Singapore && \
-    if ! service_active chrony; then
-      warn "chrony service is not running"
-    else
-      info "chrony installed and configured"
-    fi
+    timedatectl set-timezone Asia/Singapore
+
+  if ! service_active chrony; then
+    warn "chrony service is not running"
+  else
+    info "chrony installed and configured"
+  fi
 }
 
 harden_sshd() {
@@ -117,14 +119,15 @@ EOF
     mv /etc/ssh/moduli.tmp /etc/ssh/moduli && \
     info "Restarting SSH daemon..." && \
     systemctl restart sshd && \
-    systemctl status sshd --no-pager && \
-    if ! service_active sshd; then
-      err "SSH daemon is not running"
-      err "Terminating script..."
-      exit 1
-    else
-      info "SSH daemon configured and restarted"
-    fi
+    systemctl status sshd --no-pager
+
+  if ! service_active sshd; then
+    err "SSH daemon is not running"
+    err "Terminating script..."
+    exit 1
+  else
+    info "SSH daemon configured and restarted"
+  fi
 }
 
 configure_remote_syslog() {
@@ -177,12 +180,13 @@ EOF
     wget https://assets.logdna.com/rootca/ld-root-ca.crt -O /etc/ld-root-ca.crt && \
     info "Restarting rsyslog..." && \
     systemctl restart rsyslog && \
-    systemctl status rsyslog --no-pager && \
-    if ! service_active rsyslog; then
-      warn "Rsyslog service is not running"
-    else
-      info "Rsyslog configured and restarted"
-    fi
+    systemctl status rsyslog --no-pager
+
+  if ! service_active rsyslog; then
+    warn "Rsyslog service is not running"
+  else
+    info "Rsyslog configured and restarted"
+  fi
 }
 
 install_mariadb() {
@@ -247,25 +251,27 @@ install_gitea() {
     chmod 750 /etc/gitea && \
     info "Installing Gitea binary..." && \
     wget ${GITEA_BINARY_URL} && \
-    wget ${GITEA_BINARY_URL}.sha256 && \
-    if [ "$(cat gitea-*.sha256 | sha256sum --check --status; echo $?)" = '0' ]; then
-      info "Gitea checksum verified"
-      rm -f gitea-*.sha256
-    else
-      err "Gitea checksum incorrect"
-      err "Terminating script..."
-      exit 1
-    fi
+    wget ${GITEA_BINARY_URL}.sha256
 
-    mv gitea-* /usr/local/bin/gitea && \
+  if [ "$(cat gitea-*.sha256 | sha256sum --check --status; echo $?)" = '0' ]; then
+    info "Gitea checksum verified"
+    rm -f gitea-*.sha256
+  else
+    err "Gitea checksum incorrect"
+    err "Terminating script..."
+    exit 1
+  fi
+
+  mv gitea-* /usr/local/bin/gitea && \
     chmod +x /usr/local/bin/gitea
 
-    if ! command_exist "gitea"; then
-      err "Gitea not found after installation"
-      err "Terminating script..."
-    else
-      info "Gitea installed"
-    fi
+  if ! command_exist "gitea"; then
+    err "Gitea not found after installation"
+    err "Terminating script..."
+    exit 1
+  else
+    info "Gitea installed"
+  fi
 }
 
 configure_gitea() {
@@ -411,12 +417,13 @@ EOF
     systemctl daemon-reload && \
     systemctl enable gitea && \
     systemctl start gitea && \
-    systemctl status gitea --no-pager && \
-    if ! service_active gitea; then
-      warn "Gitea service is not running"
-    else
-      info "Gitea configured and started"
-    fi
+    systemctl status gitea --no-pager
+
+  if ! service_active gitea; then
+    warn "Gitea service is not running"
+  else
+    info "Gitea configured and started"
+  fi
 }
 
 install_caddy() {
@@ -455,13 +462,15 @@ install_caddy() {
     /usr/bin/caddy manpage --directory man && \
     gzip -r man/ && \
     cp man/* /usr/share/man/man8/ && \
-    mandb && \
-    if ! command_exist "caddy"; then
-      err "Caddy not found after installation"
-      err "Terminating script..."
-    else
-      info "Caddy installed"
-    fi
+    mandb
+
+  if ! command_exist "caddy"; then
+    err "Caddy not found after installation"
+    err "Terminating script..."
+    exit 1
+  else
+    info "Caddy installed"
+  fi
 }
 
 configure_caddy() {
@@ -584,12 +593,13 @@ EOL
 
 install_fail2ban() {
   info "Installing fail2ban..." && \
-    apt-get -y install fail2ban && \
-    if ! service_active fail2ban; then
-      warn "fail2ban service is not running"
-    else
-      info "fail2ban installed"
-    fi
+    apt-get -y install fail2ban
+
+  if ! service_active fail2ban; then
+    warn "fail2ban service is not running"
+  else
+    info "fail2ban installed"
+  fi
 }
 
 configure_fail2ban() {
@@ -630,12 +640,13 @@ EOF
   info "Restarting fail2ban with new configuration" && \
     systemctl enable fail2ban && \
     systemctl restart fail2ban && \
-    systemctl status fail2ban --no-pager && \
-    if ! service_active fail2ban; then
-      warn "fail2ban service is not running"
-    else
-      info "fail2ban configured and started"
-    fi
+    systemctl status fail2ban --no-pager
+
+  if ! service_active fail2ban; then
+    warn "fail2ban service is not running"
+  else
+    info "fail2ban configured and started"
+  fi
 }
 
 install_kopia() {
@@ -643,13 +654,15 @@ install_kopia() {
     curl -s https://kopia.io/signing-key | sudo gpg --dearmor -o /usr/share/keyrings/kopia-keyring.gpg && \
     echo "deb [signed-by=/usr/share/keyrings/kopia-keyring.gpg] http://packages.kopia.io/apt/ stable main" | sudo tee /etc/apt/sources.list.d/kopia.list && \
     apt update && \
-    apt install kopia && \
-    if ! command_exist "kopia"; then
-      err "kopia not found after installation"
-      err "Terminating script..."
-    else
-      info "kopia installed"
-    fi
+    apt install kopia
+
+  if ! command_exist "kopia"; then
+    err "kopia not found after installation"
+    err "Terminating script..."
+    exit 1
+  else
+    info "kopia installed"
+  fi
 }
 
 configuring_kopia() {
@@ -691,12 +704,13 @@ EOF
     systemctl daemon-reload && \
     systemctl enable kopia && \
     systemctl start kopia && \
-    systemctl status kopia --no-pager && \
-    if ! service_active kopia; then
-      warn "kopia service is not running"
-    else
-      info "kopia configured and started"
-    fi
+    systemctl status kopia --no-pager
+
+  if ! service_active kopia; then
+    warn "kopia service is not running"
+  else
+    info "kopia configured and started"
+  fi
 }
 
 install_cron() {
