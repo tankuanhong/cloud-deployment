@@ -69,3 +69,21 @@ spec:
       - name: vol-firefly3
         persistentVolumeClaim:
           claimName: pvc-firefly3
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-firefly3
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: ${FIREFLY3_HOSTNAME}
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: svc-firefly3-http
+            port:
+              number: 8080

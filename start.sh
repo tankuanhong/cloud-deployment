@@ -148,7 +148,8 @@ containers_menu() {
 [Containers]
 
 1) Deploy Keycloak to new PersistentVolume
-2) Restore Keycloak from existing PersistentVolume
+2) Deploy Firefly to new PersistentVolume
+3) Restore Keycloak from existing PersistentVolume
 9) Back to Main Menu
 0) Exit
 
@@ -160,6 +161,10 @@ Choose an option:  "
     exit 0
     ;;
   2)
+    source "${SCRIPT_PATH}/scripts/firefly3-deploy.sh" || exit
+    exit 0
+    ;;
+  3)
     source "${SCRIPT_PATH}/scripts/keycloak-restore.sh" || exit
     exit 0
     ;;

@@ -20,5 +20,6 @@ export FIREFLY3_DB_DATABASE="firefly"
 
 # firefly-iii
 export FIREFLY3_PVC_SIZE="2Gi"
+export FIREFLY3_HOSTNAME="firefly3.kuanhong.org"
 
 } # this ensures the entire script is downloaded #
