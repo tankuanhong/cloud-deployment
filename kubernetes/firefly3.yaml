@@ -1,0 +1,71 @@
+# https://hub.docker.com/r/fireflyiii/core
+
+#PVC_START
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-firefly3
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: ${FIREFLY3_PVC_SIZE}
+#PVC_END
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-firefly3-http
+spec:
+  ports:
+  - port: 8080
+  selector:
+    app: app-firefly3
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dep-firefly3
+  labels:
+    app: app-firefly3
+spec:
+  selector:
+    matchLabels:
+      app: app-firefly3
+  template:
+    metadata:
+      labels:
+        app: app-firefly3
+    spec:
+      restartPolicy: Always
+      containers:
+      - image: fireflyiii/core:version-6.0.10
+        name: pod-firefly3
+        env: 
+        - name: APP_KEY
+          value: "Hfbp0hJh2amTwCcDkClqYHB4BJRrBD4Y"
+        - name: DB_HOST
+          value: "svc-firefly3-db"
+        - name: DB_PORT
+          value: "3306"
+        - name: DB_CONNECTION
+          value: "mysql"
+        - name: DB_DATABASE
+          value: "${FIREFLY3_DB_DATABASE}"
+        - name: DB_USERNAME
+          value: "${FIREFLY3_DB_USERNAME}"
+        - name: DB_PASSWORD
+          value: "${FIREFLY3_DB_PASSWORD}"
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        volumeMounts:
+        - name: vol-firefly3
+          mountPath: /var/www/html/storage/upload
+      volumes:
+      - name: vol-firefly3
+        persistentVolumeClaim:
+          claimName: pvc-firefly3
