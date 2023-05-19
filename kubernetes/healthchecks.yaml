@@ -1,0 +1,115 @@
+# https://hub.docker.com/r/healthchecks/healthchecks
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-healthchecks-http
+spec:
+  ports:
+  - port: 8000
+  selector:
+    app: app-healthchecks
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dep-healthchecks
+  labels:
+    app: app-healthchecks
+spec:
+  selector:
+    matchLabels:
+      app: app-healthchecks
+  template:
+    metadata:
+      labels:
+        app: app-healthchecks
+    spec:
+      restartPolicy: Always
+      containers:
+      - image: healthchecks/healthchecks:v2.8.1
+        name: pod-healthchecks
+        env:
+        - name: ADMINS
+          value: "${HEALTHCHECKS_ADMINS}"
+        - name: ALLOWED_HOSTS
+          value: "${HEALTHCHECKS_ALLOWED_HOSTS}"
+        - name: DB
+          value: "${HEALTHCHECKS_DB}"
+        - name: DB_HOST
+          value: "${HEALTHCHECKS_DB_HOST}"
+        - name: DB_NAME
+          value: "${HEALTHCHECKS_DB_NAME}"
+        - name: DB_PASSWORD
+          value: "${HEALTHCHECKS_DB_PASSWORD}"
+        - name: DB_PORT
+          value: "${HEALTHCHECKS_DB_PORT}"
+        - name: DB_USER
+          value: "${HEALTHCHECKS_DB_USER}"
+        - name: DEBUG
+          value: "False"
+        - name: DEFAULT_FROM_EMAIL
+          value: "healthchecks@example.org"
+        - name: EMAIL_HOST
+          value: "${HEALTHCHECKS_EMAIL_HOST}"
+        - name: EMAIL_HOST_PASSWORD
+          value: "${HEALTHCHECKS_EMAIL_PASSWORD}"
+        - name: EMAIL_HOST_USER
+          value: "${HEALTHCHECKS_EMAIL_USER}"
+        - name: EMAIL_PORT
+          value: "587"
+        - name: EMAIL_USE_TLS
+          value: "True"
+        - name: EMAIL_USE_SSL
+          value: "False"
+        - name: EMAIL_USE_VERIFICATION
+          value: "False"
+        - name: MASTER_BADGE_LABEL
+          value: "${HEALTHCHECKS_BADGE_LABEL}"
+        - name: PING_BODY_LIMIT
+          value: "10000"
+        - name: PING_ENDPOINT
+          value: "${HEALTHCHECKS_PING_ENDPOINT}"
+        - name: PROMETHEUS_ENABLED
+          value: "${HEALTHCHECKS_PROMETHEUS_ENABLED}"
+        - name: REGISTRATION_OPEN
+          value: "False"
+        - name: REMOTE_USER_HEADER
+          value: "${HEALTHCHECKS_USER_HEADER}"
+        - name: SECRET_KEY
+          value: "${HEALTHCHECKS_SECRET_KEY}"
+        - name: SHELL_ENABLED
+          value: "False"
+        - name: SITE_LOGO_URL
+          value: "${HEALTHCHECKS_LOGO_URL}"
+        - name: SITE_NAME
+          value: "${HEALTHCHECKS_SITE_NAME}"
+        - name: SITE_ROOT
+          value: "${HEALTHCHECKS_SITE_ROOT}"
+        - name: TELEGRAM_BOT_NAME
+          value: "${HEALTHCHECKS_TELEGRAM_BOT}"
+        - name: TELEGRAM_TOKEN
+          value: "${HEALTHCHECKS_TELEGRAM_TOKEN}"
+        - name: WEBHOOKS_ENABLED
+          value: "True"
+        ports:
+        - containerPort: 8000
+          protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-healthchecks
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: ${HEALTHCHECKS_HOSTNAME}
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: svc-healthchecks-http
+            port:
+              number: 8000
