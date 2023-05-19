@@ -35,7 +35,7 @@ deploy_database() {
 deploy_firefly3() {
   info "Setting custom firefly-iii parameters..." && \
     info "Generating FIREFLY3_APP_KEY..." && \
-    export FIREFLY3_APP_KEY=$(tr -dc A-Za-z0-9 </dev/urandom | head -c $(shuf -i 39-63 -n 1)) && \
+    export FIREFLY3_APP_KEY=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 32) && \
     tmpfile=$(mktemp) && \
     cp --attributes-only --preserve "${SCRIPT_PATH}/kubernetes/firefly3.yaml" $tmpfile && \
     cat "${SCRIPT_PATH}/kubernetes/firefly3.yaml" | envsubst > $tmpfile && \

@@ -46,7 +46,7 @@ spec:
         name: pod-firefly3
         env: 
         - name: APP_KEY
-          value: "Hfbp0hJh2amTwCcDkClqYHB4BJRrBD4Y"
+          value: "${FIREFLY3_APP_KEY}"
         - name: DB_HOST
           value: "svc-firefly3-db"
         - name: DB_PORT
