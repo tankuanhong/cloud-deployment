@@ -68,21 +68,21 @@ spec:
         - name: TRUSTED_PROXIES
           value: "**"
         - name: MAIL_MAILER
-          value: "mailgun"
+          value: "${FIREFLY3_MAILER}"
         - name: MAIL_FROM
-          value: "firefly.mailgun@kuanhong.org"
+          value: "${FIREFLY3_MAIL_FROM}"
         - name: MAILGUN_DOMAIN
-          value: "kuanhong.org"
+          value: "${FIREFLY3_MAILGUN_DOMAIN}"
         - name: MAILGUN_SECRET
-          value: "changeme"
+          value: "${FIREFLY3_MAILGUN_SECRET}"
         - name: MAILGUN_ENDPOINT
-          value: "api.mailgun.net"
+          value: "${FIREFLY3_MAILGUN_ENDPOINT}"
         - name: AUTHENTICATION_GUARD_HEADER
-          value: "REMOTE_USER"
+          value: "${FIREFLY3_GUARD_HEADER}"
         - name: AUTHENTICATION_GUARD_EMAIL
-          value: ""
+          value: "${FIREFLY3_GUARD_EMAIL}"
         - name: CUSTOM_LOGOUT_URL
-          value: ""
+          value: "${FIREFLY3_LOGOUT_URL}"
         ports:
         - containerPort: 8080
           protocol: TCP

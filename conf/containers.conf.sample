@@ -21,5 +21,14 @@ export FIREFLY3_DB_DATABASE="firefly"
 # firefly-iii
 export FIREFLY3_PVC_SIZE="2Gi"
 export FIREFLY3_HOSTNAME="firefly3.kuanhong.org"
+export FIREFLY3_MAILER="log"
+#export FIREFLY3_MAILER="mailgun"
+export FIREFLY3_MAIL_FROM="firefly@mailgun.kuanhong.org"
+export FIREFLY3_MAILGUN_DOMAIN="kuanhong.org"
+export FIREFLY3_MAILGUN_SECRET="changeme"
+export FIREFLY3_MAILGUN_ENDPOINT="api.mailgun.net"
+export FIREFLY3_GUARD_HEADER="REMOTE_USER"
+export FIREFLY3_GUARD_EMAIL=""
+export FIREFLY3_LOGOUT_URL=""
 
 } # this ensures the entire script is downloaded #
