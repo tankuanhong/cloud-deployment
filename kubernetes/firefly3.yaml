@@ -44,9 +44,15 @@ spec:
       containers:
       - image: fireflyiii/core:version-6.0.10
         name: pod-firefly3
-        env: 
+        env:
+        - name: APP_ENV
+          value: "local"
+        - name: APP_DEBUG
+          value: "false"
         - name: APP_KEY
           value: "${FIREFLY3_APP_KEY}"
+        - name: TZ
+          value: "Asia/Singapore"
         - name: DB_HOST
           value: "svc-firefly3-db"
         - name: DB_PORT
@@ -59,6 +65,24 @@ spec:
           value: "${FIREFLY3_DB_USERNAME}"
         - name: DB_PASSWORD
           value: "${FIREFLY3_DB_PASSWORD}"
+        - name: TRUSTED_PROXIES
+          value: "**"
+        - name: MAIL_MAILER
+          value: "mailgun"
+        - name: MAIL_FROM
+          value: "firefly.mailgun@kuanhong.org"
+        - name: MAILGUN_DOMAIN
+          value: "kuanhong.org"
+        - name: MAILGUN_SECRET
+          value: "changeme"
+        - name: MAILGUN_ENDPOINT
+          value: "api.mailgun.net"
+        - name: AUTHENTICATION_GUARD_HEADER
+          value: "REMOTE_USER"
+        - name: AUTHENTICATION_GUARD_EMAIL
+          value: ""
+        - name: CUSTOM_LOGOUT_URL
+          value: ""
         ports:
         - containerPort: 8080
           protocol: TCP
