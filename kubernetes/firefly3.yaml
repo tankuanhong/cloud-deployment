@@ -1,0 +1,113 @@
+# https://hub.docker.com/r/fireflyiii/core
+
+#PVC_START
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-firefly3
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: ${FIREFLY3_PVC_SIZE}
+#PVC_END
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-firefly3-http
+spec:
+  ports:
+  - port: 8080
+  selector:
+    app: app-firefly3
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dep-firefly3
+  labels:
+    app: app-firefly3
+spec:
+  selector:
+    matchLabels:
+      app: app-firefly3
+  template:
+    metadata:
+      labels:
+        app: app-firefly3
+    spec:
+      restartPolicy: Always
+      containers:
+      - image: fireflyiii/core:version-6.0.10
+        name: pod-firefly3
+        env:
+        - name: APP_ENV
+          value: "local"
+        - name: APP_DEBUG
+          value: "false"
+        - name: APP_KEY
+          value: "${FIREFLY3_APP_KEY}"
+        - name: TZ
+          value: "Asia/Singapore"
+        - name: DB_HOST
+          value: "svc-firefly3-db"
+        - name: DB_PORT
+          value: "3306"
+        - name: DB_CONNECTION
+          value: "mysql"
+        - name: DB_DATABASE
+          value: "${FIREFLY3_DB_DATABASE}"
+        - name: DB_USERNAME
+          value: "${FIREFLY3_DB_USERNAME}"
+        - name: DB_PASSWORD
+          value: "${FIREFLY3_DB_PASSWORD}"
+        - name: TRUSTED_PROXIES
+          value: "**"
+        - name: MAIL_MAILER
+          value: "${FIREFLY3_MAILER}"
+        - name: MAIL_FROM
+          value: "${FIREFLY3_MAIL_FROM}"
+        - name: MAILGUN_DOMAIN
+          value: "${FIREFLY3_MAILGUN_DOMAIN}"
+        - name: MAILGUN_SECRET
+          value: "${FIREFLY3_MAILGUN_SECRET}"
+        - name: MAILGUN_ENDPOINT
+          value: "${FIREFLY3_MAILGUN_ENDPOINT}"
+        - name: AUTHENTICATION_GUARD_HEADER
+          value: "${FIREFLY3_GUARD_HEADER}"
+        - name: AUTHENTICATION_GUARD_EMAIL
+          value: "${FIREFLY3_GUARD_EMAIL}"
+        - name: CUSTOM_LOGOUT_URL
+          value: "${FIREFLY3_LOGOUT_URL}"
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        volumeMounts:
+        - name: vol-firefly3
+          mountPath: /var/www/html/storage/upload
+      volumes:
+      - name: vol-firefly3
+        persistentVolumeClaim:
+          claimName: pvc-firefly3
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-firefly3
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: ${FIREFLY3_HOSTNAME}
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: svc-firefly3-http
+            port:
+              number: 8080

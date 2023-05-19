@@ -1,0 +1,80 @@
+# https://github.com/bitnami/containers/blob/main/bitnami/mariadb/10.9/debian-11/rootfs/opt/bitnami/scripts/mariadb-env.sh
+# https://hub.docker.com/r/bitnami/mariadb
+
+#PVC_START
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-firefly3-db
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: ${FIREFLY3_DB_PVC_SIZE}
+#PVC_END
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-firefly3-db
+spec:
+  ports:
+  - port: 3306
+  selector:
+    app: app-firefly3-db
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dep-firefly3-db
+  labels:
+    app: app-firefly3-db
+spec:
+  selector:
+    matchLabels:
+      app: app-firefly3-db
+  template:
+    metadata:
+      labels:
+        app: app-firefly3-db
+    spec:
+      restartPolicy: Always
+      containers:
+      - image: bitnami/mariadb:10.11.3
+        name: pod-firefly3-db
+        env:
+        - name: ALLOW_EMPTY_PASSWORD
+          value: "no"
+        - name: MARIADB_SKIP_TEST_DB
+          value: "yes"
+        - name: MARIADB_EXTRA_FLAGS
+          value: "--max-connect-errors=1000 --max_connections=155"
+        - name: MARIADB_CHARACTER_SET
+          value: "utf8"
+        - name: MARIADB_COLLATE
+          value: "utf8_general_ci"
+        - name: MARIADB_ROOT_USER
+          value: "root"
+        - name: MARIADB_ROOT_PASSWORD
+          value: "${FIREFLY3_DB_ROOT_PASSWORD}"
+        - name: MARIADB_USER
+          value: "${FIREFLY3_DB_USERNAME}"
+        - name: MARIADB_PASSWORD
+          value: "${FIREFLY3_DB_PASSWORD}"
+        - name: MARIADB_DATABASE
+          value: "${FIREFLY3_DB_DATABASE}"
+        ports:
+        - containerPort: 3306
+          protocol: TCP
+        volumeMounts:
+        - name: vol-firefly3-db
+          mountPath: /bitnami/mariadb
+      volumes:
+      - name: vol-firefly3-db
+        persistentVolumeClaim:
+          claimName: pvc-firefly3-db
+      securityContext:
+        fsGroup: 1001
