@@ -29,7 +29,8 @@ deploy_database() {
     cat "${SCRIPT_PATH}/kubernetes/healthchecks-db.yaml" | envsubst > $tmpfile && \
     mv $tmpfile "${SCRIPT_PATH}/kubernetes/healthchecks-db.yaml" && \
     info "Deploying database..." && \
-    kubectl apply -f "${SCRIPT_PATH}/kubernetes/healthchecks-db.yaml"
+    kubectl apply -f "${SCRIPT_PATH}/kubernetes/healthchecks-db.yaml" && \
+    kubectl wait pods -l app=app-healthchecks-db --for condition=Ready --timeout=120s
 }
 
 deploy_healthchecks() {
@@ -44,16 +45,25 @@ deploy_healthchecks() {
     kubectl apply -f "${SCRIPT_PATH}/kubernetes/healthchecks.yaml"
 }
 
+create_superuser() {
+  info "Creating superuser account for healthchecks..." && \
+    info "Generating HEALTHCHECKS_SUPERUSER_PASS..." && \
+    export HEALTHCHECKS_SUPERUSER_PASS=$(tr -dc A-Za-z0-9 </dev/urandom | head -c $(shuf -i 39-63 -n 1)) && \
+    kubectl exec --stdin --tty deploy/dep-healthchecks -- /opt/healthchecks/manage.py -c "from django.contrib.auth.models import User; User.objects.create_superuser('${HEALTHCHECKS_SUPERUSER}', '${HEALTHCHECKS_SUPERUSER_EMAIL}', '${HEALTHCHECKS_SUPERUSER_PASS}')"
+}
+
 print_credentials() {
   info "Please save the following credentials."
   info "HEALTHCHECKS_DB_ROOT_PASSWORD: ${HEALTHCHECKS_DB_ROOT_PASSWORD}"
   info "HEALTHCHECKS_DB_PASSWORD: ${HEALTHCHECKS_DB_PASSWORD}"
-  info "Please verify that 2 credentials are printed."
+  info "HEALTHCHECKS_SUPERUSER_PASS: ${HEALTHCHECKS_SUPERUSER_PASS}"
+  info "Please verify that 3 credentials are printed."
 }
 
 check_kube_ready
 deploy_database
 deploy_healthchecks
+create_superuser
 print_credentials
 
 } # this ensures the entire script is downloaded #
