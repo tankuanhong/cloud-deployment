@@ -35,21 +35,21 @@ spec:
         - name: ALLOWED_HOSTS
           value: "${HEALTHCHECKS_ALLOWED_HOSTS}"
         - name: DB
-          value: "${HEALTHCHECKS_DB}"
+          value: "mysql"
         - name: DB_HOST
-          value: "${HEALTHCHECKS_DB_HOST}"
+          value: "svc-healthchecks-db"
         - name: DB_NAME
-          value: "${HEALTHCHECKS_DB_NAME}"
+          value: "${HEALTHCHECKS_DB_DATABASE}"
         - name: DB_PASSWORD
           value: "${HEALTHCHECKS_DB_PASSWORD}"
         - name: DB_PORT
-          value: "${HEALTHCHECKS_DB_PORT}"
+          value: "3306"
         - name: DB_USER
-          value: "${HEALTHCHECKS_DB_USER}"
+          value: "${HEALTHCHECKS_DB_USERNAME}"
         - name: DEBUG
           value: "False"
         - name: DEFAULT_FROM_EMAIL
-          value: "healthchecks@example.org"
+          value: "${HEALTHCHECKS_EMAIL_FROM}"
         - name: EMAIL_HOST
           value: "${HEALTHCHECKS_EMAIL_HOST}"
         - name: EMAIL_HOST_PASSWORD
@@ -57,29 +57,29 @@ spec:
         - name: EMAIL_HOST_USER
           value: "${HEALTHCHECKS_EMAIL_USER}"
         - name: EMAIL_PORT
-          value: "587"
+          value: "${HEALTHCHECKS_EMAIL_PORT}"
         - name: EMAIL_USE_TLS
-          value: "True"
+          value: "${HEALTHCHECKS_EMAIL_USE_TLS}"
         - name: EMAIL_USE_SSL
-          value: "False"
+          value: "${HEALTHCHECKS_EMAIL_USE_SSL}"
         - name: EMAIL_USE_VERIFICATION
-          value: "False"
+          value: "${HEALTHCHECKS_EMAIL_USE_VERIFICATION}"
         - name: MASTER_BADGE_LABEL
           value: "${HEALTHCHECKS_BADGE_LABEL}"
         - name: PING_BODY_LIMIT
-          value: "10000"
+          value: "${HEALTHCHECKS_PING_BODY_LIMIT}"
         - name: PING_ENDPOINT
           value: "${HEALTHCHECKS_PING_ENDPOINT}"
         - name: PROMETHEUS_ENABLED
           value: "${HEALTHCHECKS_PROMETHEUS_ENABLED}"
         - name: REGISTRATION_OPEN
-          value: "False"
+          value: "${HEALTHCHECKS_REGISTRATION_OPEN}"
         - name: REMOTE_USER_HEADER
           value: "${HEALTHCHECKS_USER_HEADER}"
         - name: SECRET_KEY
           value: "${HEALTHCHECKS_SECRET_KEY}"
         - name: SHELL_ENABLED
-          value: "False"
+          value: "${HEALTHCHECKS_SHELL_ENABLED}"
         - name: SITE_LOGO_URL
           value: "${HEALTHCHECKS_LOGO_URL}"
         - name: SITE_NAME
@@ -91,7 +91,7 @@ spec:
         - name: TELEGRAM_TOKEN
           value: "${HEALTHCHECKS_TELEGRAM_TOKEN}"
         - name: WEBHOOKS_ENABLED
-          value: "True"
+          value: "${HEALTHCHECKS_WEBHOOKS_ENABLED}"
         ports:
         - containerPort: 8000
           protocol: TCP
