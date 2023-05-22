@@ -54,7 +54,7 @@ create_superuser() {
   info "Creating superuser account for healthchecks..." && \
     info "Generating HEALTHCHECKS_SUPERUSER_PASS..." && \
     export HEALTHCHECKS_SUPERUSER_PASS=$(tr -dc A-Za-z0-9 </dev/urandom | head -c $(shuf -i 39-63 -n 1)) && \
-    kubectl exec --stdin --tty deploy/dep-healthchecks -- /opt/healthchecks/manage.py -c "from django.contrib.auth.models import User; User.objects.create_superuser('${HEALTHCHECKS_SUPERUSER}', '${HEALTHCHECKS_SUPERUSER_EMAIL}', '${HEALTHCHECKS_SUPERUSER_PASS}')"
+    kubectl exec --stdin --tty deploy/dep-healthchecks -- /opt/healthchecks/manage.py shell -c "from django.contrib.auth.models import User; User.objects.create_superuser('${HEALTHCHECKS_SUPERUSER}', '${HEALTHCHECKS_SUPERUSER_EMAIL}', '${HEALTHCHECKS_SUPERUSER_PASS}')"
 }
 
 print_credentials() {
