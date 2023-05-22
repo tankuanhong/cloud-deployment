@@ -77,7 +77,7 @@ spec:
         - name: REMOTE_USER_HEADER
           value: "${HEALTHCHECKS_USER_HEADER}"
         - name: SECRET_KEY
-          value: "${HEALTHCHECKS_SECRET_KEY}"
+          value: '${HEALTHCHECKS_SECRET_KEY}'
         - name: SHELL_ENABLED
           value: "${HEALTHCHECKS_SHELL_ENABLED}"
         - name: SITE_LOGO_URL
