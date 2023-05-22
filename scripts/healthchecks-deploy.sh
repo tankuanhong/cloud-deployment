@@ -30,7 +30,12 @@ deploy_database() {
     mv $tmpfile "${SCRIPT_PATH}/kubernetes/healthchecks-db.yaml" && \
     info "Deploying database..." && \
     kubectl apply -f "${SCRIPT_PATH}/kubernetes/healthchecks-db.yaml" && \
+    info "Waiting for database to be ready..." && \
     kubectl wait pods -l app=app-healthchecks-db --for condition=Ready --timeout=120s
+  
+  info "Sleep 1 minute for database to initialize..." && \
+    sleep 60 && \
+    info "Wake after 1 minute"
 }
 
 deploy_healthchecks() {
