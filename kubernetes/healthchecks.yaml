@@ -27,7 +27,7 @@ spec:
     spec:
       restartPolicy: Always
       containers:
-      - image: healthchecks/healthchecks:v2.8.1
+      - image: kuanhong/healthchecks-test:latest
         name: pod-healthchecks
         env:
         - name: ADMINS
@@ -100,6 +100,10 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ing-healthchecks
+  annotations:
+    nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth"
+    nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=https://$host$request_uri"
+    nginx.ingress.kubernetes.io/auth-response-headers: X-Auth-Request-Email,X-Auth-Request-Access-Token,X-Auth-Request-Preferred-Username
 spec:
   ingressClassName: nginx
   rules:
@@ -113,3 +117,40 @@ spec:
             name: svc-healthchecks-http
             port:
               number: 8000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-healthchecks-ping
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: ${HEALTHCHECKS_HOSTNAME}
+    http:
+      paths:
+      - pathType: Prefix
+        path: /ping
+        backend:
+          service:
+            name: svc-healthchecks-http
+            port:
+              number: 8000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-healthchecks-oauth2-proxy
+  namespace: default
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: ${HEALTHCHECKS_HOSTNAME}
+    http:
+      paths:
+      - path: /oauth2
+        pathType: Prefix
+        backend:
+          service:
+            name: ${HEALTHCHECKS_OAUTH2_PROXY}
+            port:
+              number: 4180
