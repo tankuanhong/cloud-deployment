@@ -47,7 +47,9 @@ deploy_healthchecks() {
     cat "${SCRIPT_PATH}/kubernetes/healthchecks.yaml" | envsubst > $tmpfile && \
     mv $tmpfile "${SCRIPT_PATH}/kubernetes/healthchecks.yaml" && \
     info "Deploying healthchecks..." && \
-    kubectl apply -f "${SCRIPT_PATH}/kubernetes/healthchecks.yaml"
+    kubectl apply -f "${SCRIPT_PATH}/kubernetes/healthchecks.yaml" && \
+    info "Waiting for healthchecks to be ready..." && \
+    kubectl wait pods -l app=app-healthchecks --for condition=Ready --timeout=120s
 }
 
 create_superuser() {
