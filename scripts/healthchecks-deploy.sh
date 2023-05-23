@@ -50,6 +50,10 @@ deploy_healthchecks() {
     kubectl apply -f "${SCRIPT_PATH}/kubernetes/healthchecks.yaml" && \
     info "Waiting for healthchecks to be ready..." && \
     kubectl wait pods -l app=app-healthchecks --for condition=Ready --timeout=120s
+
+  info "Sleep 1 minute for app to initialize..." && \
+    sleep 60 && \
+    info "Wake after 1 minute"
 }
 
 create_superuser() {
