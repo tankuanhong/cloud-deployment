@@ -88,8 +88,8 @@ spec:
         - --reverse-proxy=false
         - --session-cookie-minimal=false
         - --session-store-type=cookie
-        - --set-xauthrequest=false
-        - --set-authorization-header=false
+        - --set-xauthrequest=true
+        - --set-authorization-header=true
         - --set-basic-auth=false
         - --show-debug-on-error=false
         - --silence-ping-logging=false
