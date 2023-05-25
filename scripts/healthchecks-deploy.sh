@@ -65,7 +65,7 @@ create_superuser() {
 
 patch_ingress() {
   info "Patching healthchecks ingress..." && \
-    kubectl patch ingress ing-healthchecks --patch-file "${SCRIPT_PATH}/kubernetes/healthchecks-ing-headers.yaml"
+    kubectl patch ingress ing-healthchecks --patch-file "${SCRIPT_PATH}/kubernetes/healthchecks-ing-patch.yaml"
 }
 
 print_credentials() {
