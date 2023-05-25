@@ -63,6 +63,11 @@ create_superuser() {
     kubectl exec --stdin --tty deploy/dep-healthchecks -- /opt/healthchecks/manage.py shell -c "from django.contrib.auth.models import User; User.objects.create_superuser('${HEALTHCHECKS_SUPERUSER}', '${HEALTHCHECKS_SUPERUSER_EMAIL}', '${HEALTHCHECKS_SUPERUSER_PASS}')"
 }
 
+patch_ingress() {
+  info "Patching healthchecks ingress..." && \
+    kubectl patch ingress ing-healthchecks --patch-file "${SCRIPT_PATH}/kubernetes/healthchecks-ing-headers.yaml"
+}
+
 print_credentials() {
   info "Please save the following credentials."
   info "HEALTHCHECKS_DB_ROOT_PASSWORD: ${HEALTHCHECKS_DB_ROOT_PASSWORD}"
@@ -75,6 +80,7 @@ check_kube_ready
 deploy_database
 deploy_healthchecks
 create_superuser
+patch_ingress
 print_credentials
 
 } # this ensures the entire script is downloaded #
