@@ -66,4 +66,12 @@ export HEALTHCHECKS_TELEGRAM_TOKEN=""
 export HEALTHCHECKS_WEBHOOKS_ENABLED="True"
 export HEALTHCHECKS_OAUTH2_PROXY="svc-oauth2-kuanhongorg-http"
 
+# changedetection
+export CHANGEDETECTION_PVC_SIZE="2Gi"
+export CHANGEDETECTION_IMAGE="dgtlmoon/changedetection.io:0.42.2"
+export CHANGEDETECTION_HOSTNAME="change.kuanhong.org"
+export CHANGEDETECTION_BASE_URL="https://${CHANGEDETECTION_HOSTNAME}"
+#export CHANGEDETECTION_PLAYWRIGHT="ws://svc-browserless-ws:3000/?stealth=1&--disable-web-security=true"
+
+
 } # this ensures the entire script is downloaded #
