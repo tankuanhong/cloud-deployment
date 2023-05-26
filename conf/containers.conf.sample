@@ -72,6 +72,6 @@ export CHANGEDETECTION_IMAGE="dgtlmoon/changedetection.io:0.42.2"
 export CHANGEDETECTION_HOSTNAME="change.kuanhong.org"
 export CHANGEDETECTION_BASE_URL="https://${CHANGEDETECTION_HOSTNAME}"
 #export CHANGEDETECTION_PLAYWRIGHT="ws://svc-browserless-ws:3000/?stealth=1&--disable-web-security=true"
-
+export CHANGEDETECTION_OAUTH2_PROXY="svc-oauth2-kuanhongorg-http"
 
 } # this ensures the entire script is downloaded #

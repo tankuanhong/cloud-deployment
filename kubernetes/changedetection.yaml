@@ -50,7 +50,7 @@ spec:
         - name: PLAYWRIGHT_DRIVER_URL
           value: "${CHANGEDETECTION_PLAYWRIGHT}"
         - name: HIDE_REFERER
-          value: "true"
+          value: "false"
         - name: USE_X_SETTINGS
           value: "1"
         ports:
@@ -81,3 +81,22 @@ spec:
             name: svc-changedetection-http
             port:
               number: 5000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-changedetection-oauth2-proxy
+  namespace: default
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: ${CHANGEDETECTION_HOSTNAME}
+    http:
+      paths:
+      - path: /oauth2
+        pathType: Prefix
+        backend:
+          service:
+            name: ${CHANGEDETECTION_OAUTH2_PROXY}
+            port:
+              number: 4180
