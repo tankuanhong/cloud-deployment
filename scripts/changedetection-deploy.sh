@@ -30,7 +30,13 @@ deploy_changedetection() {
     kubectl wait pods -l app=app-changedetection --for condition=Ready --timeout=120s
 }
 
+patch_ingress() {
+  info "Patching changedetection.io ingress..." && \
+    kubectl patch ingress ing-changedetection --patch-file "${SCRIPT_PATH}/kubernetes/changedetection-ing-patch.yaml"
+}
+
 check_kube_ready
 deploy_changedetection
+patch_ingress
 
 } # this ensures the entire script is downloaded #
