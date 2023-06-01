@@ -1,0 +1,102 @@
+# https://hub.docker.com/r/dgtlmoon/changedetection.io
+
+#PVC_START
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-changedetection
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: ${CHANGEDETECTION_PVC_SIZE}
+#PVC_END
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-changedetection-http
+spec:
+  ports:
+  - port: 5000
+  selector:
+    app: app-changedetection
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dep-changedetection
+  labels:
+    app: app-changedetection
+spec:
+  selector:
+    matchLabels:
+      app: app-changedetection
+  template:
+    metadata:
+      labels:
+        app: app-changedetection
+    spec:
+      restartPolicy: Always
+      containers:
+      - image: ${CHANGEDETECTION_IMAGE}
+        name: pod-changedetection
+        env:
+        - name: BASE_URL
+          value: "${CHANGEDETECTION_BASE_URL}"
+        - name: PLAYWRIGHT_DRIVER_URL
+          value: "${CHANGEDETECTION_PLAYWRIGHT}"
+        - name: HIDE_REFERER
+          value: "false"
+        - name: USE_X_SETTINGS
+          value: "1"
+        ports:
+        - containerPort: 5000
+          protocol: TCP
+        volumeMounts:
+        - name: vol-changedetection
+          mountPath: /datastore
+      volumes:
+      - name: vol-changedetection
+        persistentVolumeClaim:
+          claimName: pvc-changedetection
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-changedetection
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: ${CHANGEDETECTION_HOSTNAME}
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: svc-changedetection-http
+            port:
+              number: 5000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-changedetection-oauth2-proxy
+  namespace: default
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: ${CHANGEDETECTION_HOSTNAME}
+    http:
+      paths:
+      - path: /oauth2
+        pathType: Prefix
+        backend:
+          service:
+            name: ${CHANGEDETECTION_OAUTH2_PROXY}
+            port:
+              number: 4180
