@@ -32,6 +32,10 @@ deploy_changedetection() {
 
 patch_ingress() {
   info "Patching changedetection.io ingress..." && \
+    tmpfile=$(mktemp) && \
+    cp --attributes-only --preserve "${SCRIPT_PATH}/kubernetes/changedetection-ing-patch.yaml" $tmpfile && \
+    cat "${SCRIPT_PATH}/kubernetes/changedetection-ing-patch.yaml" | envsubst '$CHANGEDETECTION_AUTH_QUERY' > $tmpfile && \
+    mv $tmpfile "${SCRIPT_PATH}/kubernetes/changedetection-ing-patch.yaml" && \
     kubectl patch ingress ing-changedetection --patch-file "${SCRIPT_PATH}/kubernetes/changedetection-ing-patch.yaml"
 }
 
