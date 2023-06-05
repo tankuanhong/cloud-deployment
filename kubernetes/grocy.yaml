@@ -61,7 +61,7 @@ spec:
         - name: GROCY_DISABLE_AUTH
           value: "false"
         - name: GROCY_AUTH_CLASS
-          value: "Grocy\Middleware\DefaultAuthMiddleware"
+          value: 'Grocy\Middleware\DefaultAuthMiddleware'
         - name: GROCY_REVERSE_PROXY_AUTH_HEADER
           value: "REMOTE_USER"
         - name: GROCY_REVERSE_PROXY_AUTH_USE_ENV
