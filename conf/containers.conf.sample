@@ -75,4 +75,9 @@ export CHANGEDETECTION_BASE_URL="https://${CHANGEDETECTION_HOSTNAME}"
 export CHANGEDETECTION_OAUTH2_PROXY="svc-oauth2-kuanhongorg-http"
 export CHANGEDETECTION_AUTH_QUERY="?allowed_groups=role:users"
 
+# gatus
+export GATUS_PVC_SIZE="2Gi"
+export GATUS_IMAGE="twinproduction/gatus:latest"
+export GATUS_HOSTNAME="status2.kuanhong.org"
+
 } # this ensures the entire script is downloaded #

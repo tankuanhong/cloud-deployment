@@ -1,0 +1,128 @@
+# https://github.com/TwiN/gatus#docker
+# https://hub.docker.com/r/twinproduction/gatus
+# https://github.com/TwiN/gatus/blob/master/.examples/kubernetes/gatus.yaml
+
+#PVC_START
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-gatus
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: ${GATUS_PVC_SIZE}
+#PVC_END
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cfg-gatus
+data:
+  config.yaml: |
+    metrics: true
+    storage:
+      type: sqlite
+      path: /config/data.db
+    endpoints:
+      - name: vpn
+        enabled: true
+        group: work
+        url: https://vpn.acrc.a-star.edu.sg/dana-na/auth/url_default/welcome.cgi
+        method: GET
+        interval: 5m
+        client:
+          insecure: true
+        ui:
+          hide-hostname: true
+          hide-url: true
+          dont-resolve-failed-conditions: false
+          badge:
+            response-time:
+              thresholds: [50, 200, 300, 500, 750]
+        conditions:
+          - "[STATUS] == 200"
+      - name: keycloak
+        enabled: true
+        group: dev
+        url: https://keycloak.kuanhong.org/
+        method: GET
+        interval: 1m
+        client:
+          insecure: false
+        ui:
+          hide-hostname: true
+          hide-url: true
+          dont-resolve-failed-conditions: false
+          badge:
+            response-time:
+              thresholds: [50, 200, 300, 500, 750]
+        conditions:
+          - "[STATUS] == 200"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-gatus-http
+spec:
+  ports:
+  - port: 8080
+  selector:
+    app: app-gatus
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dep-gatus
+  labels:
+    app: app-gatus
+spec:
+  selector:
+    matchLabels:
+      app: app-gatus
+  template:
+    metadata:
+      labels:
+        app: app-gatus
+    spec:
+      restartPolicy: Always
+      containers:
+      - image: ${GATUS_IMAGE}
+        name: pod-gatus
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        volumeMounts:
+        - name: vol-gatus-data
+          mountPath: /config
+        - name: vol-gatus-config
+          mountPath: /config/config.yaml
+          subPath: config.yaml
+      volumes:
+      - name: vol-gatus-data
+        persistentVolumeClaim:
+          claimName: pvc-gatus
+      - name: vol-gatus-config
+        configMap:
+          name: cfg-gatus
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-gatus
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: ${GATUS_HOSTNAME}
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: svc-gatus-http
+            port:
+              number: 8080

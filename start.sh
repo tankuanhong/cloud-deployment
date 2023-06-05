@@ -151,7 +151,8 @@ containers_menu() {
 2) Deploy Firefly to new PersistentVolume
 3) Deploy Healthchecks to new PersistentVolume
 4) Deploy changedetection.io to new PersistentVolume
-5) Restore Keycloak from existing PersistentVolume
+5) Deploy Gatus to new PersistentVolume
+6) Restore Keycloak from existing PersistentVolume
 9) Back to Main Menu
 0) Exit
 
@@ -175,6 +176,10 @@ Choose an option:  "
     exit 0
     ;;
   5)
+    source "${SCRIPT_PATH}/scripts/gatus-deploy.sh" || exit
+    exit 0
+    ;;
+  6)
     source "${SCRIPT_PATH}/scripts/keycloak-restore.sh" || exit
     exit 0
     ;;
