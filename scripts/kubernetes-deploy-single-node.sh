@@ -17,12 +17,6 @@ req_check_master() {
     fi
 }
 
-install_parallel_utilities() {
-  info "Installing pssh and pdsh..." && \
-    apt-get update && \
-    apt-get -y install pssh pdsh
-}
-
 deploy_master() {
   info "Deploying master node..." && \
     source "${SCRIPT_PATH}/scripts/kubernetes-deploy-master.sh" && \
@@ -37,53 +31,47 @@ init_master() {
     source "${SCRIPT_PATH}/scripts/kubernetes-init-master.sh"
 }
 
-generate_ssh_key() {
-  info "Generating ssh key on master node" && \
-    ssh-keygen -t ed25519 -N "" -f "$HOME/.ssh/id_ed25519" && \
-    info "Run the following command manually at all the worker nodes:" && \
-    info "" && \
-    info "mkdir -p .ssh && chmod 700 .ssh && touch .ssh/authorized_keys && chmod 644 .ssh/authorized_keys && echo $(cat $HOME/.ssh/id_ed25519.pub) > .ssh/authorized_keys" && \
-    info ""
-
-  read -p "Press enter to continue"
-
-  until ssh -o StrictHostKeyChecking=no -q ${KUBE_WORKER_1} exit; do warn "Waiting for ${KUBE_WORKER_1}..." && sleep 10; done && \
-  until ssh -o StrictHostKeyChecking=no -q ${KUBE_WORKER_2} exit; do warn "Waiting for ${KUBE_WORKER_2}..." && sleep 10; done && \
-  until ssh -o StrictHostKeyChecking=no -q ${KUBE_WORKER_3} exit; do warn "Waiting for ${KUBE_WORKER_3}..." && sleep 10; done
+install_longhorn() {
+  info "Installing prerequisites..." && \
+    apt-get update && \
+    apt-get -y install nfs-common && \
+    systemctl enable iscsid && \
+    systemctl start iscsid
+  
+  info "Disable multipathd for longhorn on master node..." && \
+    cat <<EOF | sudo tee -a /etc/multipath.conf
+blacklist {
+    devnode "^sd[a-z0-9]+"
 }
+EOF
+  systemctl restart multipathd
 
-copy_files_to_workers() {
-  info "Copying scripts to kubernetes workers..." && \
-    parallel-scp -H "${KUBE_WORKER_1} ${KUBE_WORKER_2} ${KUBE_WORKER_3}" -l root -O "StrictHostKeyChecking=no" ${SCRIPT_PATH}/shell-logger/shell-logger /root/ && \
-    parallel-scp -H "${KUBE_WORKER_1} ${KUBE_WORKER_2} ${KUBE_WORKER_3}" -l root -O "StrictHostKeyChecking=no" ${SCRIPT_PATH}/conf/common.conf /root/ && \
-    parallel-scp -H "${KUBE_WORKER_1} ${KUBE_WORKER_2} ${KUBE_WORKER_3}" -l root -O "StrictHostKeyChecking=no" ${SCRIPT_PATH}/conf/kubernetes.conf /root/ && \
-    parallel-scp -H "${KUBE_WORKER_1} ${KUBE_WORKER_2} ${KUBE_WORKER_3}" -l root -O "StrictHostKeyChecking=no" ${SCRIPT_PATH}/scripts/kubernetes-deploy-worker.sh /root/
-}
+  info "Running longhorn installation check script on master node..." && \
+    apt-get update && \
+    apt-get -y install jq && \
+    wget -O ${SCRIPT_PATH}/longhorn_environment_check.sh https://raw.githubusercontent.com/longhorn/longhorn/v${LONGHORN_VERSION}/scripts/environment_check.sh && \
 
-deploy_workers() {
-  info "Deploying worker nodes" && \
-    PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-o StrictHostKeyChecking=no" pdsh -w ${KUBE_WORKER_1},${KUBE_WORKER_2},${KUBE_WORKER_3} "/bin/bash /root/kubernetes-deploy-worker.sh" && \
-    PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT} -o StrictHostKeyChecking=no" pdsh -w ${KUBE_WORKER_1},${KUBE_WORKER_2},${KUBE_WORKER_3} "reboot"
+  if /bin/bash ${SCRIPT_PATH}/longhorn_environment_check.sh; then
+    info "Longhorn environment check passed"
+  else
+    err "Longhorn environment check failed"
+    exit 1
+  fi
 
-  info "Sleep 1 minute for worker nodes to reboot..." && \
-  sleep 60 && \
-  info "Wake after 1 minute"
-
-  until ssh -p ${SSH_PORT} -o StrictHostKeyChecking=no -q ${KUBE_WORKER_1} exit; do warn "Waiting for ${KUBE_WORKER_1}..." && sleep 10; done && \
-  until ssh -p ${SSH_PORT} -o StrictHostKeyChecking=no -q ${KUBE_WORKER_2} exit; do warn "Waiting for ${KUBE_WORKER_2}..." && sleep 10; done && \
-  until ssh -p ${SSH_PORT} -o StrictHostKeyChecking=no -q ${KUBE_WORKER_3} exit; do warn "Waiting for ${KUBE_WORKER_3}..." && sleep 10; done
-
-  PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT} -o StrictHostKeyChecking=no" pdsh -w ${KUBE_WORKER_1},${KUBE_WORKER_2},${KUBE_WORKER_3} "kubeadm join ${KUBE_MASTER}:6443 --token $(kubeadm token list -o=jsonpath='{$.token}') --discovery-token-ca-cert-hash sha256:$(openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //')"
+  info "Installing longhorn..." && \
+    kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v${LONGHORN_VERSION}/deploy/longhorn.yaml && \
+    info "Waiting for longhorn pods to be ready..."
+    kubectl wait pods -n longhorn-system --all --for condition=Ready --timeout=120s
+  
+  info "Printing longhorn web ui service address..." && \
+    kubectl get svc longhorn-frontend -n longhorn-system
 }
 
 req_check_master
 if [ -f "${SCRIPT_PATH}/master_rebooted" ]; then
   init_master
-  #generate_ssh_key
-  #copy_files_to_workers
-  #deploy_workers
+  install_longhorn
 else
-  install_parallel_utilities
   deploy_master
 fi
 
