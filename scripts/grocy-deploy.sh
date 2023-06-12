@@ -36,8 +36,18 @@ disable_clear_env() {
     kubectl delete pod -l app=app-grocy
 }
 
+patch_ingress() {
+  info "Patching grocy ingress..." && \
+    tmpfile=$(mktemp) && \
+    cp --attributes-only --preserve "${SCRIPT_PATH}/kubernetes/grocy-ing-patch.yaml" $tmpfile && \
+    cat "${SCRIPT_PATH}/kubernetes/grocy-ing-patch.yaml" | envsubst '$GROCY_AUTH_QUERY' > $tmpfile && \
+    mv $tmpfile "${SCRIPT_PATH}/kubernetes/grocy-ing-patch.yaml" && \
+    kubectl patch ingress ing-grocy --patch-file "${SCRIPT_PATH}/kubernetes/grocy-ing-patch.yaml"
+}
+
 check_kube_ready
 deploy_grocy
 disable_clear_env
+patch_ingress
 
 } # this ensures the entire script is downloaded #

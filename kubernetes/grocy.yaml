@@ -76,9 +76,9 @@ spec:
         - name: GROCY_DISABLE_AUTH
           value: "false"
         - name: GROCY_AUTH_CLASS
-          value: 'Grocy\Middleware\DefaultAuthMiddleware'
+          value: 'Grocy\Middleware\ReverseProxyAuthMiddleware'
         - name: GROCY_REVERSE_PROXY_AUTH_HEADER
-          value: "REMOTE_USER"
+          value: "X-Auth-Request-Preferred-Username"
         - name: GROCY_REVERSE_PROXY_AUTH_USE_ENV
           value: "false"
         - name: GROCY_DEFAULT_PERMISSIONS
@@ -163,3 +163,22 @@ spec:
             name: svc-grocy-http
             port:
               number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-grocy-oauth2-proxy
+  namespace: default
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: ${GROCY_HOSTNAME}
+    http:
+      paths:
+      - path: /oauth2
+        pathType: Prefix
+        backend:
+          service:
+            name: ${GROCY_OAUTH2_PROXY}
+            port:
+              number: 4180
