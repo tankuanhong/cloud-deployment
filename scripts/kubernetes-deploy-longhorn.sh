@@ -36,7 +36,7 @@ longhorn_preflight() {
   info "Running longhorn installation check script on master node..." && \
     apt-get update && \
     apt-get -y install jq && \
-    wget -O ${SCRIPT_PATH}/longhorn_environment_check.sh https://raw.githubusercontent.com/longhorn/longhorn/v${LONGHORN_VERSION}/scripts/environment_check.sh && \
+    wget -O ${SCRIPT_PATH}/longhorn_environment_check.sh https://raw.githubusercontent.com/longhorn/longhorn/v${LONGHORN_VERSION}/scripts/environment_check.sh
 
   if /bin/bash ${SCRIPT_PATH}/longhorn_environment_check.sh; then
     info "Longhorn environment check passed"
