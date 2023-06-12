@@ -2,6 +2,21 @@
 # https://github.com/grocy/grocy-docker/blob/main/grocy.env
 # https://github.com/grocy/grocy/blob/master/config-dist.php
 
+#PVC_START
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-grocy
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: ${GROCY_PVC_SIZE}
+#PVC_END
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -123,6 +138,13 @@ spec:
         ports:
         - containerPort: 80
           protocol: TCP
+        volumeMounts:
+        - name: vol-grocy
+          mountPath: /config
+      volumes:
+      - name: vol-grocy
+        persistentVolumeClaim:
+          claimName: pvc-grocy
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
