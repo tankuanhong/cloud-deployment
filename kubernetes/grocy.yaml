@@ -1,0 +1,184 @@
+# https://hub.docker.com/r/linuxserver/grocy
+# https://github.com/grocy/grocy-docker/blob/main/grocy.env
+# https://github.com/grocy/grocy/blob/master/config-dist.php
+
+#PVC_START
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-grocy
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: ${GROCY_PVC_SIZE}
+#PVC_END
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-grocy-http
+spec:
+  ports:
+  - port: 80
+  selector:
+    app: app-grocy
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dep-grocy
+  labels:
+    app: app-grocy
+spec:
+  selector:
+    matchLabels:
+      app: app-grocy
+  template:
+    metadata:
+      labels:
+        app: app-grocy
+    spec:
+      restartPolicy: Always
+      containers:
+      - image: ${GROCY_IMAGE}
+        name: pod-grocy
+        env:
+        - name: TZ
+          value: "Asia/Singapore"
+        - name: GROCY_MODE
+          value: "production"
+        - name: GROCY_CALENDAR_DEFAULT_LOCALE
+          value: "en"
+        - name: GROCY_CALENDAR_FIRST_DAY_OF_WEEK
+          value: "1"
+        - name: GROCY_CALENDAR_SHOW_WEEK_OF_YEAR
+          value: "true"
+        - name: GROCY_MEAL_PLAN_FIRST_DAY_OF_WEEK
+          value: "1"
+        - name: GROCY_CURRENCY
+          value: "SGD"
+        - name: GROCY_ENERGY_UNIT
+          value: "kcal"
+        - name: GROCY_BASE_PATH
+          value: ""
+        - name: GROCY_BASE_URL
+          value: "/"
+        - name: GROCY_STOCK_BARCODE_LOOKUP_PLUGIN
+          value: "DemoBarcodeLookupPlugin"
+        - name: GROCY_DISABLE_URL_REWRITING
+          value: "false"
+        - name: GROCY_ENTRY_PAGE
+          value: "stock"
+        - name: GROCY_DISABLE_AUTH
+          value: "false"
+        - name: GROCY_AUTH_CLASS
+          value: 'Grocy\Middleware\ReverseProxyAuthMiddleware'
+        - name: GROCY_REVERSE_PROXY_AUTH_HEADER
+          value: "X-Auth-Request-Preferred-Username"
+        - name: GROCY_REVERSE_PROXY_AUTH_USE_ENV
+          value: "false"
+        - name: GROCY_DEFAULT_PERMISSIONS
+          value: ""
+        - name: GROCY_GROCYCODE_TYPE
+          value: "1D"
+        - name: GROCY_FEATURE_FLAG_STOCK
+          value: "true"
+        - name: GROCY_FEATURE_FLAG_SHOPPINGLIST
+          value: "true"
+        - name: GROCY_FEATURE_FLAG_RECIPES
+          value: "true"
+        - name: GROCY_FEATURE_FLAG_CHORES
+          value: "true"
+        - name: GROCY_FEATURE_FLAG_TASKS
+          value: "true"
+        - name: GROCY_FEATURE_FLAG_BATTERIES
+          value: "true"
+        - name: GROCY_FEATURE_FLAG_EQUIPMENT
+          value: "true"
+        - name: GROCY_FEATURE_FLAG_CALENDAR
+          value: "true"
+        - name: GROCY_FEATURE_FLAG_LABEL_PRINTER
+          value: "false"
+        - name: GROCY_FEATURE_FLAG_STOCK_PRICE_TRACKING
+          value: "true"
+        - name: GROCY_FEATURE_FLAG_STOCK_LOCATION_TRACKING
+          value: "true"
+        - name: GROCY_FEATURE_FLAG_STOCK_BEST_BEFORE_DATE_TRACKING
+          value: "true"
+        - name: GROCY_FEATURE_FLAG_STOCK_PRODUCT_OPENED_TRACKING
+          value: "true"
+        - name: GROCY_FEATURE_FLAG_STOCK_PRODUCT_FREEZING
+          value: "true"
+        - name: GROCY_FEATURE_FLAG_STOCK_BEST_BEFORE_DATE_FIELD_NUMBER_PAD
+          value: "true"
+        - name: GROCY_FEATURE_FLAG_SHOPPINGLIST_MULTIPLE_LISTS
+          value: "true"
+        - name: GROCY_FEATURE_FLAG_RECIPES_MEALPLAN
+          value: "true"
+        - name: GROCY_FEATURE_FLAG_CHORES_ASSIGNMENTS
+          value: "true"
+        - name: GROCY_FEATURE_FLAG_THERMAL_PRINTER
+          value: "false"
+        - name: GROCY_FEATURE_FLAG_DISABLE_BROWSER_BARCODE_CAMERA_SCANNING
+          value: "true"
+        - name: GROCY_FEATURE_FLAG_AUTO_TORCH_ON_WITH_CAMERA
+          value: "true"
+        - name: MAX_UPLOAD
+          value: "50M"
+        - name: PHP_MAX_FILE_UPLOAD
+          value: "200"
+        - name: PHP_MAX_POST
+          value: "100M"
+        - name: PHP_MEMORY_LIMIT
+          value: "512M"
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        volumeMounts:
+        - name: vol-grocy
+          mountPath: /config
+      volumes:
+      - name: vol-grocy
+        persistentVolumeClaim:
+          claimName: pvc-grocy
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-grocy
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: ${GROCY_HOSTNAME}
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: svc-grocy-http
+            port:
+              number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-grocy-oauth2-proxy
+  namespace: default
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: ${GROCY_HOSTNAME}
+    http:
+      paths:
+      - path: /oauth2
+        pathType: Prefix
+        backend:
+          service:
+            name: ${GROCY_OAUTH2_PROXY}
+            port:
+              number: 4180

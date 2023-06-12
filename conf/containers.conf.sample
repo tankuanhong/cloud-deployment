@@ -80,4 +80,11 @@ export GATUS_PVC_SIZE="2Gi"
 export GATUS_IMAGE="twinproduction/gatus:latest"
 export GATUS_HOSTNAME="status2.kuanhong.org"
 
+# grocy
+export GROCY_PVC_SIZE="2Gi"
+export GROCY_IMAGE="linuxserver/grocy:latest"
+export GROCY_HOSTNAME="grocy.kuanhong.org"
+export GROCY_OAUTH2_PROXY="svc-oauth2-kuanhongorg-http"
+export GROCY_AUTH_QUERY="?allowed_groups=role:users"
+
 } # this ensures the entire script is downloaded #
