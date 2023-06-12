@@ -31,6 +31,11 @@ init_master() {
     source "${SCRIPT_PATH}/scripts/kubernetes-init-master.sh"
 }
 
+untaint_master() {
+  info "Untaint master to allow scheduling of workloads..." && \
+    kubectl taint nodes --all node-role.kubernetes.io/control-plane:NoSchedule-
+}
+
 install_longhorn() {
   info "Installing prerequisites..." && \
     apt-get update && \
@@ -70,6 +75,7 @@ EOF
 req_check_master
 if [ -f "${SCRIPT_PATH}/master_rebooted" ]; then
   init_master
+  untaint_master
   install_longhorn
 else
   deploy_master
