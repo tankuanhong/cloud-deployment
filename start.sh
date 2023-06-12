@@ -101,6 +101,7 @@ kubernetes_menu() {
 3) Deploy Longhorn Storage
 4) Deploy Ingress NGINX Controller
 5) Deploy oAuth2 Proxy
+6) Deploy Kubernetes for testing (Single-Node)
 9) Back to Main Menu
 0) Exit
 
@@ -125,6 +126,10 @@ Choose an option:  "
     ;;
   5)
     source "${SCRIPT_PATH}/scripts/kubernetes-deploy-oauth2-proxy.sh" || exit
+    exit 0
+    ;;
+  6)
+    source "${SCRIPT_PATH}/scripts/kubernetes-deploy-single-node.sh" || exit
     exit 0
     ;;
   9)
