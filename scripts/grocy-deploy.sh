@@ -30,7 +30,14 @@ deploy_grocy() {
     kubectl wait pods -l app=app-grocy --for condition=Ready --timeout=120s
 }
 
+disable_clear_env() {
+  info "Disabling clear_env to allow environment variables..." && \
+    kubectl exec --stdin --tty deploy/dep-grocy -- bash -c "grep -qxF 'clear_env = no' /config/php/www2.conf || echo 'clear_env = no' >> /config/php/www2.conf" && \
+    kubectl delete pod -l app=app-grocy
+}
+
 check_kube_ready
 deploy_grocy
+disable_clear_env
 
 } # this ensures the entire script is downloaded #
