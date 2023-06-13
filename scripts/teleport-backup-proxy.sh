@@ -57,9 +57,16 @@ export_caddy_data() {
   tar cf ${SCRIPT_PATH}/caddy_data_dir.tar .local
 }
 
+export_kopia_config() {
+  info "Exporting kopia config directory..."
+  cd /opt
+  tar cf ${SCRIPT_PATH}/kopia_opt_dir.tar kopia
+}
+
 export_teleport_state
 stop_teleport_service
 export_teleport_data
 export_caddy_data
+export_kopia_config
 
 } # this ensures the entire script is downloaded #
