@@ -43,6 +43,22 @@ deploy_teleport_proxy() {
   source "${SCRIPT_PATH}/scripts/teleport-deploy-proxy.sh"
 }
 
+stop_kopia_service() {
+  info "Stopping kopia service..." && \
+    systemctl stop kopia
+}
+
+restore_kopia_data() {
+  info "Restoring kopia config directory..." && \
+    mv ${KOPIA_CONFIG_RESTORE} /opt && \
+    cd /opt && \
+    rm -rf kopia && \
+    tar xf kopia_opt_dir.tar && \
+    rm -f kopia_opt_dir.tar && \
+    info "kopia config restored"
+    info "kopia can be started via service"
+}
+
 stop_teleport_service() {
   info "Stopping Teleport service..." && \
     systemctl stop teleport
@@ -71,6 +87,8 @@ restore_teleport_state() {
 check_restore_files
 restore_caddy_data
 deploy_teleport_proxy
+stop_kopia_service
+restore_kopia_data
 stop_teleport_service
 restore_teleport_data
 restore_teleport_state
