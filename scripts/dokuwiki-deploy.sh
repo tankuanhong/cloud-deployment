@@ -351,13 +351,6 @@ configure_caddy() {
           ],
           "routes": [
             {
-              "match": [
-                {
-                  "host": [
-                    "localhost"
-                  ]
-                }
-              ],
               "handle": [
                 {
                   "handler": "subroute",
