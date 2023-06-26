@@ -182,7 +182,7 @@ Choose an option:  "
   read -r ans
   case $ans in
   1)
-    echo "Deploying up Dokuwiki"
+    source "${SCRIPT_PATH}/scripts/dokuwiki-deploy.sh" || exit
     exit 0
     ;;
   2)
@@ -254,10 +254,11 @@ main_menu() {
   echo -ne "
 [Main Menu]
 
-1) Teleport
-2) Gitea
-3) Kubernetes
-4) Containers
+1) Kubernetes
+2) Containers
+3) Teleport
+4) Dokuwiki
+5) Gitea
 0) Exit
 
 Choose an option:  "
