@@ -877,31 +877,15 @@ EOF
   fi
 }
 
-install_cron() {
-  info "Install cron jobs..."
-  if [ "$(crontab teleport.cron; echo $?)" = '0' ]; then
-    info "Cron installed successfully"
-  else
-    warn "Failed to install cron jobs"
-  fi
-}
-
-create_gitea_admin() {
-  info "Creating administrative user" && \
-    su ${GITEA_SERVICE_ACCOUNT} -c "export GITEA_WORK_DIR=/var/lib/gitea && gitea admin user create --username ${GITEA_ADMIN_USERNAME} --random-password --random-password-length 48 --email ${GITEA_ADMIN_EMAIL} --admin -config /etc/gitea/app.ini"
-}
-
 configure_ufw
 upgrade_packages
 disable_autoupgrade
 setup_ntp
 harden_sshd
 configure_remote_syslog
-
-install_gitea
-configure_gitea
+install_dokuwiki
+harden_dokuwiki
 install_caddy
 configure_caddy
-create_gitea_admin
 
 } # this ensures the entire script is downloaded #
