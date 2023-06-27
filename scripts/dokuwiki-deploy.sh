@@ -203,23 +203,6 @@ install_dokuwiki() {
     find /var/www/dokuwiki/* -type d -exec chmod 755 {} \;
 }
 
-harden_dokuwiki() {
-  info "Hardening Dokuwiki installation..." && \
-    cat >> /var/www/dokuwiki/inc/preload.php <<EOF
-<?php
-// DO NOT use a closing php tag. This causes a problem with the feeds,
-// among other things. For more information on this issue, please see:w
-// http://www.dokuwiki.org/devel:coding_style#php_closing_tags
-
-define('DOKU_CONF','/var/www/conf/');
-EOF
-
-  chown www-data:www-data /var/www/dokuwiki/inc/preload.php && \
-    mv /var/www/dokuwiki/data /var/www && \
-    mv /var/www/dokuwiki/conf /var/www && \
-    echo "\$conf['savedir'] = '/var/www/data';" >> /var/www/conf/local.php
-}
-
 install_caddy() {
   info "Installing Caddy..." && \
     info "Creating caddy user..." && \

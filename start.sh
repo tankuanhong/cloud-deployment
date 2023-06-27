@@ -173,8 +173,9 @@ dokuwiki_menu() {
 [Dokuwiki]
 
 1) Deploy Dokuwiki
-2) Backup Dokuwiki
-3) Restore Dokuwiki
+2) Harden Dokuwiki
+3) Backup Dokuwiki
+4) Restore Dokuwiki
 9) Back to Main Menu
 0) Exit
 
@@ -186,10 +187,14 @@ Choose an option:  "
     exit 0
     ;;
   2)
-    echo "Backing up Dokuwiki"
+    source "${SCRIPT_PATH}/scripts/dokuwiki-harden.sh" || exit
     exit 0
     ;;
   3)
+    echo "Backing up Dokuwiki"
+    exit 0
+    ;;
+  4)
     echo "Restoring Dokuwiki"
     exit 0
     ;;
