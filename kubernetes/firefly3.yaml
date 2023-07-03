@@ -77,6 +77,8 @@ spec:
           value: "${FIREFLY3_MAILGUN_SECRET}"
         - name: MAILGUN_ENDPOINT
           value: "${FIREFLY3_MAILGUN_ENDPOINT}"
+        - name: AUTHENTICATION_GUARD
+          value: "remote_user_guard"
         - name: AUTHENTICATION_GUARD_HEADER
           value: "${FIREFLY3_GUARD_HEADER}"
         - name: AUTHENTICATION_GUARD_EMAIL
