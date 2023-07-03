@@ -27,9 +27,10 @@ export FIREFLY3_MAIL_FROM="firefly@mailgun.kuanhong.org"
 export FIREFLY3_MAILGUN_DOMAIN="kuanhong.org"
 export FIREFLY3_MAILGUN_SECRET="changeme"
 export FIREFLY3_MAILGUN_ENDPOINT="api.mailgun.net"
-export FIREFLY3_GUARD_HEADER="REMOTE_USER"
-export FIREFLY3_GUARD_EMAIL=""
+export FIREFLY3_GUARD_HEADER="HTTP_X_AUTH_REQUEST_PREFERRED_USERNAME"
+export FIREFLY3_GUARD_EMAIL="HTTP_X_AUTH_REQUEST_EMAIL"
 export FIREFLY3_LOGOUT_URL=""
+export FIREFLY3_OAUTH2_PROXY="svc-oauth2-kuanhongorg-http"
 
 # healthchecks database
 export HEALTHCHECKS_DB_PVC_SIZE="2Gi"

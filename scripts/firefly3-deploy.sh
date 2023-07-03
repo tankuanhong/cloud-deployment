@@ -44,6 +44,11 @@ deploy_firefly3() {
     kubectl apply -f "${SCRIPT_PATH}/kubernetes/firefly3.yaml"
 }
 
+patch_ingress() {
+  info "Patching firefly3 ingress..." && \
+    kubectl patch ingress ing-firefly3 --patch-file "${SCRIPT_PATH}/kubernetes/firefly3-ing-patch.yaml"
+}
+
 print_credentials() {
   info "Please save the following credentials."
   info "FIREFLY3_DB_ROOT_PASSWORD: ${FIREFLY3_DB_ROOT_PASSWORD}"
@@ -54,6 +59,7 @@ print_credentials() {
 check_kube_ready
 deploy_database
 deploy_firefly3
+patch_ingress
 print_credentials
 
 } # this ensures the entire script is downloaded #
