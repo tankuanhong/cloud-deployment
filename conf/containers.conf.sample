@@ -29,7 +29,7 @@ export FIREFLY3_MAILGUN_SECRET="changeme"
 export FIREFLY3_MAILGUN_ENDPOINT="api.mailgun.net"
 export FIREFLY3_GUARD_HEADER="HTTP_X_AUTH_REQUEST_PREFERRED_USERNAME"
 export FIREFLY3_GUARD_EMAIL="HTTP_X_AUTH_REQUEST_EMAIL"
-export FIREFLY3_LOGOUT_URL=""
+export FIREFLY3_LOGOUT_URL="oauth2/sign_out?rd=https%3A%2F%2Fkeycloak.staging.kuanhong.org%2Frealms%2Fursa%2Fprotocol%2Fopenid-connect%2Flogout"
 export FIREFLY3_OAUTH2_PROXY="svc-oauth2-kuanhongorg-http"
 
 # healthchecks database
