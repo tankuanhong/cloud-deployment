@@ -52,7 +52,7 @@ spec:
         - name: vol-memos
           mountPath: /.memos
       volumes:
-      - name: vol-memos-data
+      - name: vol-memos
         persistentVolumeClaim:
           claimName: pvc-memos
 ---
