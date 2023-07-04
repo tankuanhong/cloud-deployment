@@ -152,16 +152,17 @@ containers_menu() {
   echo -ne "
 [Containers]
 
-1) Deploy Keycloak to new PersistentVolume
-2) Deploy Firefly to new PersistentVolume
-3) Deploy Healthchecks to new PersistentVolume
-4) Deploy changedetection.io to new PersistentVolume
-5) Deploy Gatus to new PersistentVolume
-6) Deploy Grocy to new PersistentVolume
-7) Deploy Memos to new PersistentVolume
-8) Restore Keycloak from existing PersistentVolume
-9) Back to Main Menu
-0) Exit
+ 1) Deploy Keycloak to new PersistentVolume
+ 2) Deploy Firefly to new PersistentVolume
+ 3) Deploy Healthchecks to new PersistentVolume
+ 4) Deploy changedetection.io to new PersistentVolume
+ 5) Deploy Gatus to new PersistentVolume
+ 6) Deploy Grocy to new PersistentVolume
+ 7) Deploy Memos to new PersistentVolume
+ 8) Deploy Shlink to new PersistentVolume
+ 9) Restore Keycloak from existing PersistentVolume
+10) Back to Main Menu
+ 0) Exit
 
 Choose an option:  "
   read -r ans
@@ -195,10 +196,14 @@ Choose an option:  "
     exit 0
     ;;
   8)
-    source "${SCRIPT_PATH}/scripts/keycloak-restore.sh" || exit
+    source "${SCRIPT_PATH}/scripts/shlink-deploy.sh" || exit
     exit 0
     ;;
   9)
+    source "${SCRIPT_PATH}/scripts/keycloak-restore.sh" || exit
+    exit 0
+    ;;
+  10)
     clear
     main_menu
     ;;
