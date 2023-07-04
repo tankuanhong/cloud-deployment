@@ -1,0 +1,75 @@
+# https://github.com/usememos/memos
+# https://hub.docker.com/r/neosmemo/memos
+
+#PVC_START
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-memos
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: ${MEMOS_PVC_SIZE}
+#PVC_END
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-memos-http
+spec:
+  ports:
+  - port: 5230
+  selector:
+    app: app-memos
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dep-memos
+  labels:
+    app: app-memos
+spec:
+  selector:
+    matchLabels:
+      app: app-memos
+  template:
+    metadata:
+      labels:
+        app: app-memos
+    spec:
+      restartPolicy: Always
+      containers:
+      - image: ${MEMOS_IMAGE}
+        name: pod-memos
+        ports:
+        - containerPort: 5230
+          protocol: TCP
+        volumeMounts:
+        - name: vol-memos
+          mountPath: /.memos
+      volumes:
+      - name: vol-memos
+        persistentVolumeClaim:
+          claimName: pvc-memos
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-memos
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: ${MEMOS_HOSTNAME}
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: svc-memos-http
+            port:
+              number: 5230
