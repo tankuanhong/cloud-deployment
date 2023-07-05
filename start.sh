@@ -5,93 +5,6 @@
 # constants
 SCRIPT_PATH=$(dirname $(realpath -s $0))
 
-teleport_menu() {
-  echo -ne "
-[Teleport]
-
-1) Deploy Teleport Proxy
-2) Create Teleport Admin User
-3) Backup Teleport Proxy
-4) Restore Teleport Proxy
-9) Back to Main Menu
-0) Exit
-
-Choose an option:  "
-  read -r ans
-  case $ans in
-  1)
-    source "${SCRIPT_PATH}/scripts/teleport-deploy-proxy.sh" || exit
-    exit 0
-    ;;
-  2)
-    source "${SCRIPT_PATH}/scripts/teleport-create-admin.sh" || exit
-    exit 0
-    ;;
-  3)
-    source "${SCRIPT_PATH}/scripts/teleport-backup-proxy.sh" || exit
-    exit 0
-    ;;
-  4)
-    source "${SCRIPT_PATH}/scripts/teleport-restore-proxy.sh" || exit
-    exit 0
-    ;;
-  9)
-    clear
-    main_menu
-    ;;
-  0)
-    echo "Good bye."
-    exit 0
-    ;;
-  *)
-    clear
-    echo "Invalid option $ans"
-    teleport_menu
-    ;;
-  esac
-}
-
-gitea_menu() {
-  echo -ne "
-[Gitea]
-
-1) Deploy Gitea
-2) Backup Gitea
-3) Restore Gitea
-9) Back to Main Menu
-0) Exit
-
-Choose an option:  "
-  read -r ans
-  case $ans in
-  1)
-    source "${SCRIPT_PATH}/scripts/gitea-deploy.sh" || exit
-    exit 0
-    ;;
-  2)
-    echo "Backing up Gitea"
-    exit 0
-    ;;
-  3)
-    echo "Restoring Gitea"
-    exit 0
-    ;;
-  9)
-    clear
-    main_menu
-    ;;
-  0)
-    echo "Good bye."
-    exit 0
-    ;;
-  *)
-    clear
-    echo "Invalid option $ans"
-    gitea_menu
-    ;;
-  esac
-}
-
 kubernetes_menu() {
   echo -ne "
 [Kubernetes]
@@ -214,14 +127,148 @@ Choose an option:  "
   esac
 }
 
+teleport_menu() {
+  echo -ne "
+[Teleport]
+
+1) Deploy Teleport Proxy
+2) Create Teleport Admin User
+3) Backup Teleport Proxy
+4) Restore Teleport Proxy
+9) Back to Main Menu
+0) Exit
+
+Choose an option:  "
+  read -r ans
+  case $ans in
+  1)
+    source "${SCRIPT_PATH}/scripts/teleport-deploy-proxy.sh" || exit
+    exit 0
+    ;;
+  2)
+    source "${SCRIPT_PATH}/scripts/teleport-create-admin.sh" || exit
+    exit 0
+    ;;
+  3)
+    source "${SCRIPT_PATH}/scripts/teleport-backup-proxy.sh" || exit
+    exit 0
+    ;;
+  4)
+    source "${SCRIPT_PATH}/scripts/teleport-restore-proxy.sh" || exit
+    exit 0
+    ;;
+  9)
+    clear
+    main_menu
+    ;;
+  0)
+    echo "Good bye."
+    exit 0
+    ;;
+  *)
+    clear
+    echo "Invalid option $ans"
+    teleport_menu
+    ;;
+  esac
+}
+
+dokuwiki_menu() {
+  echo -ne "
+[Dokuwiki]
+
+1) Deploy Dokuwiki
+2) Harden Dokuwiki
+3) Backup Dokuwiki
+4) Restore Dokuwiki
+9) Back to Main Menu
+0) Exit
+
+Choose an option:  "
+  read -r ans
+  case $ans in
+  1)
+    source "${SCRIPT_PATH}/scripts/dokuwiki-deploy.sh" || exit
+    exit 0
+    ;;
+  2)
+    source "${SCRIPT_PATH}/scripts/dokuwiki-harden.sh" || exit
+    exit 0
+    ;;
+  3)
+    echo "Backing up Dokuwiki"
+    exit 0
+    ;;
+  4)
+    echo "Restoring Dokuwiki"
+    exit 0
+    ;;
+  9)
+    clear
+    main_menu
+    ;;
+  0)
+    echo "Good bye."
+    exit 0
+    ;;
+  *)
+    clear
+    echo "Invalid option $ans"
+    dokuwiki_menu
+    ;;
+  esac
+}
+
+gitea_menu() {
+  echo -ne "
+[Gitea]
+
+1) Deploy Gitea
+2) Backup Gitea
+3) Restore Gitea
+9) Back to Main Menu
+0) Exit
+
+Choose an option:  "
+  read -r ans
+  case $ans in
+  1)
+    source "${SCRIPT_PATH}/scripts/gitea-deploy.sh" || exit
+    exit 0
+    ;;
+  2)
+    echo "Backing up Gitea"
+    exit 0
+    ;;
+  3)
+    echo "Restoring Gitea"
+    exit 0
+    ;;
+  9)
+    clear
+    main_menu
+    ;;
+  0)
+    echo "Good bye."
+    exit 0
+    ;;
+  *)
+    clear
+    echo "Invalid option $ans"
+    gitea_menu
+    ;;
+  esac
+}
+
 main_menu() {
   echo -ne "
 [Main Menu]
 
-1) Teleport
-2) Gitea
-3) Kubernetes
-4) Containers
+1) Kubernetes
+2) Containers
+3) Teleport
+4) Dokuwiki
+5) Gitea
 0) Exit
 
 Choose an option:  "
@@ -229,19 +276,23 @@ Choose an option:  "
   case $ans in
   1)
     clear
-    teleport_menu
+    kubernetes_menu
     ;;
   2)
     clear
-    gitea_menu
+    containers_menu
     ;;
   3)
     clear
-    kubernetes_menu
+    teleport_menu
     ;;
   4)
     clear
-    containers_menu
+    dokuwiki_menu
+    ;;
+  5)
+    clear
+    gitea_menu
     ;;
   0)
     echo "Good bye."

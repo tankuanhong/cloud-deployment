@@ -665,7 +665,7 @@ install_kopia() {
   fi
 }
 
-configuring_kopia() {
+configure_kopia() {
   info "Configuring kopia..." && \
     cat > /etc/systemd/system/kopia.service <<EOF
 [Unit]
