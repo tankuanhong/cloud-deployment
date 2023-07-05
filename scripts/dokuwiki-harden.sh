@@ -38,8 +38,9 @@ Wait for this script to finish before logging in to Dokuwiki.
 
 harden_dokuwiki() {
   info "Hardening Dokuwiki installation..." && \
-    info "Inserting install.php in blocked files..." && \
+    info "Adding install.php to blocked files..." && \
     sed -i '/"\/vendor\/\*",/a \                            "/install.php",' /etc/caddy/caddy.json && \
+    info "Setting baseurl for correct redirection..." && \
     sed -i "/conf.*license/a\$conf['baseurl'] = 'https://${DOKUWIKI_DOMAIN}';" /var/www/dokuwiki/conf/local.php && \
     cat >> /var/www/dokuwiki/inc/preload.php <<EOF
 <?php
