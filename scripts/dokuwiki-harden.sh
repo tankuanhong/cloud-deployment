@@ -25,12 +25,12 @@ if [ $(lsb_release -si) != "Ubuntu" ] || [ $(lsb_release -sr) != "20.04" ]; then
 fi
 
 check_dokuwiki_install() {
+  clear
   echo -ne "
 [Dokuwiki Post-Install Configuration]
 
-Please run through the following steps in sequence.
-
-1. Go to https://${DOKUWIKI_DOMAIN}/install.php and complete the setup form. Do not login after setup is completed.
+Go to https://${DOKUWIKI_DOMAIN}/install.php and complete the setup form.
+Wait for this script to finish before logging in to Dokuwiki.
 
 "
   until test -f "/var/www/dokuwiki/conf/local.php"; do warn "Waiting for Dokuwiki setup to complete..." && sleep 10; done
@@ -38,8 +38,9 @@ Please run through the following steps in sequence.
 
 harden_dokuwiki() {
   info "Hardening Dokuwiki installation..." && \
-    info "Inserting install.php in blacklisted files..." && \
+    info "Inserting install.php in blocked files..." && \
     sed -i '/"\/vendor\/\*",/a \                            "/install.php",' /etc/caddy/caddy.json && \
+    sed -i "/conf.*license/a\$conf['baseurl'] = 'https://${DOKUWIKI_DOMAIN}';" /var/www/dokuwiki/conf/local.php && \
     cat >> /var/www/dokuwiki/inc/preload.php <<EOF
 <?php
 // DO NOT use a closing php tag. This causes a problem with the feeds,
@@ -62,21 +63,11 @@ EOF
   else
     info "caddy restarted"
   fi
-}
 
-manual_config() {
-  echo -ne "
-[Dokuwiki Post-Install Configuration]
-
-2. Open a separate SSH to this server, edit /var/www/dokuwiki/conf/local.php and insert a baseurl pointing to:
-
-https://${DOKUWIKI_DOMAIN}
-"
-
+  info "Hardening script completed. You can begin to use Dokuwiki."
 }
 
 check_dokuwiki_install
 harden_dokuwiki
-manual_config
 
 } # this ensures the entire script is downloaded #

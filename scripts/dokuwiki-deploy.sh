@@ -578,7 +578,6 @@ configure_caddy() {
                             "/bin/*",
                             "/inc/*",
                             "/vendor/*",
-                            "/install.php",
                             "/.*",
                             "/COPYING",
                             "/README",
