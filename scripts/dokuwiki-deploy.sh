@@ -805,7 +805,7 @@ install_kopia() {
   fi
 }
 
-configuring_kopia() {
+configure_kopia() {
   info "Configuring kopia..." && \
     cat > /etc/systemd/system/kopia.service <<EOF
 [Unit]
@@ -860,8 +860,11 @@ setup_ntp
 harden_sshd
 configure_remote_syslog
 install_dokuwiki
-harden_dokuwiki
 install_caddy
 configure_caddy
+install_fail2ban
+configure_fail2ban
+install_kopia
+configure_kopia
 
 } # this ensures the entire script is downloaded #
