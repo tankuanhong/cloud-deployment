@@ -23,6 +23,9 @@ TELEPORT_DATA_RESTORE="${SCRIPT_PATH}/teleport_data_dir.tar"
 # caddy restore
 CADDY_DATA_RESTORE="${SCRIPT_PATH}/caddy_data_dir.tar"
 
+# kopia restore
+KOPIA_CONFIG_RESTORE="${SCRIPT_PATH}/kopia_opt_dir.tar"
+
 # letsencrypt endpoint
 LE_ENDPOINT=acme-staging-v02.api.letsencrypt.org
 #LE_ENDPOINT=acme-v02.api.letsencrypt.org
