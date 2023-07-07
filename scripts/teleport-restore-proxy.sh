@@ -56,7 +56,7 @@ restore_kopia_data() {
     tar xf kopia_opt_dir.tar && \
     rm -f kopia_opt_dir.tar && \
     info "kopia config restored"
-    info "kopia can be started via service"
+    systemctl start kopia
 }
 
 stop_teleport_service() {
