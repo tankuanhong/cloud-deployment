@@ -93,4 +93,21 @@ export MEMOS_PVC_SIZE="2Gi"
 export MEMOS_IMAGE="neosmemo/memos:0.13.2"
 export MEMOS_HOSTNAME="memos.kuanhong.org"
 
+# shlink db
+export SHLINK_DB_PVC_SIZE="2Gi"
+export SHLINK_DB_IMAGE="bitnami/mariadb:10.11.4"
+export SHLINK_DB_USERNAME="shlink"
+export SHLINK_DB_DATABASE="shlink"
+
+# shlink
+export SHLINK_HOSTNAME="l.kuanhong.org"
+export SHLINK_IMAGE="shlinkio/shlink:3.6.3"
+
+# shlink web
+export 
+export 
+export 
+export 
+export 
+
 } # this ensures the entire script is downloaded #

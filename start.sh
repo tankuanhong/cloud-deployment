@@ -11,10 +11,12 @@ teleport_menu() {
 
 1) Deploy Teleport Proxy
 2) Create Teleport Admin User
+
 3) Backup Teleport Proxy
 4) Restore Teleport Proxy
-9) Back to Main Menu
-0) Exit
+
+b) Back to Main Menu
+x) Exit
 
 Choose an option:  "
   read -r ans
@@ -35,11 +37,11 @@ Choose an option:  "
     source "${SCRIPT_PATH}/scripts/teleport-restore-proxy.sh" || exit
     exit 0
     ;;
-  9)
+  b)
     clear
     main_menu
     ;;
-  0)
+  x)
     echo "Good bye."
     exit 0
     ;;
@@ -56,10 +58,12 @@ gitea_menu() {
 [Gitea]
 
 1) Deploy Gitea
+
 2) Backup Gitea
 3) Restore Gitea
-9) Back to Main Menu
-0) Exit
+
+b) Back to Main Menu
+x) Exit
 
 Choose an option:  "
   read -r ans
@@ -76,11 +80,11 @@ Choose an option:  "
     echo "Restoring Gitea"
     exit 0
     ;;
-  9)
+  b)
     clear
     main_menu
     ;;
-  0)
+  x)
     echo "Good bye."
     exit 0
     ;;
@@ -101,9 +105,11 @@ kubernetes_menu() {
 3) Deploy Longhorn Storage
 4) Deploy Ingress NGINX Controller
 5) Deploy oAuth2 Proxy
+
 6) Deploy Kubernetes for testing (Single-Node)
-9) Back to Main Menu
-0) Exit
+
+b) Back to Main Menu
+x) Exit
 
 Choose an option:  "
   read -r ans
@@ -132,11 +138,11 @@ Choose an option:  "
     source "${SCRIPT_PATH}/scripts/kubernetes-deploy-single-node.sh" || exit
     exit 0
     ;;
-  9)
+  b)
     clear
     main_menu
     ;;
-  0)
+  x)
     echo "Good bye."
     exit 0
     ;;
@@ -152,17 +158,19 @@ containers_menu() {
   echo -ne "
 [Containers]
 
- 1) Deploy Keycloak to new PersistentVolume
- 2) Deploy Firefly to new PersistentVolume
- 3) Deploy Healthchecks to new PersistentVolume
- 4) Deploy changedetection.io to new PersistentVolume
- 5) Deploy Gatus to new PersistentVolume
- 6) Deploy Grocy to new PersistentVolume
- 7) Deploy Memos to new PersistentVolume
- 8) Deploy Shlink to new PersistentVolume
- 9) Restore Keycloak from existing PersistentVolume
-10) Back to Main Menu
- 0) Exit
+ 1) Deploy Keycloak
+ 2) Deploy Firefly
+ 3) Deploy Healthchecks
+ 4) Deploy changedetection.io
+ 5) Deploy Gatus
+ 6) Deploy Grocy
+ 7) Deploy Memos
+ 8) Deploy Shlink
+
+ 9) Restore Keycloak
+
+ b) Back to Main Menu
+ x) Exit
 
 Choose an option:  "
   read -r ans
@@ -203,11 +211,11 @@ Choose an option:  "
     source "${SCRIPT_PATH}/scripts/keycloak-restore.sh" || exit
     exit 0
     ;;
-  10)
+  b)
     clear
     main_menu
     ;;
-  0)
+  x)
     echo "Good bye."
     exit 0
     ;;
@@ -225,9 +233,11 @@ main_menu() {
 
 1) Teleport
 2) Gitea
+
 3) Kubernetes
-4) Containers
-0) Exit
+4) Kubernetes Pods
+
+x) Exit
 
 Choose an option:  "
   read -r ans
@@ -248,7 +258,7 @@ Choose an option:  "
     clear
     containers_menu
     ;;
-  0)
+  x)
     echo "Good bye."
     exit 0
     ;;

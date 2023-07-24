@@ -1,0 +1,116 @@
+# https://hub.docker.com/r/fireflyiii/core
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-shlink-http
+spec:
+  ports:
+  - port: 8080
+  selector:
+    app: app-shlink
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dep-shlink
+  labels:
+    app: app-shlink
+spec:
+  selector:
+    matchLabels:
+      app: app-shlink
+  template:
+    metadata:
+      labels:
+        app: app-shlink
+    spec:
+      restartPolicy: Always
+      containers:
+      - image: shlinkio/shlink:3.6.3
+        name: pod-shlink
+        env:
+        - name: DEFAULT_DOMAIN
+          value: "${SHLINK_HOSTNAME}"
+        - name: IS_HTTPS_ENABLED
+          value: "true"
+        - name: GEOLITE_LICENSE_KEY
+          value: ""
+        - name: AUTO_RESOLVE_TITLES
+          value: "false"
+        - name: TIMEZONE
+          value: "Asia/Singapore"
+        - name: SHORT_URL_TRAILING_SLASH
+          value: "true"
+        - name: SHORT_URL_MODE
+          value: "strict"
+        - name: PORT
+          value: "8080"
+        - name: DB_DRIVER
+          value: "maria"
+        - name: DB_NAME
+          value: "${SHLINK_DB_DATABASE}"
+        - name: DB_USER
+          value: "${SHLINK_DB_USERNAME}"
+        - name: DB_PASSWORD
+          value: "${SHLINK_DB_PASSWORD}"
+        - name: DB_HOST
+          value: "svc-shlink-db"
+        - name: DB_PORT
+          value: "3306"
+        - name: REDIRECT_STATUS_CODE
+          value: "302"
+        - name: REDIRECT_CACHE_LIFETIME
+          value: "30"
+        - name: DEFAULT_INVALID_SHORT_URL_REDIRECT
+          value: ""
+        - name: DEFAULT_REGULAR_404_REDIRECT
+          value: ""
+        - name: DEFAULT_BASE_URL_REDIRECT
+          value: ""
+        - name: REDIRECT_APPEND_EXTRA_PATH
+          value: "false"
+        - name: DISABLE_TRACKING
+          value: "false"
+        - name: TRACK_ORPHAN_VISITS
+          value: "true"
+        - name: DISABLE_IP_TRACKING
+          value: "false"
+        - name: DISABLE_REFERRER_TRACKING
+          value: "false"
+        - name: DISABLE_UA_TRACKING
+          value: "false"
+        - name: ANONYMIZE_REMOTE_ADDR
+          value: "false"
+        - name: DEFAULT_QR_CODE_SIZE
+          value: "300"
+        - name: DEFAULT_QR_CODE_MARGIN
+          value: "0"
+        - name: DEFAULT_QR_CODE_FORMAT
+          value: "png"
+        - name: DEFAULT_QR_CODE_ERROR_CORRECTION
+          value: "L"
+        - name: DEFAULT_QR_CODE_ROUND_BLOCK_SIZE
+          value: "true"
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-shlink
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: ${SHLINK_HOSTNAME}
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: svc-shlink-http
+            port:
+              number: 8080
