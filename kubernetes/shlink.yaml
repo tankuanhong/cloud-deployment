@@ -1,4 +1,4 @@
-# https://hub.docker.com/r/fireflyiii/core
+# https://hub.docker.com/r/shlinkio/shlink
 
 ---
 apiVersion: v1
@@ -28,7 +28,7 @@ spec:
     spec:
       restartPolicy: Always
       containers:
-      - image: shlinkio/shlink:3.6.3
+      - image: ${SHLINK_IMAGE}
         name: pod-shlink
         env:
         - name: DEFAULT_DOMAIN

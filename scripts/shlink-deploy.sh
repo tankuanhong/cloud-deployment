@@ -44,28 +44,35 @@ deploy_shlink() {
     kubectl wait pods -l app=app-shlink --for condition=Ready --timeout=120s
 }
 
-generate_apikey() {
-
-}
-
 deploy_shlink_web() {
-
-}
-
-patch_ingress() {
-
+  info "Setting custom shlink web client parameters..." && \
+    tmpfile=$(mktemp) && \
+    cp --attributes-only --preserve "${SCRIPT_PATH}/kubernetes/shlink-web.yaml" $tmpfile && \
+    cat "${SCRIPT_PATH}/kubernetes/shlink-web.yaml" | envsubst > $tmpfile && \
+    mv $tmpfile "${SCRIPT_PATH}/kubernetes/shlink-web.yaml" && \
+    info "Deploying shlink web client..." && \
+    kubectl apply -f "${SCRIPT_PATH}/kubernetes/shlink-web.yaml" && \
+    info "Waiting for shlink web client to be ready..." && \
+    kubectl wait pods -l app=app-shlink-web --for condition=Ready --timeout=120s
 }
 
 print_credentials() {
+  info "Please save the following credentials."
+  info "SHLINK_DB_ROOT_PASSWORD: ${SHLINK_DB_ROOT_PASSWORD}"
+  info "SHLINK_DB_PASSWORD: ${SHLINK_DB_PASSWORD}"
+  info "Please verify that 2 credentials are printed."
+}
 
+generate_apikey() {
+  info "Generating first api key..." && \
+    kubectl exec --stdin --tty deploy/dep-shlink -- shlink api-key:generate
 }
 
 check_kube_ready
 deploy_database
 deploy_shlink
-generate_apikey
 deploy_shlink_web
-patch_ingress
 print_credentials
+generate_apikey
 
 } # this ensures the entire script is downloaded #

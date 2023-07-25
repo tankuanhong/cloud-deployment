@@ -104,10 +104,7 @@ export SHLINK_HOSTNAME="l.kuanhong.org"
 export SHLINK_IMAGE="shlinkio/shlink:3.6.3"
 
 # shlink web
-export 
-export 
-export 
-export 
-export 
+export SHLINK_WEB_HOSTNAME="shlink.kuanhong.org"
+export SHLINK_WEB_IMAGE="shlinkio/shlink-web-client:3.10.2"
 
 } # this ensures the entire script is downloaded #
