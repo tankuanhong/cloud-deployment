@@ -93,4 +93,23 @@ export MEMOS_PVC_SIZE="2Gi"
 export MEMOS_IMAGE="neosmemo/memos:0.13.2"
 export MEMOS_HOSTNAME="memos.kuanhong.org"
 
+# shlink db
+export SHLINK_DB_PVC_SIZE="2Gi"
+export SHLINK_DB_IMAGE="bitnami/mariadb:10.11.4"
+export SHLINK_DB_USERNAME="shlink"
+export SHLINK_DB_DATABASE="shlink"
+
+# shlink
+export SHLINK_HOSTNAME="l.kuanhong.org"
+export SHLINK_IMAGE="shlinkio/shlink:3.6.3"
+export SHLINK_GEOLITE_LICENSE_KEY="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"
+export SHLINK_REDIRECT_CODE="302"
+export SHLINK_INVALID_REDIRECT=""
+export SHLINK_404_REDIRECT=""
+export SHLINK_BASE_REDIRECT=""
+
+# shlink web
+export SHLINK_WEB_HOSTNAME="shlink.kuanhong.org"
+export SHLINK_WEB_IMAGE="shlinkio/shlink-web-client:3.10.2"
+
 } # this ensures the entire script is downloaded #

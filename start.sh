@@ -5,6 +5,145 @@
 # constants
 SCRIPT_PATH=$(dirname $(realpath -s $0))
 
+teleport_menu() {
+  echo -ne "
+[Teleport]
+
+1) Deploy Teleport Proxy
+2) Create Teleport Admin User
+
+3) Backup Teleport Proxy
+4) Restore Teleport Proxy
+
+b) Back to Main Menu
+x) Exit
+
+Choose an option:  "
+  read -r ans
+  case $ans in
+  1)
+    source "${SCRIPT_PATH}/scripts/teleport-deploy-proxy.sh" || exit
+    exit 0
+    ;;
+  2)
+    source "${SCRIPT_PATH}/scripts/teleport-create-admin.sh" || exit
+    exit 0
+    ;;
+  3)
+    source "${SCRIPT_PATH}/scripts/teleport-backup-proxy.sh" || exit
+    exit 0
+    ;;
+  4)
+    source "${SCRIPT_PATH}/scripts/teleport-restore-proxy.sh" || exit
+    exit 0
+    ;;
+  b)
+    clear
+    main_menu
+    ;;
+  x)
+    echo "Good bye."
+    exit 0
+    ;;
+  *)
+    clear
+    echo "Invalid option $ans"
+    teleport_menu
+    ;;
+  esac
+}
+
+dokuwiki_menu() {
+  echo -ne "
+[Dokuwiki]
+
+1) Deploy Dokuwiki
+2) Harden Dokuwiki
+
+3) Backup Dokuwiki
+4) Restore Dokuwiki
+
+b) Back to Main Menu
+x) Exit
+
+Choose an option:  "
+  read -r ans
+  case $ans in
+  1)
+    source "${SCRIPT_PATH}/scripts/dokuwiki-deploy.sh" || exit
+    exit 0
+    ;;
+  2)
+    source "${SCRIPT_PATH}/scripts/dokuwiki-harden.sh" || exit
+    exit 0
+    ;;
+  3)
+    echo "Backing up Dokuwiki"
+    exit 0
+    ;;
+  4)
+    echo "Restoring Dokuwiki"
+    exit 0
+    ;;
+  b)
+    clear
+    main_menu
+    ;;
+  x)
+    echo "Good bye."
+    exit 0
+    ;;
+  *)
+    clear
+    echo "Invalid option $ans"
+    dokuwiki_menu
+    ;;
+  esac
+}
+
+gitea_menu() {
+  echo -ne "
+[Gitea]
+
+1) Deploy Gitea
+
+2) Backup Gitea
+3) Restore Gitea
+
+b) Back to Main Menu
+x) Exit
+
+Choose an option:  "
+  read -r ans
+  case $ans in
+  1)
+    source "${SCRIPT_PATH}/scripts/gitea-deploy.sh" || exit
+    exit 0
+    ;;
+  2)
+    echo "Backing up Gitea"
+    exit 0
+    ;;
+  3)
+    echo "Restoring Gitea"
+    exit 0
+    ;;
+  b)
+    clear
+    main_menu
+    ;;
+  x)
+    echo "Good bye."
+    exit 0
+    ;;
+  *)
+    clear
+    echo "Invalid option $ans"
+    gitea_menu
+    ;;
+  esac
+}
+
 kubernetes_menu() {
   echo -ne "
 [Kubernetes]
@@ -14,9 +153,11 @@ kubernetes_menu() {
 3) Deploy Longhorn Storage
 4) Deploy Ingress NGINX Controller
 5) Deploy oAuth2 Proxy
+
 6) Deploy Kubernetes for testing (Single-Node)
-9) Back to Main Menu
-0) Exit
+
+b) Back to Main Menu
+x) Exit
 
 Choose an option:  "
   read -r ans
@@ -45,11 +186,11 @@ Choose an option:  "
     source "${SCRIPT_PATH}/scripts/kubernetes-deploy-single-node.sh" || exit
     exit 0
     ;;
-  9)
+  b)
     clear
     main_menu
     ;;
-  0)
+  x)
     echo "Good bye."
     exit 0
     ;;
@@ -65,16 +206,19 @@ containers_menu() {
   echo -ne "
 [Containers]
 
-1) Deploy Keycloak to new PersistentVolume
-2) Deploy Firefly to new PersistentVolume
-3) Deploy Healthchecks to new PersistentVolume
-4) Deploy changedetection.io to new PersistentVolume
-5) Deploy Gatus to new PersistentVolume
-6) Deploy Grocy to new PersistentVolume
-7) Deploy Memos to new PersistentVolume
-8) Restore Keycloak from existing PersistentVolume
-9) Back to Main Menu
-0) Exit
+ 1) Deploy Keycloak
+ 2) Deploy Firefly
+ 3) Deploy Healthchecks
+ 4) Deploy changedetection.io
+ 5) Deploy Gatus
+ 6) Deploy Grocy
+ 7) Deploy Memos
+ 8) Deploy Shlink
+
+ 9) Restore Keycloak
+
+ b) Back to Main Menu
+ x) Exit
 
 Choose an option:  "
   read -r ans
@@ -108,14 +252,18 @@ Choose an option:  "
     exit 0
     ;;
   8)
-    source "${SCRIPT_PATH}/scripts/keycloak-restore.sh" || exit
+    source "${SCRIPT_PATH}/scripts/shlink-deploy.sh" || exit
     exit 0
     ;;
   9)
+    source "${SCRIPT_PATH}/scripts/keycloak-restore.sh" || exit
+    exit 0
+    ;;
+  b)
     clear
     main_menu
     ;;
-  0)
+  x)
     echo "Good bye."
     exit 0
     ;;
@@ -123,139 +271,6 @@ Choose an option:  "
     clear
     echo "Invalid option $ans"
     containers_menu
-    ;;
-  esac
-}
-
-teleport_menu() {
-  echo -ne "
-[Teleport]
-
-1) Deploy Teleport Proxy
-2) Create Teleport Admin User
-3) Backup Teleport Proxy
-4) Restore Teleport Proxy
-9) Back to Main Menu
-0) Exit
-
-Choose an option:  "
-  read -r ans
-  case $ans in
-  1)
-    source "${SCRIPT_PATH}/scripts/teleport-deploy-proxy.sh" || exit
-    exit 0
-    ;;
-  2)
-    source "${SCRIPT_PATH}/scripts/teleport-create-admin.sh" || exit
-    exit 0
-    ;;
-  3)
-    source "${SCRIPT_PATH}/scripts/teleport-backup-proxy.sh" || exit
-    exit 0
-    ;;
-  4)
-    source "${SCRIPT_PATH}/scripts/teleport-restore-proxy.sh" || exit
-    exit 0
-    ;;
-  9)
-    clear
-    main_menu
-    ;;
-  0)
-    echo "Good bye."
-    exit 0
-    ;;
-  *)
-    clear
-    echo "Invalid option $ans"
-    teleport_menu
-    ;;
-  esac
-}
-
-dokuwiki_menu() {
-  echo -ne "
-[Dokuwiki]
-
-1) Deploy Dokuwiki
-2) Harden Dokuwiki
-3) Backup Dokuwiki
-4) Restore Dokuwiki
-9) Back to Main Menu
-0) Exit
-
-Choose an option:  "
-  read -r ans
-  case $ans in
-  1)
-    source "${SCRIPT_PATH}/scripts/dokuwiki-deploy.sh" || exit
-    exit 0
-    ;;
-  2)
-    source "${SCRIPT_PATH}/scripts/dokuwiki-harden.sh" || exit
-    exit 0
-    ;;
-  3)
-    echo "Backing up Dokuwiki"
-    exit 0
-    ;;
-  4)
-    echo "Restoring Dokuwiki"
-    exit 0
-    ;;
-  9)
-    clear
-    main_menu
-    ;;
-  0)
-    echo "Good bye."
-    exit 0
-    ;;
-  *)
-    clear
-    echo "Invalid option $ans"
-    dokuwiki_menu
-    ;;
-  esac
-}
-
-gitea_menu() {
-  echo -ne "
-[Gitea]
-
-1) Deploy Gitea
-2) Backup Gitea
-3) Restore Gitea
-9) Back to Main Menu
-0) Exit
-
-Choose an option:  "
-  read -r ans
-  case $ans in
-  1)
-    source "${SCRIPT_PATH}/scripts/gitea-deploy.sh" || exit
-    exit 0
-    ;;
-  2)
-    echo "Backing up Gitea"
-    exit 0
-    ;;
-  3)
-    echo "Restoring Gitea"
-    exit 0
-    ;;
-  9)
-    clear
-    main_menu
-    ;;
-  0)
-    echo "Good bye."
-    exit 0
-    ;;
-  *)
-    clear
-    echo "Invalid option $ans"
-    gitea_menu
     ;;
   esac
 }
@@ -264,37 +279,39 @@ main_menu() {
   echo -ne "
 [Main Menu]
 
-1) Kubernetes
-2) Containers
-3) Teleport
-4) Dokuwiki
-5) Gitea
-0) Exit
+1) Teleport
+2) Dokuwiki
+3) Gitea
+
+4) Kubernetes
+5) Kubernetes Pods
+
+x) Exit
 
 Choose an option:  "
   read -r ans
   case $ans in
   1)
     clear
-    kubernetes_menu
+    teleport_menu
     ;;
   2)
     clear
-    containers_menu
+    dokuwiki_menu
     ;;
   3)
     clear
-    teleport_menu
+    gitea_menu
     ;;
   4)
     clear
-    dokuwiki_menu
+    kubernetes_menu
     ;;
   5)
     clear
-    gitea_menu
+    containers_menu
     ;;
-  0)
+  x)
     echo "Good bye."
     exit 0
     ;;

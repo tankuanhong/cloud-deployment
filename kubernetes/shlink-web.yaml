@@ -1,0 +1,53 @@
+# https://hub.docker.com/r/shlinkio/shlink-web-client
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-shlink-web-http
+spec:
+  ports:
+  - port: 80
+  selector:
+    app: app-shlink-web
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dep-shlink-web
+  labels:
+    app: app-shlink-web
+spec:
+  selector:
+    matchLabels:
+      app: app-shlink-web
+  template:
+    metadata:
+      labels:
+        app: app-shlink-web
+    spec:
+      restartPolicy: Always
+      containers:
+      - image: ${SHLINK_WEB_IMAGE}
+        name: pod-shlink-web
+        ports:
+        - containerPort: 80
+          protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-shlink-web
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: ${SHLINK_WEB_HOSTNAME}
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: svc-shlink-web-http
+            port:
+              number: 80
