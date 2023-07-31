@@ -64,7 +64,10 @@ print_credentials() {
 }
 
 generate_apikey() {
-  info "Generating first api key..." && \
+  info "Sleep 1 minute for application to initialize..." && \
+    sleep 60 && \
+    info "Wake after 1 minute" && \
+    info "Generating first api key..." && \
     kubectl exec --stdin --tty deploy/dep-shlink -- shlink api-key:generate
 }
 
