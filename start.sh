@@ -144,6 +144,38 @@ Choose an option:  "
   esac
 }
 
+syncthing_menu() {
+  echo -ne "
+[Syncthing]
+
+1) Deploy Syncthing
+
+b) Back to Main Menu
+x) Exit
+
+Choose an option:  "
+  read -r ans
+  case $ans in
+  1)
+    source "${SCRIPT_PATH}/scripts/syncthing-deploy.sh" || exit
+    exit 0
+    ;;
+  b)
+    clear
+    main_menu
+    ;;
+  x)
+    echo "Good bye."
+    exit 0
+    ;;
+  *)
+    clear
+    echo "Invalid option $ans"
+    syncthing_menu
+    ;;
+  esac
+}
+
 kubernetes_menu() {
   echo -ne "
 [Kubernetes]
@@ -282,9 +314,10 @@ main_menu() {
 1) Teleport
 2) Dokuwiki
 3) Gitea
+4) Syncthing
 
-4) Kubernetes
-5) Kubernetes Pods
+5) Kubernetes
+6) Kubernetes Pods
 
 x) Exit
 
@@ -305,9 +338,13 @@ Choose an option:  "
     ;;
   4)
     clear
-    kubernetes_menu
+    syncthing_menu
     ;;
   5)
+    clear
+    kubernetes_menu
+    ;;
+  6)
     clear
     containers_menu
     ;;
