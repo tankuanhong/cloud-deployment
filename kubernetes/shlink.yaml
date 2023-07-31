@@ -36,7 +36,7 @@ spec:
         - name: IS_HTTPS_ENABLED
           value: "true"
         - name: GEOLITE_LICENSE_KEY
-          value: ""
+          value: "${SHLINK_GEOLITE_LICENSE_KEY}"
         - name: AUTO_RESOLVE_TITLES
           value: "false"
         - name: TIMEZONE
@@ -60,15 +60,15 @@ spec:
         - name: DB_PORT
           value: "3306"
         - name: REDIRECT_STATUS_CODE
-          value: "302"
+          value: "${SHLINK_REDIRECT_CODE}"
         - name: REDIRECT_CACHE_LIFETIME
           value: "30"
         - name: DEFAULT_INVALID_SHORT_URL_REDIRECT
-          value: ""
+          value: "${SHLINK_INVALID_REDIRECT}"
         - name: DEFAULT_REGULAR_404_REDIRECT
-          value: ""
+          value: "${SHLINK_404_REDIRECT}"
         - name: DEFAULT_BASE_URL_REDIRECT
-          value: ""
+          value: "${SHLINK_BASE_REDIRECT}"
         - name: REDIRECT_APPEND_EXTRA_PATH
           value: "false"
         - name: DISABLE_TRACKING

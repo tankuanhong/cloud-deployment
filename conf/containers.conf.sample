@@ -102,6 +102,11 @@ export SHLINK_DB_DATABASE="shlink"
 # shlink
 export SHLINK_HOSTNAME="l.kuanhong.org"
 export SHLINK_IMAGE="shlinkio/shlink:3.6.3"
+export SHLINK_GEOLITE_LICENSE_KEY="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"
+export SHLINK_REDIRECT_CODE="302"
+export SHLINK_INVALID_REDIRECT=""
+export SHLINK_404_REDIRECT=""
+export SHLINK_BASE_REDIRECT=""
 
 # shlink web
 export SHLINK_WEB_HOSTNAME="shlink.kuanhong.org"
