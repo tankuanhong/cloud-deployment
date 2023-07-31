@@ -53,6 +53,54 @@ Choose an option:  "
   esac
 }
 
+dokuwiki_menu() {
+  echo -ne "
+[Dokuwiki]
+
+1) Deploy Dokuwiki
+2) Harden Dokuwiki
+
+3) Backup Dokuwiki
+4) Restore Dokuwiki
+
+b) Back to Main Menu
+x) Exit
+
+Choose an option:  "
+  read -r ans
+  case $ans in
+  1)
+    source "${SCRIPT_PATH}/scripts/dokuwiki-deploy.sh" || exit
+    exit 0
+    ;;
+  2)
+    source "${SCRIPT_PATH}/scripts/dokuwiki-harden.sh" || exit
+    exit 0
+    ;;
+  3)
+    echo "Backing up Dokuwiki"
+    exit 0
+    ;;
+  4)
+    echo "Restoring Dokuwiki"
+    exit 0
+    ;;
+  b)
+    clear
+    main_menu
+    ;;
+  x)
+    echo "Good bye."
+    exit 0
+    ;;
+  *)
+    clear
+    echo "Invalid option $ans"
+    dokuwiki_menu
+    ;;
+  esac
+}
+
 gitea_menu() {
   echo -ne "
 [Gitea]
@@ -232,10 +280,11 @@ main_menu() {
 [Main Menu]
 
 1) Teleport
-2) Gitea
+2) Dokuwiki
+3) Gitea
 
-3) Kubernetes
-4) Kubernetes Pods
+4) Kubernetes
+5) Kubernetes Pods
 
 x) Exit
 
@@ -248,13 +297,17 @@ Choose an option:  "
     ;;
   2)
     clear
-    gitea_menu
+    dokuwiki_menu
     ;;
   3)
     clear
-    kubernetes_menu
+    gitea_menu
     ;;
   4)
+    clear
+    kubernetes_menu
+    ;;
+  5)
     clear
     containers_menu
     ;;
