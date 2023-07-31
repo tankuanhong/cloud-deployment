@@ -190,19 +190,167 @@ EOF
 }
 
 install_discovery() {
-
+  info "Installing Syncthing Discovery Server..." && \
+    info "Creating stdiscosrv user..."
+    groupadd --system stdiscosrv && \
+    useradd --system \
+      --gid stdiscosrv \
+      --create-home \
+      --home-dir /var/lib/stdiscosrv \
+      --shell /usr/sbin/nologin \
+      --comment "Syncthing Discovery Server" \
+      stdiscosrv && \
+    info "Installing Syncthing Discovery Server binary..." && \
+    wget ${ST_DISCOSRV_BINARY_URL} && \
+    tar xzvf stdiscosrv-*.tar.gz && \
+    mv stdiscosrv-*/stdiscosrv /usr/bin/stdiscosrv && \
+    info "Installing service file..." && \
+    cp "${SCRIPT_PATH}/assets/syncthing/stdiscosrv.service" /lib/systemd/system/stdiscosrv.service && \
+    systemctl daemon-reload && \
+    info "Starting Syncthing Discovery Server..." && \
+    systemctl enable stdiscosrv
+    systemctl restart stdiscosrv
 }
 
 install_relay() {
-
+  info "Installing Syncthing Relay Server..." && \
+    info "Creating strelaysrv user..."
+    groupadd --system strelaysrv && \
+    useradd --system \
+      --gid strelaysrv \
+      --create-home \
+      --home-dir /var/lib/strelaysrv \
+      --shell /usr/sbin/nologin \
+      --comment "Syncthing Relay Server" \
+      strelaysrv && \
+    info "Installing Syncthing Relay Server binary..." && \
+    wget ${ST_RELAYSRV_BINARY_URL} && \
+    tar xzvf strelaysrv-*.tar.gz && \
+    mv strelaysrv-*/strelaysrv /usr/bin/strelaysrv && \
+    info "Installing service file..." && \
+    cp "${SCRIPT_PATH}/assets/syncthing/strelaysrv.service" /lib/systemd/system/strelaysrv.service && \
+    systemctl daemon-reload && \
+    info "Starting Syncthing Relay Server..." && \
+    systemctl enable strelaysrv
+    systemctl restart strelaysrv
 }
 
 install_caddy() {
+  info "Installing Caddy..." && \
+    info "Creating caddy user..." && \
+    groupadd --system caddy && \
+    useradd --system \
+      --gid caddy \
+      --create-home \
+      --home-dir /var/lib/caddy \
+      --shell /usr/sbin/nologin \
+      --comment "Caddy web server" \
+      caddy && \
+    if getent group www-data >/dev/null; then
+      usermod -aG www-data caddy
+    fi && \
+    info "Creating caddy directories..." && \
+    mkdir -p /etc/caddy && \
+    mkdir -p /var/log/caddy && \
+    mkdir -p /var/lib/caddy && \
+    info "Copying caddy binary..." && \
+    cp "${SCRIPT_PATH}/assets/caddy/linux/2.6.4/caddy-cloudflare-layer4-l4tls-l4proxy" /usr/bin/caddy && \
+    chmod +x /usr/bin/caddy && \
+    info "Setting permissions..." && \
+    chown caddy:caddy /usr/bin/caddy && \
+    chown -R caddy:caddy /etc/caddy && \
+    chown -R caddy:caddy /var/log/caddy && \
+    chown -R caddy:caddy /var/lib/caddy && \
+    info "Creating caddy service files..." && \
+    cp "${SCRIPT_PATH}/assets/caddy/caddy.service" /lib/systemd/system/caddy.service && \
+    cp "${SCRIPT_PATH}/assets/caddy/caddy-api.service" /lib/systemd/system/caddy-api.service && \
+    systemctl daemon-reload && \
+    info "Setting up caddy bash completion..." && \
+    /usr/bin/caddy completion bash | sudo tee /etc/bash_completion.d/caddy && \
+    info "Setting up caddy man pages..." && \
+    /usr/bin/caddy manpage --directory man && \
+    gzip -r man/ && \
+    cp man/* /usr/share/man/man8/ && \
+    mandb
 
+  if ! command_exist "caddy"; then
+    err "Caddy not found after installation"
+    err "Terminating script..."
+    exit 1
+  else
+    info "Caddy installed"
+  fi
 }
 
 configure_caddy() {
+  info "Configuring Caddy..." && \
+    cat > /etc/caddy/caddy.json <<EOL
+{
+  "logging": {
+    "logs": {
+      "default": {
+        "writer": {
+          "filename": "/var/log/caddy/caddy.log",
+          "output": "file",
+          "roll_keep": 5,
+          "roll_size_mb": 100
+        },
+        "encoder": {
+          "format": "json",
+          "time_format": "iso8601"
+        },
+        "level": "DEBUG",
+        "include": [
+            "http",
+            "layer4"
+        ]
+      }
+    }
+  },
+  "apps": {
+    "layer4": {
+      "servers": {
+        "srv0": {
+          "listen": [
+            ":443"
+          ],
+          "routes": [
+            {
+              "match": [
+                {
+                  "tls": {
+                    "sni": [
+                      "${ST_DISCOSRV_PUBLIC_ADDR}"
+                    ]
+                  }
+                }
+              ],
+              "handle": [
+                {
+                  "handler": "proxy",
+                  "upstreams": [
+                    {
+                      "dial": [
+                        "localhost:8443"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  }
+}
+EOL
 
+  info "Set Caddy service to use JSON config..." && \
+    sed -i 's/\/etc\/caddy\/Caddyfile/\/etc\/caddy\/caddy.json/g' /lib/systemd/system/caddy.service && \
+    systemctl daemon-reload && \
+    systemctl enable caddy
+    systemctl restart caddy
 }
 
 install_fail2ban() {

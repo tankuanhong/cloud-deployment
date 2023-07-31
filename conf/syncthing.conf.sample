@@ -2,6 +2,12 @@
 
 { # this ensures the entire script is downloaded #
 
+# syncthing
+ST_DISCOSRV_BINARY_URL="https://github.com/syncthing/discosrv/releases/download/v1.23.4/stdiscosrv-linux-amd64-v1.23.4.tar.gz"
+ST_DISCOSRV_PUBLIC_ADDR="disco.staging.kuanhong.org"
+ST_RELAYSRV_BINARY_URL="https://github.com/syncthing/relaysrv/releases/download/v1.22.1/strelaysrv-linux-amd64-v1.22.1.tar.gz"
+ST_RELAYSRV_PUBLIC_ADDR=""
+
 # caddy
 CADDY_ROOT_DOMAIN=dev.kuanhong.org
 CADDY_SUBDOMAIN=wiki

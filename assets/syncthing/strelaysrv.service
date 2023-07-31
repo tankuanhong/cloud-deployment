@@ -1,0 +1,24 @@
+[Unit]
+Description=Syncthing Relay Server
+After=network.target
+Documentation=man:strelaysrv(1)
+
+[Service]
+WorkingDirectory=/var/lib/strelaysrv
+EnvironmentFile=/etc/default/strelaysrv
+ExecStart=/usr/bin/strelaysrv -listen=:22067 -pools=
+
+# Hardening
+User=strelaysrv
+Group=strelaysrv
+ProtectSystem=strict
+ReadWritePaths=/var/lib/strelaysrv
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectHome=true
+SystemCallArchitectures=native
+MemoryDenyWriteExecute=true
+
+[Install]
+WantedBy=multi-user.target
