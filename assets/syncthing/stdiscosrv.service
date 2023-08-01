@@ -5,7 +5,6 @@ Documentation=man:stdiscosrv(1)
 
 [Service]
 WorkingDirectory=/var/lib/stdiscosrv
-EnvironmentFile=/etc/default/stdiscosrv
 ExecStart=/usr/bin/stdiscosrv -listen=:8443
 
 # Hardening

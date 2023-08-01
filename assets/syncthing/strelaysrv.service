@@ -5,7 +5,6 @@ Documentation=man:strelaysrv(1)
 
 [Service]
 WorkingDirectory=/var/lib/strelaysrv
-EnvironmentFile=/etc/default/strelaysrv
 ExecStart=/usr/bin/strelaysrv -listen=:22067 -pools=
 
 # Hardening
