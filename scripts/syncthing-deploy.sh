@@ -337,6 +337,29 @@ configure_caddy() {
                   ]
                 }
               ]
+            },
+            {
+              "match": [
+                {
+                  "tls": {
+                    "sni": [
+                      "${ST_RELAYSRV_PUBLIC_ADDR}"
+                    ]
+                  }
+                }
+              ],
+              "handle": [
+                {
+                  "handler": "proxy",
+                  "upstreams": [
+                    {
+                      "dial": [
+                        "localhost:22067"
+                      ]
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }
@@ -353,21 +376,21 @@ EOL
     systemctl restart caddy
 }
 
-install_fail2ban() {
+#install_fail2ban() {
+#
+#}
 
-}
+#configure_fail2ban() {
+#
+#}
 
-configure_fail2ban() {
+#install_kopia() {
+#
+#}
 
-}
-
-install_kopia() {
-
-}
-
-configure_kopia() {
-
-}
+#configure_kopia() {
+#
+#}
 
 configure_ufw
 upgrade_packages
@@ -379,9 +402,9 @@ install_discovery
 install_relay
 install_caddy
 configure_caddy
-install_fail2ban
-configure_fail2ban
-install_kopia
-configure_kopia
+#install_fail2ban
+#configure_fail2ban
+#install_kopia
+#configure_kopia
 
 } # this ensures the entire script is downloaded #
