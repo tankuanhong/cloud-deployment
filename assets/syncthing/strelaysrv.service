@@ -5,7 +5,7 @@ Documentation=man:strelaysrv(1)
 
 [Service]
 WorkingDirectory=/var/lib/strelaysrv
-ExecStart=/usr/bin/strelaysrv -listen=:22067 -pools=
+ExecStart=/usr/bin/strelaysrv -ext-address=<ip here>:443 -listen=:22067 -pools=
 
 # Hardening
 User=strelaysrv
