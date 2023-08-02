@@ -148,7 +148,7 @@ syncthing_menu() {
   echo -ne "
 [Syncthing]
 
-1) Deploy Syncthing
+1) Deploy Syncthing Relay
 
 b) Back to Main Menu
 x) Exit
@@ -157,7 +157,7 @@ Choose an option:  "
   read -r ans
   case $ans in
   1)
-    source "${SCRIPT_PATH}/scripts/syncthing-deploy.sh" || exit
+    source "${SCRIPT_PATH}/scripts/syncthing-relay-deploy.sh" || exit
     exit 0
     ;;
   b)
@@ -246,8 +246,9 @@ containers_menu() {
  6) Deploy Grocy
  7) Deploy Memos
  8) Deploy Shlink
+ 9) Deploy Syncthing Discovery
 
- 9) Restore Keycloak
+ 10) Restore Keycloak
 
  b) Back to Main Menu
  x) Exit
@@ -288,6 +289,10 @@ Choose an option:  "
     exit 0
     ;;
   9)
+    source "${SCRIPT_PATH}/scripts/syncthing-discovery-deploy.sh" || exit
+    exit 0
+    ;;
+  10)
     source "${SCRIPT_PATH}/scripts/keycloak-restore.sh" || exit
     exit 0
     ;;
