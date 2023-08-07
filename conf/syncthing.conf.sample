@@ -5,9 +5,4 @@
 # syncthing relay
 ST_RELAYSRV_BINARY_URL="https://github.com/syncthing/relaysrv/releases/download/v1.22.1/strelaysrv-linux-amd64-v1.22.1.tar.gz"
 
-# syncthing discovery
-ST_DISCOSRV_PVC_SIZE="2Gi"
-ST_DISCOSRV_IMAGE="kuanhong/stdiscosrv:latest"
-ST_DISCOSRV_HOSTNAME="disco.staging.kuanhong.org"
-
 } # this ensures the entire script is downloaded #
