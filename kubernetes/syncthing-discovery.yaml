@@ -1,0 +1,77 @@
+# https://hub.docker.com/r/syncthing/discosrv
+
+#PVC_START
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-stdiscovery
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: ${ST_DISCOSRV_PVC_SIZE}
+#PVC_END
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-stdiscovery-http
+spec:
+  ports:
+  - port: 8080
+  selector:
+    app: app-stdiscovery
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dep-stdiscovery
+  labels:
+    app: app-stdiscovery
+spec:
+  selector:
+    matchLabels:
+      app: app-stdiscovery
+  template:
+    metadata:
+      labels:
+        app: app-stdiscovery
+    spec:
+      restartPolicy: Always
+      containers:
+      - image: ${ST_DISCOSRV_IMAGE}
+        name: pod-stdiscovery
+        env:
+        - name: EXTRA_OPTS
+          value: "-debug -http -listen=:8080"
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        volumeMounts:
+        - name: vol-stdiscovery
+          mountPath: /var/stdiscosrv
+      volumes:
+      - name: vol-stdiscovery
+        persistentVolumeClaim:
+          claimName: pvc-stdiscovery
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-stdiscovery
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: ${ST_DISCOSRV_HOSTNAME}
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: svc-stdiscovery-http
+            port:
+              number: 8080

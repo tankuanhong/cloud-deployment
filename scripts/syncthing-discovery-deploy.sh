@@ -19,7 +19,13 @@ check_kube_ready() {
 }
 
 deploy_discovery() {
-
+  info "Setting custom syncthing discovery parameters..." && \
+    tmpfile=$(mktemp) && \
+    cp --attributes-only --preserve "${SCRIPT_PATH}/kubernetes/syncthing-discovery.yaml" $tmpfile && \
+    cat "${SCRIPT_PATH}/kubernetes/syncthing-discovery.yaml" | envsubst > $tmpfile && \
+    mv $tmpfile "${SCRIPT_PATH}/kubernetes/syncthing-discovery.yaml" && \
+    info "Deploying syncthing discovery..." && \
+    kubectl apply -f "${SCRIPT_PATH}/kubernetes/syncthing-discovery.yaml"
 }
 
 check_kube_ready
