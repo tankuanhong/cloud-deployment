@@ -2,370 +2,149 @@
 
 { # this ensures the entire script is downloaded #
 
-# constants
-SCRIPT_PATH=$(dirname $(realpath -s $0))
+# Constants
+SCRIPT_PATH=$(dirname "$(realpath -s "$0")")
 
-teleport_menu() {
-  echo -ne "
-[Teleport]
+# Function to display a menu
+display_menu() {
+  local title=$1
+  shift
+  local options=("$@")
 
-1) Deploy Teleport Proxy
-2) Create Teleport Admin User
-
-3) Backup Teleport Proxy
-4) Restore Teleport Proxy
-
+  echo -e "
+[$title]
+"
+  for i in "${!options[@]}"; do
+    echo "$((i + 1))) ${options[i]}"
+  done
+  echo -e "
 b) Back to Main Menu
 x) Exit
 
-Choose an option:  "
+Choose an option: "
+
   read -r ans
   case $ans in
-  1)
-    source "${SCRIPT_PATH}/scripts/teleport-deploy-proxy.sh" || exit
-    exit 0
-    ;;
-  2)
-    source "${SCRIPT_PATH}/scripts/teleport-create-admin.sh" || exit
-    exit 0
-    ;;
-  3)
-    source "${SCRIPT_PATH}/scripts/teleport-backup-proxy.sh" || exit
-    exit 0
-    ;;
-  4)
-    source "${SCRIPT_PATH}/scripts/teleport-restore-proxy.sh" || exit
-    exit 0
-    ;;
-  b)
-    clear
-    main_menu
-    ;;
-  x)
-    echo "Good bye."
-    exit 0
-    ;;
-  *)
-    clear
-    echo "Invalid option $ans"
-    teleport_menu
-    ;;
+    [1-9]|[1-9][0-9])
+      if [[ $ans -le ${#options[@]} ]]; then
+        clear
+        local selected_option=$((ans - 1))
+        "${options[selected_option]}" || exit
+      else
+        clear
+        echo "Invalid option $ans"
+        display_menu "$title" "${options[@]}"
+      fi
+      ;;
+    b)
+      clear
+      main_menu
+      ;;
+    x)
+      echo "Goodbye."
+      exit 0
+      ;;
+    *)
+      clear
+      echo "Invalid option $ans"
+      display_menu "$title" "${options[@]}"
+      ;;
   esac
 }
 
-dokuwiki_menu() {
-  echo -ne "
-[Dokuwiki]
-
-1) Deploy Dokuwiki
-2) Harden Dokuwiki
-
-3) Backup Dokuwiki
-4) Restore Dokuwiki
-
-b) Back to Main Menu
-x) Exit
-
-Choose an option:  "
-  read -r ans
-  case $ans in
-  1)
-    source "${SCRIPT_PATH}/scripts/dokuwiki-deploy.sh" || exit
-    exit 0
-    ;;
-  2)
-    source "${SCRIPT_PATH}/scripts/dokuwiki-harden.sh" || exit
-    exit 0
-    ;;
-  3)
-    echo "Backing up Dokuwiki"
-    exit 0
-    ;;
-  4)
-    echo "Restoring Dokuwiki"
-    exit 0
-    ;;
-  b)
-    clear
-    main_menu
-    ;;
-  x)
-    echo "Good bye."
-    exit 0
-    ;;
-  *)
-    clear
-    echo "Invalid option $ans"
-    dokuwiki_menu
-    ;;
-  esac
-}
-
-gitea_menu() {
-  echo -ne "
-[Gitea]
-
-1) Deploy Gitea
-
-2) Backup Gitea
-3) Restore Gitea
-
-b) Back to Main Menu
-x) Exit
-
-Choose an option:  "
-  read -r ans
-  case $ans in
-  1)
-    source "${SCRIPT_PATH}/scripts/gitea-deploy.sh" || exit
-    exit 0
-    ;;
-  2)
-    echo "Backing up Gitea"
-    exit 0
-    ;;
-  3)
-    echo "Restoring Gitea"
-    exit 0
-    ;;
-  b)
-    clear
-    main_menu
-    ;;
-  x)
-    echo "Good bye."
-    exit 0
-    ;;
-  *)
-    clear
-    echo "Invalid option $ans"
-    gitea_menu
-    ;;
-  esac
-}
-
-syncthing_menu() {
-  echo -ne "
-[Syncthing]
-
-1) Deploy Syncthing Relay
-
-b) Back to Main Menu
-x) Exit
-
-Choose an option:  "
-  read -r ans
-  case $ans in
-  1)
-    source "${SCRIPT_PATH}/scripts/syncthing-relay-deploy.sh" || exit
-    exit 0
-    ;;
-  b)
-    clear
-    main_menu
-    ;;
-  x)
-    echo "Good bye."
-    exit 0
-    ;;
-  *)
-    clear
-    echo "Invalid option $ans"
-    syncthing_menu
-    ;;
-  esac
-}
-
-kubernetes_menu() {
-  echo -ne "
-[Kubernetes]
-
-1) Deploy Kubernetes Cluster
-2) Deploy NFS Backup Server
-3) Deploy Longhorn Storage
-4) Deploy Ingress NGINX Controller
-5) Deploy oAuth2 Proxy
-
-6) Deploy Kubernetes for testing (Single-Node)
-
-b) Back to Main Menu
-x) Exit
-
-Choose an option:  "
-  read -r ans
-  case $ans in
-  1)
-    source "${SCRIPT_PATH}/scripts/kubernetes-deploy-cluster.sh" || exit
-    exit 0
-    ;;
-  2)
-    source "${SCRIPT_PATH}/scripts/kubernetes-deploy-nfs-backup.sh" || exit
-    exit 0
-    ;;
-  3)
-    source "${SCRIPT_PATH}/scripts/kubernetes-deploy-longhorn.sh" || exit
-    exit 0
-    ;;
-  4)
-    source "${SCRIPT_PATH}/scripts/kubernetes-deploy-ingress-nginx.sh" || exit
-    exit 0
-    ;;
-  5)
-    source "${SCRIPT_PATH}/scripts/kubernetes-deploy-oauth2-proxy.sh" || exit
-    exit 0
-    ;;
-  6)
-    source "${SCRIPT_PATH}/scripts/kubernetes-deploy-single-node.sh" || exit
-    exit 0
-    ;;
-  b)
-    clear
-    main_menu
-    ;;
-  x)
-    echo "Good bye."
-    exit 0
-    ;;
-  *)
-    clear
-    echo "Invalid option $ans"
-    kubernetes_menu
-    ;;
-  esac
-}
-
-containers_menu() {
-  echo -ne "
-[Containers]
-
- 1) Deploy Keycloak
- 2) Deploy Firefly
- 3) Deploy Healthchecks
- 4) Deploy changedetection.io
- 5) Deploy Gatus
- 6) Deploy Grocy
- 7) Deploy Memos
- 8) Deploy Shlink
- 9) Deploy Syncthing Discovery
-
- 10) Restore Keycloak
-
- b) Back to Main Menu
- x) Exit
-
-Choose an option:  "
-  read -r ans
-  case $ans in
-  1)
-    source "${SCRIPT_PATH}/scripts/keycloak-deploy.sh" || exit
-    exit 0
-    ;;
-  2)
-    source "${SCRIPT_PATH}/scripts/firefly3-deploy.sh" || exit
-    exit 0
-    ;;
-  3)
-    source "${SCRIPT_PATH}/scripts/healthchecks-deploy.sh" || exit
-    exit 0
-    ;;
-  4)
-    source "${SCRIPT_PATH}/scripts/changedetection-deploy.sh" || exit
-    exit 0
-    ;;
-  5)
-    source "${SCRIPT_PATH}/scripts/gatus-deploy.sh" || exit
-    exit 0
-    ;;
-  6)
-    source "${SCRIPT_PATH}/scripts/grocy-deploy.sh" || exit
-    exit 0
-    ;;
-  7)
-    source "${SCRIPT_PATH}/scripts/memos-deploy.sh" || exit
-    exit 0
-    ;;
-  8)
-    source "${SCRIPT_PATH}/scripts/shlink-deploy.sh" || exit
-    exit 0
-    ;;
-  9)
-    source "${SCRIPT_PATH}/scripts/syncthing-discovery-deploy.sh" || exit
-    exit 0
-    ;;
-  10)
-    source "${SCRIPT_PATH}/scripts/keycloak-restore.sh" || exit
-    exit 0
-    ;;
-  b)
-    clear
-    main_menu
-    ;;
-  x)
-    echo "Good bye."
-    exit 0
-    ;;
-  *)
-    clear
-    echo "Invalid option $ans"
-    containers_menu
-    ;;
-  esac
-}
-
+# Function to display the main menu
 main_menu() {
-  echo -ne "
-[Main Menu]
+  local main_menu=(
+    "Main Menu"
+    "teleport_menu"
+    "dokuwiki_menu"
+    "gitea_menu"
+    "syncthing_menu"
+    "kubernetes_menu"
+    "containers_menu"
+  )
 
-1) Teleport
-2) Dokuwiki
-3) Gitea
-4) Syncthing
-
-5) Kubernetes
-6) Kubernetes Pods
-
-x) Exit
-
-Choose an option:  "
-  read -r ans
-  case $ans in
-  1)
-    clear
-    teleport_menu
-    ;;
-  2)
-    clear
-    dokuwiki_menu
-    ;;
-  3)
-    clear
-    gitea_menu
-    ;;
-  4)
-    clear
-    syncthing_menu
-    ;;
-  5)
-    clear
-    kubernetes_menu
-    ;;
-  6)
-    clear
-    containers_menu
-    ;;
-  x)
-    echo "Good bye."
-    exit 0
-    ;;
-  *)
-    clear
-    echo "Invalid option $ans"
-    main_menu
-    ;;
-  esac
+  clear
+  display_menu "${main_menu[@]}"
 }
 
-clear
+# Teleport submenu
+teleport_menu() {
+  local teleport=(
+    "Teleport"
+    "${SCRIPT_PATH}/scripts/teleport-deploy-proxy.sh"
+    "${SCRIPT_PATH}/scripts/teleport-create-admin.sh"
+    "${SCRIPT_PATH}/scripts/teleport-backup-proxy.sh"
+    "${SCRIPT_PATH}/scripts/teleport-restore-proxy.sh"
+  )
+  display_menu "${teleport[@]}"
+}
+
+# Dokuwiki submenu
+dokuwiki_menu() {
+  local dokuwiki=(
+    "Dokuwiki"
+    "${SCRIPT_PATH}/scripts/dokuwiki-deploy.sh"
+    "${SCRIPT_PATH}/scripts/dokuwiki-harden.sh"
+    "echo 'Backing up Dokuwiki'"
+    "echo 'Restoring Dokuwiki'"
+  )
+  display_menu "${dokuwiki[@]}"
+}
+
+# Gitea submenu
+gitea_menu() {
+  local gitea=(
+    "Gitea"
+    "${SCRIPT_PATH}/scripts/gitea-deploy.sh"
+    "echo 'Backing up Gitea'"
+    "echo 'Restoring Gitea'"
+  )
+  display_menu "${gitea[@]}"
+}
+
+# Syncthing submenu
+syncthing_menu() {
+  local syncthing=(
+    "Syncthing"
+    "${SCRIPT_PATH}/scripts/syncthing-relay-deploy.sh"
+  )
+  display_menu "${syncthing[@]}"
+}
+
+# Kubernetes submenu
+kubernetes_menu() {
+  local kubernetes=(
+    "Kubernetes"
+    "${SCRIPT_PATH}/scripts/kubernetes-deploy-cluster.sh"
+    "${SCRIPT_PATH}/scripts/kubernetes-deploy-nfs-backup.sh"
+    "${SCRIPT_PATH}/scripts/kubernetes-deploy-longhorn.sh"
+    "${SCRIPT_PATH}/scripts/kubernetes-deploy-ingress-nginx.sh"
+    "${SCRIPT_PATH}/scripts/kubernetes-deploy-oauth2-proxy.sh"
+    "${SCRIPT_PATH}/scripts/kubernetes-deploy-single-node.sh"
+  )
+  display_menu "${kubernetes[@]}"
+}
+
+# Containers submenu
+containers_menu() {
+  local containers=(
+    "Containers"
+    "${SCRIPT_PATH}/scripts/keycloak-deploy.sh"
+    "${SCRIPT_PATH}/scripts/firefly3-deploy.sh"
+    "${SCRIPT_PATH}/scripts/healthchecks-deploy.sh"
+    "${SCRIPT_PATH}/scripts/changedetection-deploy.sh"
+    "${SCRIPT_PATH}/scripts/gatus-deploy.sh"
+    "${SCRIPT_PATH}/scripts/grocy-deploy.sh"
+    "${SCRIPT_PATH}/scripts/memos-deploy.sh"
+    "${SCRIPT_PATH}/scripts/shlink-deploy.sh"
+    "${SCRIPT_PATH}/scripts/syncthing-discovery-deploy.sh"
+    "${SCRIPT_PATH}/scripts/keycloak-restore.sh"
+  )
+  display_menu "${containers[@]}"
+}
+
+# Run the main menu function
 main_menu
 
 } # this ensures the entire script is downloaded #
