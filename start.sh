@@ -107,7 +107,7 @@ gitea_menu() {
 syncthing_menu() {
   local syncthing=(
     "Syncthing"
-    "${SCRIPT_PATH}/scripts/syncthing-relay-deploy.sh"
+    "${SCRIPT_PATH}/scripts/syncthing-deploy-relay.sh"
   )
   display_menu "${syncthing[@]}"
 }
@@ -130,16 +130,16 @@ kubernetes_menu() {
 containers_menu() {
   local containers=(
     "Containers"
-    "${SCRIPT_PATH}/scripts/keycloak-deploy.sh"
-    "${SCRIPT_PATH}/scripts/firefly3-deploy.sh"
-    "${SCRIPT_PATH}/scripts/healthchecks-deploy.sh"
-    "${SCRIPT_PATH}/scripts/changedetection-deploy.sh"
-    "${SCRIPT_PATH}/scripts/gatus-deploy.sh"
-    "${SCRIPT_PATH}/scripts/grocy-deploy.sh"
-    "${SCRIPT_PATH}/scripts/memos-deploy.sh"
-    "${SCRIPT_PATH}/scripts/shlink-deploy.sh"
-    "${SCRIPT_PATH}/scripts/syncthing-discovery-deploy.sh"
-    "${SCRIPT_PATH}/scripts/keycloak-restore.sh"
+    "${SCRIPT_PATH}/scripts/container-deploy-keycloak.sh"
+    "${SCRIPT_PATH}/scripts/container-deploy-firefly3.sh"
+    "${SCRIPT_PATH}/scripts/container-deploy-healthchecks.sh"
+    "${SCRIPT_PATH}/scripts/container-deploy-changedetection.sh"
+    "${SCRIPT_PATH}/scripts/container-deploy-gatus.sh"
+    "${SCRIPT_PATH}/scripts/container-deploy-grocy.sh"
+    "${SCRIPT_PATH}/scripts/container-deploy-memos.sh"
+    "${SCRIPT_PATH}/scripts/container-deploy-shlink.sh"
+    "${SCRIPT_PATH}/scripts/container-deploy-syncthing-discovery.sh"
+    "${SCRIPT_PATH}/scripts/container-restore-keycloak.sh"
   )
   display_menu "${containers[@]}"
 }
