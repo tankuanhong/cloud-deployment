@@ -5,6 +5,10 @@
 # Constants
 SCRIPT_PATH=$(dirname "$(realpath -s "$0")")
 
+# Import
+source "${SCRIPT_PATH}/shell-logger/shell-logger" || { err "${SCRIPT_PATH}/shell-logger/shell-logger is missing" >&2; exit 1; }
+source "${SCRIPT_PATH}/conf/common.conf" || { err "${SCRIPT_PATH}/conf/common.conf is missing" >&2; exit 1; }
+
 # Function to display a menu
 display_menu() {
   local title=$1

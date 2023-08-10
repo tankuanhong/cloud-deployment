@@ -3,10 +3,7 @@
 { # this ensures the entire script is downloaded #
 
 # import
-source "${SCRIPT_PATH}/shell-logger/shell-logger" || exit
-source "${SCRIPT_PATH}/conf/common.conf" || exit
-source "${SCRIPT_PATH}/conf/kubernetes.conf" || exit
-source "${SCRIPT_PATH}/conf/containers.conf" || exit
+source "${SCRIPT_PATH}/conf/containers.conf" || { err "${SCRIPT_PATH}/conf/containers.conf is missing" >&2; exit 1; }
 
 comment() {
   sed -i "$1"' s/^/#/' "$2"

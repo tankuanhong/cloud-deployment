@@ -3,9 +3,7 @@
 { # this ensures the entire script is downloaded #
 
 # import
-source "${SCRIPT_PATH}/shell-logger/shell-logger" || exit
-source "${SCRIPT_PATH}/conf/common.conf" || exit
-source "${SCRIPT_PATH}/conf/kubernetes.conf" || exit
+source "${SCRIPT_PATH}/conf/kubernetes.conf" || { err "${SCRIPT_PATH}/conf/kubernetes.conf is missing" >&2; exit 1; }
 
 install_prereq() {
   info "Installing prerequisites on master node..." && \

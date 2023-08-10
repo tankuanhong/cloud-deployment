@@ -3,9 +3,7 @@
 { # this ensures the entire script is downloaded #
 
 # import
-source "shell-logger" || exit
-source "common.conf" || exit
-source "kubernetes.conf" || exit
+source "kubernetes.conf" || { err "kubernetes.conf is missing" >&2; exit 1; }
 
 # function to check if command exist
 command_exist() {
