@@ -29,7 +29,11 @@ Choose an option: "
       if [[ $ans -le ${#options[@]} ]]; then
         clear
         local selected_option=$((ans - 1))
-        "${options[selected_option]}" || exit
+        if [[ ${options[selected_option]} == *.sh ]]; then
+          source "${options[selected_option]}" || exit
+        else
+          "${options[selected_option]}" || exit
+        fi
       else
         clear
         echo "Invalid option $ans"
