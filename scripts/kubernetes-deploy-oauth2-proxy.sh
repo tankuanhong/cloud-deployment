@@ -3,7 +3,7 @@
 { # this ensures the entire script is downloaded #
 
 # import
-source "${SCRIPT_PATH}/conf/kubernetes.conf" || { err "${SCRIPT_PATH}/conf/kubernetes.conf is missing"; exit 1; }
+source "${SCRIPT_PATH}/conf/kubernetes.conf" || fatal_err "${SCRIPT_PATH}/conf/kubernetes.conf is missing"
 
 check_kube_ready() {
   info "Checking Kubernetes cluster status..." && \

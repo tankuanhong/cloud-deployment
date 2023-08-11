@@ -3,7 +3,7 @@
 { # this ensures the entire script is downloaded #
 
 # import
-source "${SCRIPT_PATH}/conf/gitea.conf" || { err "${SCRIPT_PATH}/conf/gitea.conf is missing"; exit 1; }
+source "${SCRIPT_PATH}/conf/gitea.conf" || fatal_err "${SCRIPT_PATH}/conf/gitea.conf is missing"
 
 # function to check if command exist
 command_exist() {
