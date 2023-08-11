@@ -36,4 +36,36 @@ check_linux_distribution() {
   fi
 }
 
+wait_for_node_ready() {
+  local timeout="$1"
+  local start_time=$(date +%s)
+  
+  until microk8s kubectl get nodes | grep -w Ready; do
+    info "Waiting for node to be ready ($elapsed_time/$timeout)..."
+    sleep 10
+    
+    local current_time=$(date +%s)
+    local elapsed_time=$((current_time - start_time))
+    
+    if [ "$elapsed_time" -ge "$timeout" ]; then
+      fatal_err "Timeout waiting for node to be ready"
+    fi
+  done
+}
+
+wait_for_pods_ready() {
+  local timeout="$1"
+  local namespace="$2"
+  local label="$3"
+  
+  local label_arg
+  if [ -n "$label" ]; then
+    label_arg="--selector=$label"
+  else
+    label_arg="--all"
+  fi
+  
+  microk8s kubectl wait pods -n "$namespace" $label_arg --for condition=Ready --timeout=${timeout}s
+}
+
 } # this ensures the entire script is downloaded #
