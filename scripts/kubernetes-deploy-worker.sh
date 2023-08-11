@@ -3,7 +3,7 @@
 { # this ensures the entire script is downloaded #
 
 # import
-source "kubernetes.conf" || { err "kubernetes.conf is missing" >&2; exit 1; }
+source "kubernetes.conf" || { err "kubernetes.conf is missing"; exit 1; }
 
 # function to check if command exist
 command_exist() {

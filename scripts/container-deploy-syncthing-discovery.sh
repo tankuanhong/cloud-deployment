@@ -3,7 +3,7 @@
 { # this ensures the entire script is downloaded #
 
 # import
-source "${SCRIPT_PATH}/conf/syncthing.conf" || { err "${SCRIPT_PATH}/conf/syncthing.conf is missing" >&2; exit 1; }
+source "${SCRIPT_PATH}/conf/syncthing.conf" || { err "${SCRIPT_PATH}/conf/syncthing.conf is missing"; exit 1; }
 
 check_kube_ready() {
   info "Checking Kubernetes cluster status..." && \

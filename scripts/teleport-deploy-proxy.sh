@@ -3,7 +3,7 @@
 { # this ensures the entire script is downloaded #
 
 # import
-source "${SCRIPT_PATH}/conf/teleport.conf" || { err "${SCRIPT_PATH}/conf/teleport.conf is missing" >&2; exit 1; }
+source "${SCRIPT_PATH}/conf/teleport.conf" || { err "${SCRIPT_PATH}/conf/teleport.conf is missing"; exit 1; }
 
 # function to check if command exist
 command_exist() {
