@@ -81,4 +81,11 @@ configure_nfs_server() {
   fi
 }
 
+install_microk8s
+configure_microk8s
+install_longhorn
+configure_longhorn
+install_nfs_server
+configure_nfs_server
+
 } # this ensures the entire script is downloaded #
