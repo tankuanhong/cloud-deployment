@@ -10,6 +10,9 @@ source "${SCRIPT_PATH}/shell-logger/shell-logger" || { err "${SCRIPT_PATH}/shell
 source "${SCRIPT_PATH}/scripts/common-functions.sh" || { err "${SCRIPT_PATH}/scripts/common-functions.sh is missing"; exit 1; }
 source "${SCRIPT_PATH}/conf/common.conf" || { err "${SCRIPT_PATH}/conf/common.conf is missing"; exit 1; }
 
+# Check for supported os
+check_linux_distribution "${SUPPORTED_OS[@]}"
+
 # Function to display a menu
 display_menu() {
   local title=$1

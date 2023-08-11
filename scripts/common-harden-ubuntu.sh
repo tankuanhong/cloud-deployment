@@ -2,20 +2,18 @@
 
 { # this ensures the entire script is downloaded #
 
-# this script is only tested on Ubuntu 20.04
-if [ $(lsb_release -si) != "Ubuntu" ] || [ $(lsb_release -sr) != "20.04" ]; then
-  err "This server is not running Ubuntu 20.04"
-  err "Terminating script..."
-  exit 1
-fi
+# Check for supported os
+check_linux_distribution "${SUPPORTED_OS[@]}"
 
 configure_ufw() {
+  command_exist ufw || fatal_err "ufw not installed"
+
   if [ "$(ufw status | grep -qw inactive >/dev/null 2>/dev/null; echo $?)" = '1' ] || [ "$(ufw show added | grep -qw None >/dev/null 2>/dev/null; echo $?)" = '1' ]; then
     warn "This server have pending firewall rules or ufw is already enabled" && \
       warn "Resetting ufw to default..." && \
       ufw --force disable && \
       ufw --force reset && \
-      info "Reset completed"
+      info "Reset completed" || fatal_err "Failed to reset ufw to default"
   fi
   info "Configuring ufw..." && \
     sed -i 's/IPV6=yes/IPV6=no/g' /etc/default/ufw && \
@@ -25,12 +23,10 @@ configure_ufw() {
     ufw allow ${SSH_PORT}/tcp comment 'Custom SSH' && \
     info "Enabling ufw..." && \
     ufw --force enable && \
-    ufw status numbered
+    ufw status numbered || fatal_err "Failed to configure ufw"
 
   if [ "$(ufw status | grep -qw active >/dev/null 2>/dev/null; echo $?)" != '0' ]; then
-    err "ufw is not active"
-    err "Terminating script..."
-    exit 1
+    fatal_err "Failed to enable ufw"
   else
     info "ufw configured and enabled"
   fi
@@ -42,14 +38,14 @@ upgrade_packages() {
     apt-get -y dist-upgrade && \
     apt-get -y autoremove && \
     apt-get -y autoclean && \
-    info "Package update completed"
+    info "Package update completed" || fatal_err "Failed to update OS packages"
 }
 
 disable_autoupgrade() {
   info "Disabling apt auto updates..." && \
     sed -i 's/Update-Package-Lists "1"/Update-Package-Lists "0"/g' /etc/apt/apt.conf.d/20auto-upgrades && \
     sed -i 's/Unattended-Upgrade "1"/Unattended-Upgrade "0"/g' /etc/apt/apt.conf.d/20auto-upgrades && \
-    info "Auto updates disabled"
+    info "Auto updates disabled" || fatal_err "Failed to disable auto upgrade of OS packages"
 }
 
 setup_ntp() {
@@ -58,7 +54,7 @@ setup_ntp() {
     timedatectl set-timezone Asia/Singapore
 
   if ! service_active chrony; then
-    warn "chrony service is not running"
+    fatal_err "Failed to start chrony service"
   else
     info "chrony installed and configured"
   fi
@@ -94,20 +90,19 @@ MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@op
 KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diffie-hellman-group14-sha256
 EOF
 
-  info "Removing insecure host keys..." && \
+  info "Removing insecure SSH host keys..." && \
     rm -f /etc/ssh/ssh_host_dsa* && \
     rm -f /etc/ssh/ssh_host_ecdsa* && \
     info "Removing Diffie-Hellman keys lesser than 3072 bits..." && \
     awk '$5 >= 3071' /etc/ssh/moduli > /etc/ssh/moduli.tmp && \
-    mv /etc/ssh/moduli.tmp /etc/ssh/moduli && \
-    info "Restarting SSH daemon..." && \
+    mv /etc/ssh/moduli.tmp /etc/ssh/moduli || fatal_err "Failed to remove insecure SSH host keys"
+
+  info "Restarting SSH daemon..." && \
     systemctl restart sshd && \
     systemctl status sshd --no-pager
 
   if ! service_active sshd; then
-    err "SSH daemon is not running"
-    err "Terminating script..."
-    exit 1
+    fatal_err "SSH daemon is not running"
   else
     info "SSH daemon configured and restarted"
   fi
@@ -117,7 +112,7 @@ configure_remote_syslog() {
   info "Configuring rsyslog..." && \
     cat > /etc/rsyslog.d/22-logdna.conf <<EOF
 global(
-    DefaultNetstreamDriverCAFile="/etc/ld-root-ca.crt"
+    DefaultNetstreamDriverCAFile="${LOGDNA_CACERT_LOCATION}"
 )
 
 template(name="LogDNAFormat" type="list") {
@@ -160,13 +155,14 @@ EOF
 
   info "Setting up syslog over TLS..." && \
     apt-get -y install rsyslog-gnutls && \
-    wget https://assets.logdna.com/rootca/ld-root-ca.crt -O /etc/ld-root-ca.crt && \
-    info "Restarting rsyslog..." && \
+    wget ${LOGDNA_CACERT_URL} -O ${LOGDNA_CACERT_LOCATION} || fatal_err "Failed to setup syslog over TLS"
+
+  info "Restarting rsyslog..." && \
     systemctl restart rsyslog && \
     systemctl status rsyslog --no-pager
 
   if ! service_active rsyslog; then
-    warn "Rsyslog service is not running"
+    fatal_err "Rsyslog service is not running"
   else
     info "Rsyslog configured and restarted"
   fi
