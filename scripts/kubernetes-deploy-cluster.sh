@@ -14,7 +14,7 @@ install_parallel_utilities() {
 generate_ssh_keypair() {
   info "Generating ssh keypair..." && \
     ssh-keygen -t ed25519 -N "" -f "$HOME/.ssh/id_ed25519" && \
-    info "Copy and run the following command manually on all the other nodes:" && \
+    info "Copy and run the following command manually on all nodes:" && \
     info "" && \
     info "mkdir -p .ssh && chmod 700 .ssh && touch .ssh/authorized_keys && chmod 644 .ssh/authorized_keys && echo $(cat $HOME/.ssh/id_ed25519.pub) >> .ssh/authorized_keys" && \
     info ""
@@ -46,8 +46,8 @@ harden_all_nodes() {
 
 deploy_microk8s() {
   info "Deploying microk8s on all nodes..." && \
-    parallel-scp -H "${KUBE_NODE_2} ${KUBE_NODE_3}" -l root ${SCRIPT_PATH}/scripts/kubernetes-deploy-node.sh /root/ && \
-    PDSH_RCMD_TYPE=ssh pdsh -w ${KUBE_NODE_2},${KUBE_NODE_3} "/bin/bash /root/kubernetes-deploy-node.sh" && \
+    parallel-scp -H "${KUBE_NODE_2} ${KUBE_NODE_3}" -x "-p ${SSH_PORT}" -l root ${SCRIPT_PATH}/scripts/kubernetes-deploy-node.sh /root/ && \
+    PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT}" pdsh -w ${KUBE_NODE_2},${KUBE_NODE_3} "/bin/bash /root/kubernetes-deploy-node.sh" && \
     source ${SCRIPT_PATH}/scripts/kubernetes-deploy-node.sh || fatal_err "Failed to deploy microk8s on all nodes"
 }
 
