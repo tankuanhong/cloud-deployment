@@ -59,9 +59,9 @@ deploy_microk8s() {
 
 join_nodes() {
   info "Joining all nodes..." && \
-    invite=$(echo microk8s add-node | grep -m 1 -o 'microk8s join .*[^[:space:]]') && \
+    invite=$(microk8s add-node | grep -m 1 -o 'microk8s join .*[^[:space:]]') && \
     PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT}" pdsh -w ${KUBE_NODE_2} -S $invite && \
-    invite=$(echo microk8s add-node | grep -m 1 -o 'microk8s join .*[^[:space:]]') && \
+    invite=$(microk8s add-node | grep -m 1 -o 'microk8s join .*[^[:space:]]') && \
     PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT}" pdsh -w ${KUBE_NODE_3} -S $invite || fatal_err "Failed to join nodes"
 }
 
