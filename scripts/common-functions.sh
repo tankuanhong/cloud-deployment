@@ -17,8 +17,8 @@ service_active() {
 }
 
 fatal_err() {
-  local exit_code=${1:-1}
-  local message="$2"
+  local message="$1"
+  local exit_code=${2:-1}
   
   err "$message"
   exit "$exit_code"
