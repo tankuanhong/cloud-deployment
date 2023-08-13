@@ -5,23 +5,6 @@
 # load configuration
 source "${SCRIPT_PATH}/conf/kubernetes.conf" || fatal_err "${SCRIPT_PATH}/conf/kubernetes.conf is missing"
 
-# harden ubuntu
-source "${SCRIPT_PATH}/scripts/common-harden-ubuntu.sh" || fatal_err "${SCRIPT_PATH}/scripts/common-harden-ubuntu.sh is missing"
-
-install_microk8s() {
-  info "Installing microk8s via snap..." && \
-    snap install microk8s --classic --channel=${KUBE_VERSION} && \
-    info "microk8s installation completed" || fatal_err "Failed to install microk8s"
-
-  wait_for_node_ready "300"
-}
-
-configure_microk8s() {
-  info "Configuring microk8s addons..." && \
-    microk8s enable dashboard && \
-    microk8s enable ingress || fatal_err "Failed to enable microk8s addons"
-}
-
 install_longhorn() {
   info "Installing longhorn..." && \
     microk8s helm3 repo add longhorn https://charts.longhorn.io && \
@@ -81,8 +64,6 @@ configure_nfs_server() {
   fi
 }
 
-install_microk8s
-configure_microk8s
 install_longhorn
 configure_longhorn
 install_nfs_server

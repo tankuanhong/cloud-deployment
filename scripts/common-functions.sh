@@ -2,7 +2,7 @@
 
 { # this ensures the entire script is downloaded #
 
-# Import
+# import
 source "${SCRIPT_PATH}/shell-logger/shell-logger" || source "shell-logger" || { echo "shell-logger is missing"; exit 1; }
 source "${SCRIPT_PATH}/conf/common.conf" || source "common.conf" || { echo "common.conf is missing"; exit 1; }
 
@@ -38,6 +38,24 @@ check_linux_distribution() {
   else
     fatal_err "Unable to determine the Linux distribution"
   fi
+}
+
+wait_for_ssh_ready() {
+  local timeout="$1"
+  local host="$2"
+  local start_time=$(date +%s)
+  
+  until ssh -o StrictHostKeyChecking=accept-new -q $2 exit; do
+    info "Waiting for ssh to $2 to be ready ($elapsed_time/$timeout)..."
+    sleep 10
+    
+    local current_time=$(date +%s)
+    local elapsed_time=$((current_time - start_time))
+    
+    if [ "$elapsed_time" -ge "$timeout" ]; then
+      fatal_err "Timeout waiting for ssh to $2 to be ready"
+    fi
+  done
 }
 
 wait_for_node_ready() {

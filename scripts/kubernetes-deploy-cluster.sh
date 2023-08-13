@@ -5,21 +5,60 @@
 # import
 source "${SCRIPT_PATH}/conf/kubernetes.conf" || fatal_err "${SCRIPT_PATH}/conf/kubernetes.conf is missing"
 
-req_check_master() {
-  info "Checking no. of CPU cores..." && \
-    if [ $(nproc) -lt "2" ]; then
-      err "Kubernetes master does not meet min CPU requirement of 2"
-      exit 1
-    else
-      info "Kubernetes master meets min CPU requirement of 2"
-    fi
-}
-
 install_parallel_utilities() {
   info "Installing pssh and pdsh..." && \
     apt-get update && \
-    apt-get -y install pssh pdsh
+    apt-get -y install pssh pdsh || fatal_err "Failed to install pssh and pdsh"
 }
+
+generate_ssh_keypair() {
+  info "Generating ssh keypair..." && \
+    ssh-keygen -t ed25519 -N "" -f "$HOME/.ssh/id_ed25519" && \
+    info "Copy and run the following command manually on all the other nodes:" && \
+    info "" && \
+    info "mkdir -p .ssh && chmod 700 .ssh && touch .ssh/authorized_keys && chmod 644 .ssh/authorized_keys && echo $(cat $HOME/.ssh/id_ed25519.pub) >> .ssh/authorized_keys" && \
+    info ""
+
+  read -p "Press enter to continue"
+
+  wait_for_ssh_ready "300" "${KUBE_NODE_1}"
+  wait_for_ssh_ready "300" "${KUBE_NODE_2}"
+  wait_for_ssh_ready "300" "${KUBE_NODE_3}"
+}
+
+deploy_ssh_keypair() {
+  info "Deploying ssh keypair..." && \
+    parallel-scp -H "${KUBE_NODE_2} ${KUBE_NODE_3}" -l root $HOME/.ssh/id_ed25519 /root/.ssh/id_ed25519 && \
+    parallel-scp -H "${KUBE_NODE_2} ${KUBE_NODE_3}" -l root $HOME/.ssh/id_ed25519.pub /root/.ssh/id_ed25519.pub && \
+    PDSH_RCMD_TYPE=ssh pdsh -w ${KUBE_NODE_2},${KUBE_NODE_3} "chmod 600 /root/.ssh/id_ed25519" && \
+    PDSH_RCMD_TYPE=ssh pdsh -w ${KUBE_NODE_2},${KUBE_NODE_3} "chmod 644 /root/.ssh/id_ed25519.pub" || fatal_err "Failed to deploy ssh keypair"
+}
+
+harden_all_nodes() {
+  info "Hardening all nodes..." && \
+    parallel-scp -H "${KUBE_NODE_2} ${KUBE_NODE_3}" -l root ${SCRIPT_PATH}/shell-logger/shell-logger /root/ && \
+    parallel-scp -H "${KUBE_NODE_2} ${KUBE_NODE_3}" -l root ${SCRIPT_PATH}/scripts/common-functions.sh /root/ && \
+    parallel-scp -H "${KUBE_NODE_2} ${KUBE_NODE_3}" -l root ${SCRIPT_PATH}/scripts/common-harden-ubuntu.sh /root/ && \
+    parallel-scp -H "${KUBE_NODE_2} ${KUBE_NODE_3}" -l root ${SCRIPT_PATH}/conf/common.conf /root/ && \
+    PDSH_RCMD_TYPE=ssh pdsh -w ${KUBE_NODE_2},${KUBE_NODE_3} "/bin/bash /root/common-harden-ubuntu.sh" && \
+    source ${SCRIPT_PATH}/scripts/common-harden-ubuntu.sh || fatal_err "Failed to harden all nodes"
+}
+
+deploy_microk8s() {
+  info "Deploying microk8s on all nodes..." && \
+    parallel-scp -H "${KUBE_NODE_2} ${KUBE_NODE_3}" -l root ${SCRIPT_PATH}/scripts/kubernetes-deploy-node.sh /root/ && \
+    PDSH_RCMD_TYPE=ssh pdsh -w ${KUBE_NODE_2},${KUBE_NODE_3} "/bin/bash /root/kubernetes-deploy-node.sh" && \
+    source ${SCRIPT_PATH}/scripts/kubernetes-deploy-node.sh || fatal_err "Failed to deploy microk8s on all nodes"
+}
+
+deploy_storage() {
+  info "Deploying storage services..." && \
+    source "${SCRIPT_PATH}/scripts/kubernetes-deploy-storage.sh" || fatal_err "Failed to deploy storage services"
+}
+
+
+
+
 
 deploy_master() {
   info "Deploying master node..." && \
@@ -35,20 +74,7 @@ init_master() {
     source "${SCRIPT_PATH}/scripts/kubernetes-init-master.sh"
 }
 
-generate_ssh_key() {
-  info "Generating ssh key on master node" && \
-    ssh-keygen -t ed25519 -N "" -f "$HOME/.ssh/id_ed25519" && \
-    info "Run the following command manually at all the worker nodes:" && \
-    info "" && \
-    info "mkdir -p .ssh && chmod 700 .ssh && touch .ssh/authorized_keys && chmod 644 .ssh/authorized_keys && echo $(cat $HOME/.ssh/id_ed25519.pub) > .ssh/authorized_keys" && \
-    info ""
 
-  read -p "Press enter to continue"
-
-  until ssh -o StrictHostKeyChecking=no -q ${KUBE_WORKER_1} exit; do warn "Waiting for ${KUBE_WORKER_1}..." && sleep 10; done && \
-  until ssh -o StrictHostKeyChecking=no -q ${KUBE_WORKER_2} exit; do warn "Waiting for ${KUBE_WORKER_2}..." && sleep 10; done && \
-  until ssh -o StrictHostKeyChecking=no -q ${KUBE_WORKER_3} exit; do warn "Waiting for ${KUBE_WORKER_3}..." && sleep 10; done
-}
 
 copy_files_to_workers() {
   info "Copying scripts to kubernetes workers..." && \
@@ -74,15 +100,11 @@ deploy_workers() {
   PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT} -o StrictHostKeyChecking=no" pdsh -w ${KUBE_WORKER_1},${KUBE_WORKER_2},${KUBE_WORKER_3} "kubeadm join ${KUBE_MASTER}:6443 --token $(kubeadm token list -o=jsonpath='{$.token}') --discovery-token-ca-cert-hash sha256:$(openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //')"
 }
 
-req_check_master
-if [ -f "${SCRIPT_PATH}/master_rebooted" ]; then
-  init_master
-  generate_ssh_key
-  copy_files_to_workers
-  deploy_workers
-else
-  install_parallel_utilities
-  deploy_master
-fi
+install_parallel_utilities
+generate_ssh_keypair
+deploy_ssh_keypair
+harden_all_nodes
+deploy_microk8s
+deploy_storage
 
 } # this ensures the entire script is downloaded #
