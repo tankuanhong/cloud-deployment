@@ -2,6 +2,9 @@
 
 { # this ensures the entire script is downloaded #
 
+# Import
+source "${SCRIPT_PATH}/scripts/common-functions.sh" || source "common-functions.sh" || { echo "common-functions.sh is missing"; exit 1; }
+
 # Check for supported os
 check_linux_distribution "${SUPPORTED_OS[@]}"
 

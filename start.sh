@@ -6,9 +6,7 @@
 SCRIPT_PATH=$(dirname "$(realpath -s "$0")")
 
 # Import
-source "${SCRIPT_PATH}/shell-logger/shell-logger" || { echo "${SCRIPT_PATH}/shell-logger/shell-logger is missing"; exit 1; }
-source "${SCRIPT_PATH}/scripts/common-functions.sh" || { err "${SCRIPT_PATH}/scripts/common-functions.sh is missing"; exit 1; }
-source "${SCRIPT_PATH}/conf/common.conf" || fatal_err "${SCRIPT_PATH}/conf/common.conf is missing"
+source "${SCRIPT_PATH}/scripts/common-functions.sh" || source "common-functions.sh" || { echo "common-functions.sh is missing"; exit 1; }
 
 # Check for supported os
 check_linux_distribution "${SUPPORTED_OS[@]}"

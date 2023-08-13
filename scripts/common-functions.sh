@@ -2,6 +2,10 @@
 
 { # this ensures the entire script is downloaded #
 
+# Import
+source "${SCRIPT_PATH}/shell-logger/shell-logger" || source "shell-logger" || { echo "shell-logger is missing"; exit 1; }
+source "${SCRIPT_PATH}/conf/common.conf" || source "common.conf" || { echo "common.conf is missing"; exit 1; }
+
 # function to check if command exist
 command_exist() {
   type "$1" > /dev/null 2>&1
