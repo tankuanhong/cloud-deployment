@@ -23,6 +23,6 @@ configure_microk8s() {
 }
 
 install_microk8s
-configure_microk8s
+#configure_microk8s
 
 } # this ensures the entire script is downloaded #

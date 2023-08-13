@@ -44,12 +44,31 @@ harden_all_nodes() {
     source ${SCRIPT_PATH}/scripts/common-harden-ubuntu.sh || fatal_err "Failed to harden all nodes"
 }
 
+node_firewall_rules() {
+  info "Allow all inter-node communications..." && \
+    PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT} -o StrictHostKeyChecking=accept-new" pdsh -w ${KUBE_NODE_1},${KUBE_NODE_2},${KUBE_NODE_3} -S "ufw allow from ${KUBE_INT_NET} comment 'Inter-node communications'" || fatal_err "Failed to configure ufw for inter-node communications"
+}
+
 deploy_microk8s() {
   info "Deploying microk8s on all nodes..." && \
-    parallel-scp -H "${KUBE_NODE_2}:${SSH_PORT} ${KUBE_NODE_3}:${SSH_PORT}" -x "-o StrictHostKeyChecking=accept-new" -l root ${SCRIPT_PATH}/scripts/kubernetes-deploy-node.sh /root/ && \
+    parallel-scp -H "${KUBE_NODE_2}:${SSH_PORT} ${KUBE_NODE_3}:${SSH_PORT}" -l root ${SCRIPT_PATH}/scripts/kubernetes-deploy-node.sh /root/ && \
     parallel-scp -H "${KUBE_NODE_2}:${SSH_PORT} ${KUBE_NODE_3}:${SSH_PORT}" -l root ${SCRIPT_PATH}/conf/kubernetes.conf /root/ && \
     PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT}" pdsh -w ${KUBE_NODE_2},${KUBE_NODE_3} -S "/bin/bash /root/kubernetes-deploy-node.sh" && \
     source ${SCRIPT_PATH}/scripts/kubernetes-deploy-node.sh || fatal_err "Failed to deploy microk8s on all nodes"
+}
+
+join_nodes() {
+  info "Joining all nodes..." && \
+    invite=$(echo microk8s add-node | grep -m 1 -o 'microk8s join .*[^[:space:]]') && \
+    PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT}" pdsh -w ${KUBE_NODE_2} -S $invite && \
+    invite=$(echo microk8s add-node | grep -m 1 -o 'microk8s join .*[^[:space:]]') && \
+    PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT}" pdsh -w ${KUBE_NODE_3} -S $invite || fatal_err "Failed to join nodes"
+}
+
+configure_microk8s() {
+  info "Configuring microk8s addons..." && \
+    microk8s enable dashboard && \
+    microk8s enable ingress || fatal_err "Failed to enable microk8s addons"
 }
 
 deploy_storage() {
@@ -105,7 +124,10 @@ install_parallel_utilities
 generate_ssh_keypair
 deploy_ssh_keypair
 harden_all_nodes
+node_firewall_rules
 deploy_microk8s
+join_nodes
+configure_microk8s
 deploy_storage
 
 } # this ensures the entire script is downloaded #
