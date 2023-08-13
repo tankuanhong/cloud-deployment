@@ -30,8 +30,8 @@ deploy_ssh_keypair() {
   info "Deploying ssh keypair..." && \
     parallel-scp -H "${KUBE_NODE_2} ${KUBE_NODE_3}" -l root $HOME/.ssh/id_ed25519 /root/.ssh/id_ed25519 && \
     parallel-scp -H "${KUBE_NODE_2} ${KUBE_NODE_3}" -l root $HOME/.ssh/id_ed25519.pub /root/.ssh/id_ed25519.pub && \
-    PDSH_RCMD_TYPE=ssh pdsh -w ${KUBE_NODE_2},${KUBE_NODE_3} "chmod 600 /root/.ssh/id_ed25519" && \
-    PDSH_RCMD_TYPE=ssh pdsh -w ${KUBE_NODE_2},${KUBE_NODE_3} "chmod 644 /root/.ssh/id_ed25519.pub" || fatal_err "Failed to deploy ssh keypair"
+    PDSH_RCMD_TYPE=ssh pdsh -w ${KUBE_NODE_2},${KUBE_NODE_3} -S "chmod 600 /root/.ssh/id_ed25519" && \
+    PDSH_RCMD_TYPE=ssh pdsh -w ${KUBE_NODE_2},${KUBE_NODE_3} -S "chmod 644 /root/.ssh/id_ed25519.pub" || fatal_err "Failed to deploy ssh keypair"
 }
 
 harden_all_nodes() {
@@ -40,14 +40,15 @@ harden_all_nodes() {
     parallel-scp -H "${KUBE_NODE_2} ${KUBE_NODE_3}" -l root ${SCRIPT_PATH}/scripts/common-functions.sh /root/ && \
     parallel-scp -H "${KUBE_NODE_2} ${KUBE_NODE_3}" -l root ${SCRIPT_PATH}/scripts/common-harden-ubuntu.sh /root/ && \
     parallel-scp -H "${KUBE_NODE_2} ${KUBE_NODE_3}" -l root ${SCRIPT_PATH}/conf/common.conf /root/ && \
-    PDSH_RCMD_TYPE=ssh pdsh -w ${KUBE_NODE_2},${KUBE_NODE_3} "/bin/bash /root/common-harden-ubuntu.sh" && \
+    PDSH_RCMD_TYPE=ssh pdsh -w ${KUBE_NODE_2},${KUBE_NODE_3} -S "/bin/bash /root/common-harden-ubuntu.sh" && \
     source ${SCRIPT_PATH}/scripts/common-harden-ubuntu.sh || fatal_err "Failed to harden all nodes"
 }
 
 deploy_microk8s() {
   info "Deploying microk8s on all nodes..." && \
     parallel-scp -H "${KUBE_NODE_2}:${SSH_PORT} ${KUBE_NODE_3}:${SSH_PORT}" -x "-o StrictHostKeyChecking=accept-new" -l root ${SCRIPT_PATH}/scripts/kubernetes-deploy-node.sh /root/ && \
-    PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT}" pdsh -w ${KUBE_NODE_2},${KUBE_NODE_3} "/bin/bash /root/kubernetes-deploy-node.sh" && \
+    parallel-scp -H "${KUBE_NODE_2}:${SSH_PORT} ${KUBE_NODE_3}:${SSH_PORT}" -l root ${SCRIPT_PATH}/conf/kubernetes.conf /root/ && \
+    PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT}" pdsh -w ${KUBE_NODE_2},${KUBE_NODE_3} -S "/bin/bash /root/kubernetes-deploy-node.sh" && \
     source ${SCRIPT_PATH}/scripts/kubernetes-deploy-node.sh || fatal_err "Failed to deploy microk8s on all nodes"
 }
 
