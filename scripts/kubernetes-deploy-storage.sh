@@ -31,7 +31,7 @@ configure_longhorn() {
 
   info "Setting backup-target" && \
     microk8s kubectl get settings backup-target -n longhorn-system -o yaml > ${SCRIPT_PATH}/backup-target.yaml && \
-    sed -i "s@\"\"@nfs://${KUBE_MASTER}:/mnt/longhorn@g" ${SCRIPT_PATH}/backup-target.yaml && \
+    sed -i "s@\"\"@nfs://${KUBE_NODE_1}:/mnt/longhorn@g" ${SCRIPT_PATH}/backup-target.yaml && \
     microk8s kubectl apply -f ${SCRIPT_PATH}/backup-target.yaml || fatal_err "Failed to set longhorn backup-target"
 
   info "Configuring hourly backup of volumes..." && \
@@ -54,7 +54,7 @@ configure_nfs_server() {
   info "Configuring NFS server..." && \
     mkdir -p "/mnt/longhorn" && \
     chown nobody:nogroup "/mnt/longhorn" && \
-    echo "/mnt/longhorn    ${KUBE_INT_NET}(rw,sync,no_subtree_check)" | sudo tee -a /etc/exports && \
+    echo "/mnt/longhorn  ${KUBE_INT_NET}(rw,sync,no_subtree_check)  ${KUBE_POD_NET}(rw,sync,no_subtree_check)" | sudo tee -a /etc/exports && \
     systemctl restart nfs-kernel-server
 
   if ! service_active nfs-kernel-server; then
