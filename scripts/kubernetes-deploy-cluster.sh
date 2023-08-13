@@ -46,7 +46,7 @@ harden_all_nodes() {
 
 deploy_microk8s() {
   info "Deploying microk8s on all nodes..." && \
-    parallel-scp -H "${KUBE_NODE_2} ${KUBE_NODE_3}" -x "-p ${SSH_PORT}" -l root ${SCRIPT_PATH}/scripts/kubernetes-deploy-node.sh /root/ && \
+    parallel-scp -H "${KUBE_NODE_2}:${SSH_PORT} ${KUBE_NODE_3}:${SSH_PORT}" -x "-o StrictHostKeyChecking=accept-new" -l root ${SCRIPT_PATH}/scripts/kubernetes-deploy-node.sh /root/ && \
     PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT}" pdsh -w ${KUBE_NODE_2},${KUBE_NODE_3} "/bin/bash /root/kubernetes-deploy-node.sh" && \
     source ${SCRIPT_PATH}/scripts/kubernetes-deploy-node.sh || fatal_err "Failed to deploy microk8s on all nodes"
 }
