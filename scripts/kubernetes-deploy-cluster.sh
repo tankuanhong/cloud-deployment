@@ -80,9 +80,9 @@ deploy_microk8s() {
 join_nodes() {
   info "Joining all nodes..." && \
     invite=$(microk8s add-node | grep -m 1 -o "microk8s join .*${KUBE_NODE_1//./\\.}.*") && \
-    PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT}" pdsh -w ${KUBE_NODE_2} -S $invite && \
+    PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT}" pdsh -w ${KUBE_NODE_2} -S ${invite} && \
     invite=$(microk8s add-node | grep -m 1 -o "microk8s join .*${KUBE_NODE_1//./\\.}.*") && \
-    PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT}" pdsh -w ${KUBE_NODE_3} -S $invite || fatal_err "Failed to join nodes"
+    PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT}" pdsh -w ${KUBE_NODE_3} -S ${invite} || fatal_err "Failed to join nodes"
 }
 
 configure_microk8s() {
