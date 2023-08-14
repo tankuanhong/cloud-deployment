@@ -127,9 +127,6 @@ kubernetes_menu() {
   local kubernetes=(
     "Kubernetes"
     "${SCRIPT_PATH}/scripts/kubernetes-deploy-cluster.sh"
-    "${SCRIPT_PATH}/scripts/kubernetes-deploy-nfs-backup.sh"
-    "${SCRIPT_PATH}/scripts/kubernetes-deploy-longhorn.sh"
-    "${SCRIPT_PATH}/scripts/kubernetes-deploy-ingress-nginx.sh"
     "${SCRIPT_PATH}/scripts/kubernetes-deploy-oauth2-proxy.sh"
     "${SCRIPT_PATH}/scripts/kubernetes-deploy-single-node.sh"
   )
