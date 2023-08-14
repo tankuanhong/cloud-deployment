@@ -77,6 +77,21 @@ deploy_microk8s() {
     source ${SCRIPT_PATH}/scripts/kubernetes-deploy-node.sh || fatal_err "Failed to deploy microk8s on all nodes"
 }
 
+update_hosts_file() {
+  info "Adding all node hostnames to hosts file..."
+
+  for ip in "${KUBE_NODE_1}" "${KUBE_NODE_2}" "${KUBE_NODE_3}"; do
+    hostname=$(ssh -o StrictHostKeyChecking=accept-new -q -p "${SSH_PORT}" "${ip}" hostname)
+    if [ $? -eq 0 ]; then
+      echo "${ip} ${hostname}" >> /etc/hosts || fatal_err "Failed to add ${ip} to /etc/hosts on ${KUBE_NODE_1}"
+      PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT}" pdsh -w ${KUBE_NODE_2} -S "echo ${ip} ${hostname} >> /etc/hosts" || fatal_err "Failed to add ${ip} to /etc/hosts on ${KUBE_NODE_2}"
+      PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT}" pdsh -w ${KUBE_NODE_3} -S "echo ${ip} ${hostname} >> /etc/hosts" || fatal_err "Failed to add ${ip} to /etc/hosts on ${KUBE_NODE_3}"
+    else
+      fatal_err "Failed to retrieve hostname for ${ip}"
+    fi
+  done
+}
+
 join_nodes() {
   info "Joining all nodes..." && \
     invite=$(microk8s add-node | grep -m 1 -o "microk8s join .*${KUBE_NODE_1//./\\.}.*") && \
@@ -143,6 +158,7 @@ deploy_workers() {
 if [ -f "${SCRIPT_PATH}/rebooted" ]; then
   rm -f "${SCRIPT_PATH}/rebooted"
   deploy_microk8s
+  update_hosts_file
   join_nodes
   configure_microk8s
   deploy_storage
