@@ -32,7 +32,7 @@ configure_longhorn() {
 
   info "Setting backup-target" && \
     microk8s kubectl get settings backup-target -n longhorn-system -o yaml > ${SCRIPT_PATH}/backup-target.yaml && \
-    sed -i "s@\"\"@nfs://${KUBE_NODE_1}:/mnt/longhorn@g" ${SCRIPT_PATH}/backup-target.yaml && \
+    sed -i "s@\"\"@nfs://${KUBE_NODE_1}:${NFS_MOUNT_PATH}/longhorn@g" ${SCRIPT_PATH}/backup-target.yaml && \
     microk8s kubectl apply -f ${SCRIPT_PATH}/backup-target.yaml || fatal_err "Failed to set longhorn backup-target"
 
   info "Configuring hourly backup of volumes..." && \
