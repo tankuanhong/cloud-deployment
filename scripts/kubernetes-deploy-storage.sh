@@ -15,6 +15,7 @@ install_longhorn() {
       --set defaultSettings.defaultDataPath="/longhorn" \
       --set csi.kubeletRootDir="/var/snap/microk8s/common/var/lib/kubelet" || fatal_err "Failed to install longhorn"
 
+  sleep 60
   wait_for_pods_ready "300" "longhorn-system"
 }
 
