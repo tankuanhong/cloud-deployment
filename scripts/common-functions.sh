@@ -43,17 +43,18 @@ check_linux_distribution() {
 wait_for_ssh_ready() {
   local timeout="$1"
   local host="$2"
+  local ssh_port="${3:-22}"  # Use port 22 if not provided
   local start_time=$(date +%s)
   
-  until ssh -o StrictHostKeyChecking=accept-new -q $2 exit; do
-    info "Waiting for ssh to $2 to be ready ($elapsed_time/$timeout)..."
+  until ssh -o StrictHostKeyChecking=accept-new -q -p "$ssh_port" "$host" exit; do
+    info "Waiting for ssh to "$host" port "$ssh_port" to be ready ($elapsed_time/$timeout)..."
     sleep 10
     
     local current_time=$(date +%s)
     local elapsed_time=$((current_time - start_time))
     
     if [ "$elapsed_time" -ge "$timeout" ]; then
-      fatal_err "Timeout waiting for ssh to $2 to be ready"
+      fatal_err "Timeout waiting for ssh to "$host" port "$ssh_port" to be ready"
     fi
   done
 }

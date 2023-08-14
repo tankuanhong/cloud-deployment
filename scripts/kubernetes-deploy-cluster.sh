@@ -49,6 +49,26 @@ node_firewall_rules() {
     PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT} -o StrictHostKeyChecking=accept-new" pdsh -w ${KUBE_NODE_1},${KUBE_NODE_2},${KUBE_NODE_3} -S "ufw allow from ${KUBE_INT_NET} comment 'Inter-node communications'" || fatal_err "Failed to configure ufw for inter-node communications"
 }
 
+install_snapd() {
+  info "Installing snapd on all nodes..." && \
+    PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT}" pdsh -w ${KUBE_NODE_1},${KUBE_NODE_2},${KUBE_NODE_3} -S "apt-get update && apt-get -y install snapd" || fatal_err "Failed to install snapd"
+  
+  info "Restarting other nodes..."
+  PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT}" pdsh -w ${KUBE_NODE_2},${KUBE_NODE_3} -S "reboot"
+
+  info "Sleep 1 minute for others nodes to reboot..." && \
+    sleep 60 && \
+    info "Wake after 1 minute"
+  
+  wait_for_ssh_ready "300" "${KUBE_NODE_2}" "${SSH_PORT}"
+  wait_for_ssh_ready "300" "${KUBE_NODE_3}" "${SSH_PORT}"
+
+  info "Rebooting current node..." && \
+    touch "${SCRIPT_PATH}/rebooted" && \
+    info "Rerun start.sh upon node startup" && \
+    reboot
+}
+
 deploy_microk8s() {
   info "Deploying microk8s on all nodes..." && \
     parallel-scp -H "${KUBE_NODE_2}:${SSH_PORT} ${KUBE_NODE_3}:${SSH_PORT}" -l root ${SCRIPT_PATH}/scripts/kubernetes-deploy-node.sh /root/ && \
@@ -120,14 +140,19 @@ deploy_workers() {
   PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT} -o StrictHostKeyChecking=no" pdsh -w ${KUBE_WORKER_1},${KUBE_WORKER_2},${KUBE_WORKER_3} "kubeadm join ${KUBE_MASTER}:6443 --token $(kubeadm token list -o=jsonpath='{$.token}') --discovery-token-ca-cert-hash sha256:$(openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //')"
 }
 
-install_parallel_utilities
-generate_ssh_keypair
-deploy_ssh_keypair
-harden_all_nodes
-node_firewall_rules
-deploy_microk8s
-join_nodes
-configure_microk8s
-deploy_storage
+if [ -f "${SCRIPT_PATH}/rebooted" ]; then
+  rm -f "${SCRIPT_PATH}/rebooted"
+  deploy_microk8s
+  join_nodes
+  configure_microk8s
+  deploy_storage
+else
+  install_parallel_utilities
+  generate_ssh_keypair
+  deploy_ssh_keypair
+  harden_all_nodes
+  node_firewall_rules
+  install_snapd
+fi
 
 } # this ensures the entire script is downloaded #
