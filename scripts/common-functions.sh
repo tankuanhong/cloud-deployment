@@ -88,7 +88,7 @@ wait_for_pods_ready() {
     label_arg="--all"
   fi
   
-  microk8s kubectl wait pods -n "$namespace" $label_arg --for condition=Ready --timeout=${timeout}s
+  microk8s kubectl wait pods -n "$namespace" $label_arg --for condition=Ready --timeout=${timeout}s || fatal_err "Error waiting for pods"
 }
 
 } # this ensures the entire script is downloaded #
