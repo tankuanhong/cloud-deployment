@@ -92,6 +92,24 @@ update_hosts_file() {
   done
 }
 
+set_node_ip() {
+  info "Stopping microk8s..."
+  PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT}" pdsh -w ${KUBE_NODE_1},${KUBE_NODE_2},${KUBE_NODE_3} -S "microk8s stop" || fatal_err "Failed to stop microk8s"
+
+  info "Appending --node-ip to kubelet config..."
+  echo "--node-ip=${KUBE_NODE_1}" >> /var/snap/microk8s/current/args/kubelet || fatal_err "Failed to append --node-ip to ${KUBE_NODE_1}"
+  PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT}" pdsh -w ${KUBE_NODE_2} -S "echo "--node-ip=${KUBE_NODE_2}" >> /var/snap/microk8s/current/args/kubelet" || fatal_err "Failed to append --node-ip to ${KUBE_NODE_2}"
+  PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT}" pdsh -w ${KUBE_NODE_3} -S "echo "--node-ip=${KUBE_NODE_3}" >> /var/snap/microk8s/current/args/kubelet" || fatal_err "Failed to append --node-ip to ${KUBE_NODE_3}"
+
+  info "Appending --advertise-address to api server config..."
+  echo "--advertise-address=${KUBE_NODE_1}" >> /var/snap/microk8s/current/args/kube-apiserver || fatal_err "Failed to append --advertise-address to ${KUBE_NODE_1}"
+  PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT}" pdsh -w ${KUBE_NODE_2} -S "echo "--advertise-address=${KUBE_NODE_2}" >> /var/snap/microk8s/current/args/kube-apiserver" || fatal_err "Failed to append --advertise-address to ${KUBE_NODE_2}"
+  PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT}" pdsh -w ${KUBE_NODE_3} -S "echo "--advertise-address=${KUBE_NODE_3}" >> /var/snap/microk8s/current/args/kube-apiserver" || fatal_err "Failed to append --advertise-address to ${KUBE_NODE_3}"
+
+  info "Starting microk8s..."
+  PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT}" pdsh -w ${KUBE_NODE_1},${KUBE_NODE_2},${KUBE_NODE_3} -S "microk8s start" || fatal_err "Failed to start microk8s"
+}
+
 join_nodes() {
   info "Joining all nodes..." && \
     invite=$(microk8s add-node | grep -m 1 -o "microk8s join .*${KUBE_NODE_1//./\\.}.*") && \
@@ -159,6 +177,7 @@ if [ -f "${SCRIPT_PATH}/rebooted" ]; then
   rm -f "${SCRIPT_PATH}/rebooted"
   deploy_microk8s
   update_hosts_file
+  set_node_ip
   join_nodes
   configure_microk8s
   deploy_storage
