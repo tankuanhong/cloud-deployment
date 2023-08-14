@@ -129,48 +129,10 @@ deploy_storage() {
     source "${SCRIPT_PATH}/scripts/kubernetes-deploy-storage.sh" || fatal_err "Failed to deploy storage services"
 }
 
-
-
-
-
-deploy_master() {
-  info "Deploying master node..." && \
-    source "${SCRIPT_PATH}/scripts/kubernetes-deploy-master.sh" && \
-    touch "${SCRIPT_PATH}/master_rebooted" && \
-    info "Rebooting master node..." && \
-    info "Rerun start.sh upon master node startup" && \
-    reboot
-}
-
-init_master() {
-  info "Initializing master node..." && \
-    source "${SCRIPT_PATH}/scripts/kubernetes-init-master.sh"
-}
-
-
-
-copy_files_to_workers() {
-  info "Copying scripts to kubernetes workers..." && \
-    parallel-scp -H "${KUBE_WORKER_1} ${KUBE_WORKER_2} ${KUBE_WORKER_3}" -l root -O "StrictHostKeyChecking=no" ${SCRIPT_PATH}/shell-logger/shell-logger /root/ && \
-    parallel-scp -H "${KUBE_WORKER_1} ${KUBE_WORKER_2} ${KUBE_WORKER_3}" -l root -O "StrictHostKeyChecking=no" ${SCRIPT_PATH}/conf/common.conf /root/ && \
-    parallel-scp -H "${KUBE_WORKER_1} ${KUBE_WORKER_2} ${KUBE_WORKER_3}" -l root -O "StrictHostKeyChecking=no" ${SCRIPT_PATH}/conf/kubernetes.conf /root/ && \
-    parallel-scp -H "${KUBE_WORKER_1} ${KUBE_WORKER_2} ${KUBE_WORKER_3}" -l root -O "StrictHostKeyChecking=no" ${SCRIPT_PATH}/scripts/kubernetes-deploy-worker.sh /root/
-}
-
-deploy_workers() {
-  info "Deploying worker nodes" && \
-    PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-o StrictHostKeyChecking=no" pdsh -w ${KUBE_WORKER_1},${KUBE_WORKER_2},${KUBE_WORKER_3} "/bin/bash /root/kubernetes-deploy-worker.sh" && \
-    PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT} -o StrictHostKeyChecking=no" pdsh -w ${KUBE_WORKER_1},${KUBE_WORKER_2},${KUBE_WORKER_3} "reboot"
-
-  info "Sleep 1 minute for worker nodes to reboot..." && \
-  sleep 60 && \
-  info "Wake after 1 minute"
-
-  until ssh -p ${SSH_PORT} -o StrictHostKeyChecking=no -q ${KUBE_WORKER_1} exit; do warn "Waiting for ${KUBE_WORKER_1}..." && sleep 10; done && \
-  until ssh -p ${SSH_PORT} -o StrictHostKeyChecking=no -q ${KUBE_WORKER_2} exit; do warn "Waiting for ${KUBE_WORKER_2}..." && sleep 10; done && \
-  until ssh -p ${SSH_PORT} -o StrictHostKeyChecking=no -q ${KUBE_WORKER_3} exit; do warn "Waiting for ${KUBE_WORKER_3}..." && sleep 10; done
-
-  PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT} -o StrictHostKeyChecking=no" pdsh -w ${KUBE_WORKER_1},${KUBE_WORKER_2},${KUBE_WORKER_3} "kubeadm join ${KUBE_MASTER}:6443 --token $(kubeadm token list -o=jsonpath='{$.token}') --discovery-token-ca-cert-hash sha256:$(openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //')"
+configure_nginx() {
+  info "Configuring ingress nginx controller..." && \
+    microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/ingress-custom-headers.yaml" && \
+    microk8s kubectl -n ingress patch configmap nginx-load-balancer-microk8s-conf --patch-file "${SCRIPT_PATH}/kubernetes/nginx-load-balancer-microk8s-conf.yaml" || fatal_err "Failed to configure ingress nginx"
 }
 
 if [ -f "${SCRIPT_PATH}/rebooted" ]; then
@@ -181,6 +143,7 @@ if [ -f "${SCRIPT_PATH}/rebooted" ]; then
   join_nodes
   configure_microk8s
   deploy_storage
+  configure_nginx
 else
   install_parallel_utilities
   generate_ssh_keypair
