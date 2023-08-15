@@ -128,6 +128,7 @@ kubernetes_menu() {
     "Kubernetes"
     "${SCRIPT_PATH}/scripts/kubernetes-deploy-cluster.sh"
     "${SCRIPT_PATH}/scripts/kubernetes-deploy-oauth2-proxy.sh"
+    "${SCRIPT_PATH}/scripts/kubernetes-deploy-cert-issuer.sh"
   )
   display_menu "${kubernetes[@]}"
 }
