@@ -31,7 +31,7 @@ get_user_input() {
     cat "${SCRIPT_PATH}/kubernetes/certificate.yaml" | envsubst > $tmpfile && \
     mv $tmpfile "${SCRIPT_PATH}/kubernetes/certificate-${CERT_NAME}.yaml" && \
     info "Deploying certificate manifest..." && \
-    kubectl apply -f "${SCRIPT_PATH}/kubernetes/certificate-${CERT_NAME}.yaml" || fatal_err "Failed to deploy certificate manifest"
+    microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/certificate-${CERT_NAME}.yaml" || fatal_err "Failed to deploy certificate manifest"
 }
 
 } # this ensures the entire script is downloaded #

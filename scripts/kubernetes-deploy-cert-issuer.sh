@@ -26,7 +26,7 @@ get_cloudflare_token() {
     cat "${SCRIPT_PATH}/kubernetes/cloudflare-api-token.yaml" | envsubst > $tmpfile && \
     mv $tmpfile "${SCRIPT_PATH}/kubernetes/cloudflare-api-token-${CLOUDFLARE_TOKEN_NAME_SUFFIX}.yaml" && \
     info "Deploying cloudflare api token..." && \
-    kubectl apply -f "${SCRIPT_PATH}/kubernetes/cloudflare-api-token-${CLOUDFLARE_TOKEN_NAME_SUFFIX}.yaml" || fatal_err "Failed to deploy cloudflare api token"
+    microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/cloudflare-api-token-${CLOUDFLARE_TOKEN_NAME_SUFFIX}.yaml" || fatal_err "Failed to deploy cloudflare api token"
 }
 
 create_clusterissuer() {
@@ -38,7 +38,7 @@ create_clusterissuer() {
     cat "${SCRIPT_PATH}/kubernetes/cloudflare-clusterissuer.yaml" | envsubst > $tmpfile && \
     mv $tmpfile "${SCRIPT_PATH}/kubernetes/cloudflare-clusterissuer-${LE_NAME_SUFFIX}.yaml" && \
     info "Deploying cloudflare clusterissuer..." && \
-    kubectl apply -f "${SCRIPT_PATH}/kubernetes/cloudflare-clusterissuer-${LE_NAME_SUFFIX}.yaml" || fatal_err "Failed to deploy cloudflare clusterissuer"
+    microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/cloudflare-clusterissuer-${LE_NAME_SUFFIX}.yaml" || fatal_err "Failed to deploy cloudflare clusterissuer"
 }
 
 enable_cert_manager
