@@ -21,7 +21,9 @@ get_user_input() {
   else
     export CERT_ISSUER=${cluster_issuer}
   fi
+}
 
+create_cert() {
   info "Removing special characters from certificate common name..." && \
     export CERT_NAME=$(echo "$cert_cn" | tr -d -c '[:alnum:]')
 
@@ -33,5 +35,8 @@ get_user_input() {
     info "Deploying certificate manifest..." && \
     microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/certificate-${CERT_NAME}.yaml" || fatal_err "Failed to deploy certificate manifest"
 }
+
+get_user_input
+create_cert
 
 } # this ensures the entire script is downloaded #
