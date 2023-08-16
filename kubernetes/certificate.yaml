@@ -1,0 +1,12 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: cert-${CERT_NAME}
+spec:
+  secretName: cert-${CERT_NAME}-secret
+  issuerRef: 
+    kind: ClusterIssuer
+    name: ${CERT_ISSUER}
+  commonName: "${CERT_CN}"
+  dnsNames:
+    - "${CERT_CN}"

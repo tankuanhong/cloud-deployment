@@ -3,9 +3,7 @@
 { # this ensures the entire script is downloaded #
 
 # import
-source "${SCRIPT_PATH}/shell-logger/shell-logger" || exit
-source "${SCRIPT_PATH}/conf/common.conf" || exit
-source "${SCRIPT_PATH}/conf/containers.conf" || exit
+source "${SCRIPT_PATH}/conf/containers.conf" || fatal_err "${SCRIPT_PATH}/conf/containers.conf is missing"
 
 check_kube_ready() {
   info "Checking Kubernetes cluster status..." && \

@@ -1,0 +1,25 @@
+[Unit]
+Description=Syncthing Relay Server
+After=network.target
+Documentation=man:strelaysrv(1)
+
+[Service]
+WorkingDirectory=/var/lib/strelaysrv
+ExecStart=/usr/bin/strelaysrv -listen=:443 -pools=
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+
+# Hardening
+User=strelaysrv
+Group=strelaysrv
+ProtectSystem=strict
+ReadWritePaths=/var/lib/strelaysrv
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectHome=true
+SystemCallArchitectures=native
+MemoryDenyWriteExecute=true
+
+[Install]
+WantedBy=multi-user.target

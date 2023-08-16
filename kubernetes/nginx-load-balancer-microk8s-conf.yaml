@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-load-balancer-microk8s-conf
+  namespace: ingress
+data:
+  allow-snippet-annotations: "true"
+  proxy-set-headers: "ingress/custom-headers"
+  use-proxy-protocol: "true"
+  use-forwarded-headers: "true"
+  compute-full-forwarded-for: "true"
+  proxy-buffer-size: "8k"
+  large-client-header-buffers: "4 16k"
+  server-snippet: |
+    real_ip_header CF-Connecting-IP;

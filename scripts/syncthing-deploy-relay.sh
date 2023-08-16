@@ -3,9 +3,7 @@
 { # this ensures the entire script is downloaded #
 
 # import
-source "${SCRIPT_PATH}/shell-logger/shell-logger" || exit
-source "${SCRIPT_PATH}/conf/common.conf" || exit
-source "${SCRIPT_PATH}/conf/kubernetes.conf" || exit
+source "${SCRIPT_PATH}/conf/syncthing.conf" || fatal_err "${SCRIPT_PATH}/conf/syncthing.conf is missing"
 
 # function to check if command exist
 command_exist() {
@@ -37,8 +35,9 @@ configure_ufw() {
     ufw default deny incoming && \
     ufw default allow outgoing && \
     ufw allow 22/tcp comment 'Default SSH' && \
+    ufw allow http && \
+    ufw allow https && \
     ufw allow ${SSH_PORT}/tcp comment 'Custom SSH' && \
-    ufw allow from ${KUBE_INT_NET} && \
     info "Enabling ufw..." && \
     ufw --force enable && \
     ufw status numbered
@@ -188,83 +187,27 @@ EOF
   fi
 }
 
-setup_kernel() {
-  info "Setting up kernel modules and parameters..." && \
-    modprobe overlay && \
-    modprobe br_netfilter && \
-    cat <<EOF | sudo tee /etc/modules-load.d/containerd.conf
-overlay
-br_netfilter
-EOF
-
-  cat <<EOF | sudo tee /etc/sysctl.d/99-kubernetes-cri.conf
-net.bridge.bridge-nf-call-iptables = 1
-net.ipv4.ip_forward = 1
-net.bridge.bridge-nf-call-ip6tables = 1
-EOF
-  sysctl --system
-}
-
-install_containerd() {
-  info "Installing containerd..." && \
-    apt-get update && \
-    apt-get install -y containerd && \
-    mkdir -p /etc/containerd && \
-    containerd config default | sudo tee /etc/containerd/config.toml && \
-    systemctl restart containerd && \
-    systemctl status containerd --no-pager
-
-  if ! service_active containerd; then
-    warn "Containerd service is not running"
-  else
-    info "Containerd configured and started"
-  fi
-}
-
-disable_swap() {
-  info "Disabling swap..." && \
-    swapoff -a && \
-    sed -i.bak -r 's/(.+ swap .+)/#\1/' /etc/fstab
-}
-
-install_kubernetes() {
-  info "Installing kubernetes prerequisites..." && \
-    apt-get update && \
-    apt-get install -y apt-transport-https curl && \
-    info "Importing kubernetes repository GPG key..." && \
-    curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - && \
-    info "Adding kubernetes repository" && \
-    cat <<EOF | sudo tee /etc/apt/sources.list.d/kubernetes.list
-deb https://apt.kubernetes.io/ kubernetes-xenial main
-EOF
-
-  info "Installing kubernetes..." && \
-    apt-get update && \
-    apt-get install -y kubelet=${KUBE_VERSION}-${KUBE_RELEASE} kubeadm=${KUBE_VERSION}-${KUBE_RELEASE} kubectl=${KUBE_VERSION}-${KUBE_RELEASE} && \
-    apt-mark hold kubelet kubeadm kubectl
-}
-
-configure_kubelet() {
-  info "Configuring kubelet service..."
-
-  if grep -- "--node-ip=" ${KUBE_ADM_CONFIG_FILE} &> /dev/null; then
-    err "Node IP is already set in kubelet configuration file"
-    exit 1
-  elif grep "KUBELET_EXTRA_ARGS=" ${KUBE_ADM_CONFIG_FILE} &> /dev/null; then
-    sed -i "s@KUBELET_EXTRA_ARGS=@KUBELET_EXTRA_ARGS=--node-ip=${KUBE_MASTER} @g" ${KUBE_ADM_CONFIG_FILE}
-  else
-    sed -i "/^\[Service\]/a\Environment=\"KUBELET_EXTRA_ARGS=--node-ip=${KUBE_MASTER}\"" ${KUBE_ADM_CONFIG_FILE}
-  fi
-
-  systemctl daemon-reload && \
-    systemctl restart kubelet
-
-  systemctl status kubelet --no-pager
-  if ! service_active kubelet; then
-    warn "Kubelet service is not running"
-  else
-    info "Kubelet configured and restarted"
-  fi
+install_relay() {
+  info "Installing Syncthing Relay Server..." && \
+    info "Creating strelaysrv user..."
+    groupadd --system strelaysrv && \
+    useradd --system \
+      --gid strelaysrv \
+      --create-home \
+      --home-dir /var/lib/strelaysrv \
+      --shell /usr/sbin/nologin \
+      --comment "Syncthing Relay Server" \
+      strelaysrv && \
+    info "Installing Syncthing Relay Server binary..." && \
+    wget ${ST_RELAYSRV_BINARY_URL} && \
+    tar xzvf strelaysrv-*.tar.gz && \
+    mv strelaysrv-*/strelaysrv /usr/bin/strelaysrv && \
+    info "Installing service file..." && \
+    cp "${SCRIPT_PATH}/assets/syncthing/strelaysrv.service" /lib/systemd/system/strelaysrv.service && \
+    systemctl daemon-reload && \
+    info "Starting Syncthing Relay Server..." && \
+    systemctl enable strelaysrv
+    systemctl restart strelaysrv
 }
 
 configure_ufw
@@ -273,10 +216,6 @@ disable_autoupgrade
 setup_ntp
 harden_sshd
 configure_remote_syslog
-setup_kernel
-install_containerd
-disable_swap
-install_kubernetes
-configure_kubelet
+install_relay
 
 } # this ensures the entire script is downloaded #

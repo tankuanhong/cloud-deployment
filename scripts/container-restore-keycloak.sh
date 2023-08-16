@@ -3,10 +3,11 @@
 { # this ensures the entire script is downloaded #
 
 # import
-source "${SCRIPT_PATH}/shell-logger/shell-logger" || exit
-source "${SCRIPT_PATH}/conf/common.conf" || exit
-source "${SCRIPT_PATH}/conf/kubernetes.conf" || exit
-source "${SCRIPT_PATH}/conf/containers.conf" || exit
+source "${SCRIPT_PATH}/conf/containers.conf" || fatal_err "${SCRIPT_PATH}/conf/containers.conf is missing"
+
+comment() {
+  sed -i "$1"' s/^/#/' "$2"
+}
 
 check_kube_ready() {
   info "Checking Kubernetes cluster status..." && \
@@ -19,7 +20,19 @@ check_kube_ready() {
     fi
 }
 
-deploy_database() {
+check_pvc_exist() {
+  info "Checking that required volumes exist..." && \
+    if [ "$(kubectl get pvc pvc-keycloak-db >/dev/null 2>/dev/null; echo $?)" != '0' ] || [ "$(kubectl get pvc pvc-keycloak >/dev/null 2>/dev/null; echo $?)" != '0' ]; then
+      err "Required persistent volume claims do not exist"
+      err "Check that pvc-keycloak-db and pvc-keycloak are present"
+      err "Exiting..."
+      exit 1
+    else
+      info "Required volumes are present"
+    fi
+}
+
+restore_database() {
   info "Setting custom database parameters..." && \
     info "Generating POSTGRESQL_POSTGRES_PASSWORD..." && \
     export POSTGRESQL_POSTGRES_PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom | head -c $(shuf -i 39-63 -n 1)) && \
@@ -29,11 +42,13 @@ deploy_database() {
     cp --attributes-only --preserve "${SCRIPT_PATH}/kubernetes/keycloak-db.yaml" $tmpfile && \
     cat "${SCRIPT_PATH}/kubernetes/keycloak-db.yaml" | envsubst > $tmpfile && \
     mv $tmpfile "${SCRIPT_PATH}/kubernetes/keycloak-db.yaml" && \
-    info "Deploying database..." && \
+    info "Disable creation of new persistent volume..." && \
+    comment '/#PVC_START/,/#PVC_END/' "${SCRIPT_PATH}/kubernetes/keycloak-db.yaml" && \
+    info "Restoring database..." && \
     kubectl apply -f "${SCRIPT_PATH}/kubernetes/keycloak-db.yaml"
 }
 
-deploy_keycloak() {
+restore_keycloak() {
   info "Setting custom keycloak parameters..." && \
     info "Generating KEYCLOAK_ADMIN_PASSWORD..." && \
     export KEYCLOAK_ADMIN_PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom | head -c $(shuf -i 39-63 -n 1)) && \
@@ -41,21 +56,15 @@ deploy_keycloak() {
     cp --attributes-only --preserve "${SCRIPT_PATH}/kubernetes/keycloak.yaml" $tmpfile && \
     cat "${SCRIPT_PATH}/kubernetes/keycloak.yaml" | envsubst > $tmpfile && \
     mv $tmpfile "${SCRIPT_PATH}/kubernetes/keycloak.yaml" && \
-    info "Deploying keycloak..." && \
+    info "Disable creation of new persistent volume..." && \
+    comment '/#PVC_START/,/#PVC_END/' "${SCRIPT_PATH}/kubernetes/keycloak.yaml" && \
+    info "Restoring keycloak..." && \
     kubectl apply -f "${SCRIPT_PATH}/kubernetes/keycloak.yaml"
 }
 
-print_credentials() {
-  info "Please save the following credentials."
-  info "POSTGRESQL_POSTGRES_PASSWORD: ${POSTGRESQL_POSTGRES_PASSWORD}"
-  info "POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}"
-  info "KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}"
-  info "Please verify that 3 credentials are printed."
-}
-
 check_kube_ready
-deploy_database
-deploy_keycloak
-print_credentials
+check_pvc_exist
+restore_database
+restore_keycloak
 
 } # this ensures the entire script is downloaded #

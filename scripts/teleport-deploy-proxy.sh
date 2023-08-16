@@ -3,9 +3,7 @@
 { # this ensures the entire script is downloaded #
 
 # import
-source "${SCRIPT_PATH}/shell-logger/shell-logger" || exit
-source "${SCRIPT_PATH}/conf/common.conf" || exit
-source "${SCRIPT_PATH}/conf/teleport.conf" || exit
+source "${SCRIPT_PATH}/conf/teleport.conf" || fatal_err "${SCRIPT_PATH}/conf/teleport.conf is missing"
 
 # function to check if command exist
 command_exist() {
