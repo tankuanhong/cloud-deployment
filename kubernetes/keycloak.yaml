@@ -54,7 +54,7 @@ spec:
         - name: KEYCLOAK_ADMIN_PASSWORD
           value: "${KEYCLOAK_ADMIN_PASSWORD}"
         - name: KEYCLOAK_DATABASE_HOST
-          value: "svc-${KEYCLOAK_DB_LABEL}"
+          value: "svc-${KEYCLOAK_DB_LABEL}-db"
         - name: KEYCLOAK_DATABASE_PORT
           value: "5432"
         - name: KEYCLOAK_DATABASE_NAME
