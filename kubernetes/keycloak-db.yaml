@@ -5,7 +5,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: pvc-keycloak-db
+  name: pvc-${KEYCLOAK_DB_LABEL}
   namespace: default
 spec:
   accessModes:
@@ -19,50 +19,51 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: svc-keycloak-db
+  name: svc-${KEYCLOAK_DB_LABEL}-db
 spec:
   ports:
   - port: 5432
   selector:
-    app: app-keycloak-db
+    app: app-${KEYCLOAK_DB_LABEL}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: dep-keycloak-db
+  name: dep-${KEYCLOAK_DB_LABEL}
   labels:
-    app: app-keycloak-db
+    app: app-${KEYCLOAK_DB_LABEL}
 spec:
   selector:
     matchLabels:
-      app: app-keycloak-db
+      app: app-${KEYCLOAK_DB_LABEL}
   template:
     metadata:
       labels:
-        app: app-keycloak-db
+        app: app-${KEYCLOAK_DB_LABEL}
     spec:
       restartPolicy: Always
       containers:
       - image: ${KEYCLOAK_DB_IMAGE}
-        name: pod-keycloak-db
+        imagePullPolicy: Always
+        name: pod-${KEYCLOAK_DB_LABEL}
         env:
         - name: POSTGRESQL_POSTGRES_PASSWORD
-          value: "${POSTGRESQL_POSTGRES_PASSWORD}"
+          value: "${KEYCLOAK_DB_POSTGRES_PASSWORD}"
         - name: POSTGRESQL_USERNAME
           value: "${KEYCLOAK_DB_USERNAME}"
         - name: POSTGRESQL_PASSWORD
-          value: "${POSTGRESQL_PASSWORD}"
+          value: "${KEYCLOAK_DB_PASSWORD}"
         - name: POSTGRESQL_DATABASE
           value: "${KEYCLOAK_DB_DATABASE}"
         ports:
         - containerPort: 5432
           protocol: TCP
         volumeMounts:
-        - name: vol-keycloak-db
+        - name: vol-${KEYCLOAK_DB_LABEL}
           mountPath: /bitnami/postgresql
       volumes:
-      - name: vol-keycloak-db
+      - name: vol-${KEYCLOAK_DB_LABEL}
         persistentVolumeClaim:
-          claimName: pvc-keycloak-db
+          claimName: pvc-${KEYCLOAK_DB_LABEL}
       securityContext:
         fsGroup: 1001
