@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ing-templateapp
+  name: ing-${TEMPLATEAPP_LABEL}
   annotations:
     nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth$TEMPLATEAPP_AUTH_QUERY"
     nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=https://$host$request_uri"
