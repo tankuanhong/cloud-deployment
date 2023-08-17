@@ -72,6 +72,8 @@ spec:
       - name: vol-${DOKUWIKI_LABEL}
         persistentVolumeClaim:
           claimName: pvc-${DOKUWIKI_LABEL}
+      securityContext:
+        fsGroup: 1001
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
