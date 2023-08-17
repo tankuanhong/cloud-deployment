@@ -91,4 +91,14 @@ wait_for_pods_ready() {
   microk8s kubectl wait pods -n "$namespace" $label_arg --for condition=Ready --timeout=${timeout}s || fatal_err "Error waiting for pods"
 }
 
+populate_yaml_env() {
+  local scriptsrc="$1"
+  local scriptdst="${2:-$1}" # Use the second argument if provided, otherwise default to first argument
+
+  tmpfile=$(mktemp) && \
+  cp --attributes-only --preserve "${scriptsrc}" $tmpfile && \
+  cat "${scriptsrc}" | envsubst > $tmpfile && \
+  mv $tmpfile "${scriptdst}" || fatal_err "Failed to populate env in ${scriptsrc}"
+}
+
 } # this ensures the entire script is downloaded #

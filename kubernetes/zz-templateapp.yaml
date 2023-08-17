@@ -1,0 +1,113 @@
+# include docker page, github and any other container documentation here
+
+#PVC_START
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-templateapp
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: ${TEMPLATEAPP_PVC_SIZE}
+#PVC_END
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-templateapp-http
+spec:
+  ports:
+  - port: 80
+  selector:
+    app: app-templateapp
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dep-templateapp
+  labels:
+    app: app-templateapp
+spec:
+  selector:
+    matchLabels:
+      app: app-templateapp
+  template:
+    metadata:
+      labels:
+        app: app-templateapp
+    spec:
+      restartPolicy: Always
+      containers:
+      - image: ${TEMPLATEAPP_IMAGE}
+        imagePullPolicy: Always
+        name: pod-templateapp
+        env:
+        - name: ENV_1
+          value: "${TEMPLATEAPP_PARAMETER_1}"
+        - name: ENV_2
+          value: "${TEMPLATEAPP_PARAMETER_2}"
+        - name: ENV_3
+          value: "false"
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        volumeMounts:
+        - name: vol-templateapp
+          mountPath: /opt/templateapp
+      volumes:
+      - name: vol-templateapp
+        persistentVolumeClaim:
+          claimName: pvc-templateapp
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-templateapp
+  annotations:
+    nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth$TEMPLATEAPP_AUTH_QUERY"
+    nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=https://$host$request_uri"
+    nginx.ingress.kubernetes.io/auth-response-headers: X-Auth-Request-Email,X-Auth-Request-Access-Token,X-Auth-Request-Preferred-Username
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - ${TEMPLATEAPP_HOSTNAME}
+    secretName: "${TEMPLATEAPP_TLS_SECRET}"
+  rules:
+  - host: ${TEMPLATEAPP_HOSTNAME}
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: svc-templateapp-http
+            port:
+              number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-templateapp-oauth2-proxy
+  namespace: default
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - ${TEMPLATEAPP_HOSTNAME}
+    secretName: "${TEMPLATEAPP_TLS_SECRET}"
+  rules:
+  - host: ${TEMPLATEAPP_HOSTNAME}
+    http:
+      paths:
+      - path: /oauth2
+        pathType: Prefix
+        backend:
+          service:
+            name: ${TEMPLATEAPP_OAUTH2_PROXY}
+            port:
+              number: 4180
