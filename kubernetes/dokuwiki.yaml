@@ -1,10 +1,10 @@
-# include docker page, github and any other container documentation here
+# https://hub.docker.com/r/bitnami/dokuwiki
 
 #PVC_START
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: pvc-templateapp
+  name: pvc-${DOKUWIKI_LABEL}
   namespace: default
 spec:
   accessModes:
@@ -12,102 +12,85 @@ spec:
   storageClassName: longhorn
   resources:
     requests:
-      storage: ${TEMPLATEAPP_PVC_SIZE}
+      storage: ${DOKUWIKI_PVC_SIZE}
 #PVC_END
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: svc-templateapp-http
+  name: svc-${DOKUWIKI_LABEL}-http
 spec:
   ports:
-  - port: 80
+  - port: 8080
   selector:
-    app: app-templateapp
+    app: app-${DOKUWIKI_LABEL}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: dep-templateapp
+  name: dep-${DOKUWIKI_LABEL}
   labels:
-    app: app-templateapp
+    app: app-${DOKUWIKI_LABEL}
 spec:
   selector:
     matchLabels:
-      app: app-templateapp
+      app: app-${DOKUWIKI_LABEL}
   template:
     metadata:
       labels:
-        app: app-templateapp
+        app: app-${DOKUWIKI_LABEL}
     spec:
       restartPolicy: Always
       containers:
-      - image: ${TEMPLATEAPP_IMAGE}
+      - image: ${DOKUWIKI_IMAGE}
         imagePullPolicy: Always
-        name: pod-templateapp
+        name: pod-${DOKUWIKI_LABEL}
         env:
-        - name: ENV_1
-          value: "${TEMPLATEAPP_PARAMETER_1}"
-        - name: ENV_2
-          value: "${TEMPLATEAPP_PARAMETER_2}"
-        - name: ENV_3
-          value: "false"
+        - name: DOKUWIKI_USERNAME
+          value: "${DOKUWIKI_ADMIN_USERNAME}"
+        - name: DOKUWIKI_FULL_NAME
+          value: "${DOKUWIKI_ADMIN_DISPLAYNAME}"
+        - name: DOKUWIKI_PASSWORD
+          value: "${DOKUWIKI_ADMIN_PASSWORD}"
+        - name: DOKUWIKI_EMAIL
+          value: "${DOKUWIKI_ADMIN_EMAIL}"
+        - name: DOKUWIKI_WIKI_NAME
+          value: "${DOKUWIKI_WIKI_NAME}"
+        - name: PHP_MEMORY_LIMIT
+          value: "${DOKUWIKI_PHP_MEMORY_LIMIT}"
+        - name: PHP_POST_MAX_SIZE
+          value: "${DOKUWIKI_PHP_POST_MAX}"
+        - name: PHP_UPLOAD_MAX_FILESIZE
+          value: "${DOKUWIKI_PHP_UPLOAD_MAX}"
         ports:
-        - containerPort: 80
+        - containerPort: 8080
           protocol: TCP
         volumeMounts:
-        - name: vol-templateapp
-          mountPath: /opt/templateapp
+        - name: vol-${DOKUWIKI_LABEL}
+          mountPath: /bitnami/dokuwiki
       volumes:
-      - name: vol-templateapp
+      - name: vol-${DOKUWIKI_LABEL}
         persistentVolumeClaim:
-          claimName: pvc-templateapp
+          claimName: pvc-${DOKUWIKI_LABEL}
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ing-templateapp
-  annotations:
-    nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth$TEMPLATEAPP_AUTH_QUERY"
-    nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=https://$host$request_uri"
-    nginx.ingress.kubernetes.io/auth-response-headers: X-Auth-Request-Email,X-Auth-Request-Access-Token,X-Auth-Request-Preferred-Username
+  name: ing-${DOKUWIKI_LABEL}
 spec:
   ingressClassName: nginx
   tls:
   - hosts:
-    - ${TEMPLATEAPP_HOSTNAME}
-    secretName: "${TEMPLATEAPP_TLS_SECRET}"
+    - ${DOKUWIKI_HOSTNAME}
+    secretName: "${DOKUWIKI_TLS_SECRET}"
   rules:
-  - host: ${TEMPLATEAPP_HOSTNAME}
+  - host: ${DOKUWIKI_HOSTNAME}
     http:
       paths:
       - pathType: Prefix
         path: "/"
         backend:
           service:
-            name: svc-templateapp-http
+            name: svc-${DOKUWIKI_LABEL}-http
             port:
-              number: 80
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: ing-templateapp-oauth2-proxy
-  namespace: default
-spec:
-  ingressClassName: nginx
-  tls:
-  - hosts:
-    - ${TEMPLATEAPP_HOSTNAME}
-    secretName: "${TEMPLATEAPP_TLS_SECRET}"
-  rules:
-  - host: ${TEMPLATEAPP_HOSTNAME}
-    http:
-      paths:
-      - path: /oauth2
-        pathType: Prefix
-        backend:
-          service:
-            name: ${TEMPLATEAPP_OAUTH2_PROXY}
-            port:
-              number: 4180
+              number: 8080
