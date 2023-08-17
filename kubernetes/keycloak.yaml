@@ -112,6 +112,10 @@ metadata:
   name: ing-${KEYCLOAK_LABEL}
 spec:
   ingressClassName: nginx
+  tls:
+  - hosts:
+    - ${KEYCLOAK_HOSTNAME}
+    secretName: "${KEYCLOAK_TLS_SECRET}"
   rules:
   - host: ${KEYCLOAK_HOSTNAME}
     http:
