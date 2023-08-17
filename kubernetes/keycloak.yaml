@@ -62,7 +62,7 @@ spec:
         - name: KEYCLOAK_DATABASE_USER
           value: "${KEYCLOAK_DB_USERNAME}"
         - name: KEYCLOAK_DATABASE_PASSWORD
-          value: "${POSTGRESQL_PASSWORD}"
+          value: "${KEYCLOAK_DB_PASSWORD}"
         - name: KEYCLOAK_DATABASE_SCHEMA
           value: "public"
         - name: KEYCLOAK_JDBC_PARAMS
