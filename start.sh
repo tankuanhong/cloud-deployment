@@ -139,6 +139,7 @@ containers_menu() {
   local containers=(
     "Containers"
     "${SCRIPT_PATH}/scripts/container-deploy-keycloak.sh"
+    "${SCRIPT_PATH}/scripts/container-deploy-dokuwiki.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-firefly3.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-healthchecks.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-changedetection.sh"
