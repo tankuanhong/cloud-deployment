@@ -127,7 +127,6 @@ kubernetes_menu() {
   local kubernetes=(
     "Kubernetes"
     "${SCRIPT_PATH}/scripts/kubernetes-deploy-cluster.sh"
-    "${SCRIPT_PATH}/scripts/kubernetes-deploy-oauth2-proxy.sh"
     "${SCRIPT_PATH}/scripts/kubernetes-deploy-cert-issuer.sh"
     "${SCRIPT_PATH}/scripts/kubernetes-request-cert.sh"
   )
@@ -139,6 +138,7 @@ containers_menu() {
   local containers=(
     "Containers"
     "${SCRIPT_PATH}/scripts/container-deploy-keycloak.sh"
+    "${SCRIPT_PATH}/scripts/container-deploy-oauth2-proxy.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-dokuwiki.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-firefly3.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-healthchecks.sh"
