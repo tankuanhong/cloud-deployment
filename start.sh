@@ -72,6 +72,7 @@ main_menu() {
     "syncthing_menu"
     "kubernetes_menu"
     "containers_menu"
+    "keycloak_menu"
   )
 
   clear
@@ -151,6 +152,16 @@ containers_menu() {
     "${SCRIPT_PATH}/scripts/container-restore-keycloak.sh"
   )
   display_menu "${containers[@]}"
+}
+
+# Keycloak submenu
+keycloak_menu() {
+  local keycloak=(
+    "Keycloak"
+    "${SCRIPT_PATH}/scripts/keycloak-create-realm.sh"
+    "${SCRIPT_PATH}/scripts/keycloak-create-client.sh"
+  )
+  display_menu "${keycloak[@]}"
 }
 
 # Run the main menu function
