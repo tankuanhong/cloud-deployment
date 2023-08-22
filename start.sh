@@ -158,8 +158,10 @@ containers_menu() {
 keycloak_menu() {
   local keycloak=(
     "Keycloak"
+    "${SCRIPT_PATH}/scripts/keycloak-authorize-api.sh"
     "${SCRIPT_PATH}/scripts/keycloak-create-realm.sh"
-    "${SCRIPT_PATH}/scripts/keycloak-create-client.sh"
+    "${SCRIPT_PATH}/scripts/keycloak-create-client-oauth2-proxy.sh"
+    "${SCRIPT_PATH}/scripts/keycloak-create-client-meetable.sh"
   )
   display_menu "${keycloak[@]}"
 }
