@@ -6,7 +6,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: pvc-gatus
+  name: pvc-${GATUS_LABEL}
   namespace: default
 spec:
   accessModes:
@@ -20,7 +20,7 @@ spec:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: cfg-gatus
+  name: cfg-${GATUS_LABEL}
 data:
   config.yaml: |
     metrics: true
@@ -66,53 +66,53 @@ data:
 apiVersion: v1
 kind: Service
 metadata:
-  name: svc-gatus-http
+  name: svc-${GATUS_LABEL}-http
 spec:
   ports:
   - port: 8080
   selector:
-    app: app-gatus
+    app: app-${GATUS_LABEL}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: dep-gatus
+  name: dep-${GATUS_LABEL}
   labels:
-    app: app-gatus
+    app: app-${GATUS_LABEL}
 spec:
   selector:
     matchLabels:
-      app: app-gatus
+      app: app-${GATUS_LABEL}
   template:
     metadata:
       labels:
-        app: app-gatus
+        app: app-${GATUS_LABEL}
     spec:
       restartPolicy: Always
       containers:
       - image: ${GATUS_IMAGE}
-        name: pod-gatus
+        name: pod-${GATUS_LABEL}
         ports:
         - containerPort: 8080
           protocol: TCP
         volumeMounts:
-        - name: vol-gatus-data
+        - name: vol-${GATUS_LABEL}-data
           mountPath: /config
-        - name: vol-gatus-config
+        - name: vol-${GATUS_LABEL}-config
           mountPath: /config/config.yaml
           subPath: config.yaml
       volumes:
-      - name: vol-gatus-data
+      - name: vol-${GATUS_LABEL}-data
         persistentVolumeClaim:
-          claimName: pvc-gatus
-      - name: vol-gatus-config
+          claimName: pvc-${GATUS_LABEL}
+      - name: vol-${GATUS_LABEL}-config
         configMap:
-          name: cfg-gatus
+          name: cfg-${GATUS_LABEL}
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ing-gatus
+  name: ing-${GATUS_LABEL}
 spec:
   ingressClassName: nginx
   rules:
@@ -123,6 +123,6 @@ spec:
         path: "/"
         backend:
           service:
-            name: svc-gatus-http
+            name: svc-${GATUS_LABEL}-http
             port:
               number: 8080
