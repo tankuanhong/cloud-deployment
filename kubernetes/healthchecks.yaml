@@ -3,32 +3,32 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: svc-healthchecks-http
+  name: svc-${HEALTHCHECKS_LABEL}-http
 spec:
   ports:
   - port: 8000
   selector:
-    app: app-healthchecks
+    app: app-${HEALTHCHECKS_LABEL}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: dep-healthchecks
+  name: dep-${HEALTHCHECKS_LABEL}
   labels:
-    app: app-healthchecks
+    app: app-${HEALTHCHECKS_LABEL}
 spec:
   selector:
     matchLabels:
-      app: app-healthchecks
+      app: app-${HEALTHCHECKS_LABEL}
   template:
     metadata:
       labels:
-        app: app-healthchecks
+        app: app-${HEALTHCHECKS_LABEL}
     spec:
       restartPolicy: Always
       containers:
-      - image: kuanhong/healthchecks-test:latest
-        name: pod-healthchecks
+      - image: ${HEALTHCHECKS_IMAGE}
+        name: pod-${HEALTHCHECKS_LABEL}
         env:
         - name: ADMINS
           value: "${HEALTHCHECKS_ADMINS}"
@@ -37,7 +37,7 @@ spec:
         - name: DB
           value: "mysql"
         - name: DB_HOST
-          value: "svc-healthchecks-db"
+          value: "svc-${HEALTHCHECKS_DB_LABEL}-db"
         - name: DB_NAME
           value: "${HEALTHCHECKS_DB_DATABASE}"
         - name: DB_PASSWORD
@@ -99,11 +99,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ing-healthchecks
-  annotations:
-    nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth"
-    nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=https://$host$request_uri"
-    nginx.ingress.kubernetes.io/auth-response-headers: X-Auth-Request-Email,X-Auth-Request-Access-Token,X-Auth-Request-Preferred-Username
+  name: ing-${HEALTHCHECKS_LABEL}
 spec:
   ingressClassName: nginx
   rules:
@@ -114,14 +110,14 @@ spec:
         path: "/"
         backend:
           service:
-            name: svc-healthchecks-http
+            name: svc-${HEALTHCHECKS_LABEL}-http
             port:
               number: 8000
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ing-healthchecks-ping
+  name: ing-${HEALTHCHECKS_LABEL}-ping
 spec:
   ingressClassName: nginx
   rules:
@@ -132,14 +128,14 @@ spec:
         path: /ping
         backend:
           service:
-            name: svc-healthchecks-http
+            name: svc-${HEALTHCHECKS_LABEL}-http
             port:
               number: 8000
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ing-healthchecks-oauth2-proxy
+  name: ing-${HEALTHCHECKS_LABEL}-oauth2-proxy
   namespace: default
 spec:
   ingressClassName: nginx

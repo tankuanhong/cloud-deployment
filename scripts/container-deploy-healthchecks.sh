@@ -5,16 +5,7 @@
 # import
 source "${SCRIPT_PATH}/conf/containers.conf" || fatal_err "${SCRIPT_PATH}/conf/containers.conf is missing"
 
-check_kube_ready() {
-  info "Checking Kubernetes cluster status..." && \
-    if [ $(curl -k -s -o /dev/null -w "%{http_code}" https://localhost:6443/livez) -eq "200" ]; then
-      info "Kubernetes cluster ok"
-    else
-      err "Kubernetes cluster not ok"
-      err "Exiting..."
-      exit 1
-    fi
-}
+wait_for_node_ready "300"
 
 deploy_database() {
   info "Setting custom database parameters..." && \
@@ -27,9 +18,9 @@ deploy_database() {
     cat "${SCRIPT_PATH}/kubernetes/healthchecks-db.yaml" | envsubst > $tmpfile && \
     mv $tmpfile "${SCRIPT_PATH}/kubernetes/healthchecks-db.yaml" && \
     info "Deploying database..." && \
-    kubectl apply -f "${SCRIPT_PATH}/kubernetes/healthchecks-db.yaml" && \
+    microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/healthchecks-db.yaml" && \
     info "Waiting for database to be ready..." && \
-    kubectl wait pods -l app=app-healthchecks-db --for condition=Ready --timeout=120s
+    wait_for_pods_ready "300" "default" "app=app-${HEALTHCHECKS_DB_LABEL}"
   
   info "Sleep 1 minute for database to initialize..." && \
     sleep 60 && \
@@ -45,9 +36,9 @@ deploy_healthchecks() {
     cat "${SCRIPT_PATH}/kubernetes/healthchecks.yaml" | envsubst > $tmpfile && \
     mv $tmpfile "${SCRIPT_PATH}/kubernetes/healthchecks.yaml" && \
     info "Deploying healthchecks..." && \
-    kubectl apply -f "${SCRIPT_PATH}/kubernetes/healthchecks.yaml" && \
+    microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/healthchecks.yaml" && \
     info "Waiting for healthchecks to be ready..." && \
-    kubectl wait pods -l app=app-healthchecks --for condition=Ready --timeout=120s
+    wait_for_pods_ready "300" "default" "app=app-${HEALTHCHECKS_LABEL}"
 
   info "Sleep 1 minute for app to initialize..." && \
     sleep 60 && \
@@ -58,12 +49,12 @@ create_superuser() {
   info "Creating superuser account for healthchecks..." && \
     info "Generating HEALTHCHECKS_SUPERUSER_PASS..." && \
     export HEALTHCHECKS_SUPERUSER_PASS=$(tr -dc A-Za-z0-9 </dev/urandom | head -c $(shuf -i 39-63 -n 1)) && \
-    kubectl exec --stdin --tty deploy/dep-healthchecks -- /opt/healthchecks/manage.py shell -c "from django.contrib.auth.models import User; User.objects.create_superuser('${HEALTHCHECKS_SUPERUSER}', '${HEALTHCHECKS_SUPERUSER_EMAIL}', '${HEALTHCHECKS_SUPERUSER_PASS}')"
+    microk8s kubectl exec --stdin --tty deploy/dep-${HEALTHCHECKS_LABEL} -- /opt/healthchecks/manage.py shell -c "from django.contrib.auth.models import User; User.objects.create_superuser('${HEALTHCHECKS_SUPERUSER}', '${HEALTHCHECKS_SUPERUSER_EMAIL}', '${HEALTHCHECKS_SUPERUSER_PASS}')"
 }
 
 patch_ingress() {
   info "Patching healthchecks ingress..." && \
-    kubectl patch ingress ing-healthchecks --patch-file "${SCRIPT_PATH}/kubernetes/healthchecks-ing-patch.yaml"
+    microk8s kubectl patch ingress ing-${HEALTHCHECKS_LABEL} --patch-file "${SCRIPT_PATH}/kubernetes/healthchecks-ing-patch.yaml"
 }
 
 print_credentials() {
@@ -74,7 +65,6 @@ print_credentials() {
   info "Please verify that 3 credentials are printed."
 }
 
-check_kube_ready
 deploy_database
 deploy_healthchecks
 create_superuser
