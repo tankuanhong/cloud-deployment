@@ -5,7 +5,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: pvc-firefly3-db
+  name: pvc-${FIREFLY3_DB_LABEL}
   namespace: default
 spec:
   accessModes:
@@ -19,32 +19,32 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: svc-firefly3-db
+  name: svc-${FIREFLY3_DB_LABEL}-db
 spec:
   ports:
   - port: 3306
   selector:
-    app: app-firefly3-db
+    app: app-${FIREFLY3_DB_LABEL}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: dep-firefly3-db
+  name: dep-${FIREFLY3_DB_LABEL}
   labels:
-    app: app-firefly3-db
+    app: app-${FIREFLY3_DB_LABEL}
 spec:
   selector:
     matchLabels:
-      app: app-firefly3-db
+      app: app-${FIREFLY3_DB_LABEL}
   template:
     metadata:
       labels:
-        app: app-firefly3-db
+        app: app-${FIREFLY3_DB_LABEL}
     spec:
       restartPolicy: Always
       containers:
-      - image: bitnami/mariadb:10.11.3
-        name: pod-firefly3-db
+      - image: ${FIREFLY3_DB_IMAGE}
+        name: pod-${FIREFLY3_DB_LABEL}
         env:
         - name: ALLOW_EMPTY_PASSWORD
           value: "no"
@@ -70,11 +70,11 @@ spec:
         - containerPort: 3306
           protocol: TCP
         volumeMounts:
-        - name: vol-firefly3-db
+        - name: vol-${FIREFLY3_DB_LABEL}
           mountPath: /bitnami/mariadb
       volumes:
-      - name: vol-firefly3-db
+      - name: vol-${FIREFLY3_DB_LABEL}
         persistentVolumeClaim:
-          claimName: pvc-firefly3-db
+          claimName: pvc-${FIREFLY3_DB_LABEL}
       securityContext:
         fsGroup: 1001
