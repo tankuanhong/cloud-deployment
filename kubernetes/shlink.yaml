@@ -4,32 +4,32 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: svc-shlink-http
+  name: svc-${SHLINK_LABEL}-http
 spec:
   ports:
   - port: 8080
   selector:
-    app: app-shlink
+    app: app-${SHLINK_LABEL}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: dep-shlink
+  name: dep-${SHLINK_LABEL}
   labels:
-    app: app-shlink
+    app: app-${SHLINK_LABEL}
 spec:
   selector:
     matchLabels:
-      app: app-shlink
+      app: app-${SHLINK_LABEL}
   template:
     metadata:
       labels:
-        app: app-shlink
+        app: app-${SHLINK_LABEL}
     spec:
       restartPolicy: Always
       containers:
       - image: ${SHLINK_IMAGE}
-        name: pod-shlink
+        name: pod-${SHLINK_LABEL}
         env:
         - name: DEFAULT_DOMAIN
           value: "${SHLINK_HOSTNAME}"
@@ -56,7 +56,7 @@ spec:
         - name: DB_PASSWORD
           value: "${SHLINK_DB_PASSWORD}"
         - name: DB_HOST
-          value: "svc-shlink-db"
+          value: "svc-${SHLINK_DB_LABEL}"
         - name: DB_PORT
           value: "3306"
         - name: REDIRECT_STATUS_CODE
@@ -100,7 +100,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ing-shlink
+  name: ing-${SHLINK_LABEL}
 spec:
   ingressClassName: nginx
   rules:
@@ -111,6 +111,6 @@ spec:
         path: "/"
         backend:
           service:
-            name: svc-shlink-http
+            name: svc-${SHLINK_LABEL}-http
             port:
               number: 8080
