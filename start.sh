@@ -163,6 +163,8 @@ containers_menu() {
     "${SCRIPT_PATH}/scripts/container-deploy-syncthing-discovery.sh"
     # TODO: Test rallly deployment
     "${SCRIPT_PATH}/scripts/container-deploy-rallly.sh"
+    # TODO: Add vaultwarden https://github.com/dani-garcia/vaultwarden
+    # TODO: Add formbricks https://github.com/formbricks/formbricks
     # TODO: Refactor and test keycloak restore
     "${SCRIPT_PATH}/scripts/container-restore-keycloak.sh"
   )
