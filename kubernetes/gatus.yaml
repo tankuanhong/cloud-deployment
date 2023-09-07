@@ -115,6 +115,10 @@ metadata:
   name: ing-${GATUS_LABEL}
 spec:
   ingressClassName: nginx
+  tls:
+  - hosts:
+    - ${GATUS_HOSTNAME}
+    secretName: "${GATUS_TLS_SECRET}"
   rules:
   - host: ${GATUS_HOSTNAME}
     http:

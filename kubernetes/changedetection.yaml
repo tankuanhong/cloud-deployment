@@ -70,6 +70,10 @@ metadata:
   name: ing-${CHANGEDETECTION_LABEL}
 spec:
   ingressClassName: nginx
+  tls:
+  - hosts:
+    - ${CHANGEDETECTION_HOSTNAME}
+    secretName: "${CHANGEDETECTION_TLS_SECRET}"
   rules:
   - host: ${CHANGEDETECTION_HOSTNAME}
     http:
@@ -89,6 +93,10 @@ metadata:
   namespace: default
 spec:
   ingressClassName: nginx
+  tls:
+  - hosts:
+    - ${CHANGEDETECTION_HOSTNAME}
+    secretName: "${CHANGEDETECTION_TLS_SECRET}"
   rules:
   - host: ${CHANGEDETECTION_HOSTNAME}
     http:

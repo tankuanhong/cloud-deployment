@@ -64,6 +64,10 @@ metadata:
   name: ing-${ST_DISCOSRV_LABEL}
 spec:
   ingressClassName: nginx
+  tls:
+  - hosts:
+    - ${ST_DISCOSRV_HOSTNAME}
+    secretName: "${ST_DISCOSRV_TLS_SECRET}"
   rules:
   - host: ${ST_DISCOSRV_HOSTNAME}
     http:

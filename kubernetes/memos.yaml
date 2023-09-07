@@ -62,6 +62,10 @@ metadata:
   name: ing-${MEMOS_LABEL}
 spec:
   ingressClassName: nginx
+  tls:
+  - hosts:
+    - ${MEMOS_HOSTNAME}
+    secretName: "${MEMOS_TLS_SECRET}"
   rules:
   - host: ${MEMOS_HOSTNAME}
     http:

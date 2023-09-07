@@ -102,6 +102,10 @@ metadata:
   name: ing-${FIREFLY3_LABEL}
 spec:
   ingressClassName: nginx
+  tls:
+  - hosts:
+    - ${FIREFLY3_HOSTNAME}
+    secretName: "${FIREFLY3_TLS_SECRET}"
   rules:
   - host: ${FIREFLY3_HOSTNAME}
     http:
@@ -121,6 +125,10 @@ metadata:
   namespace: default
 spec:
   ingressClassName: nginx
+  tls:
+  - hosts:
+    - ${FIREFLY3_HOSTNAME}
+    secretName: "${FIREFLY3_TLS_SECRET}"
   rules:
   - host: ${FIREFLY3_HOSTNAME}
     http:

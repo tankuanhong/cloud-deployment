@@ -102,6 +102,10 @@ metadata:
   name: ing-${HEALTHCHECKS_LABEL}
 spec:
   ingressClassName: nginx
+  tls:
+  - hosts:
+    - ${HEALTHCHECKS_HOSTNAME}
+    secretName: "${HEALTHCHECKS_TLS_SECRET}"
   rules:
   - host: ${HEALTHCHECKS_HOSTNAME}
     http:
@@ -120,6 +124,10 @@ metadata:
   name: ing-${HEALTHCHECKS_LABEL}-ping
 spec:
   ingressClassName: nginx
+  tls:
+  - hosts:
+    - ${HEALTHCHECKS_HOSTNAME}
+    secretName: "${HEALTHCHECKS_TLS_SECRET}"
   rules:
   - host: ${HEALTHCHECKS_HOSTNAME}
     http:
@@ -139,6 +147,10 @@ metadata:
   namespace: default
 spec:
   ingressClassName: nginx
+  tls:
+  - hosts:
+    - ${HEALTHCHECKS_HOSTNAME}
+    secretName: "${HEALTHCHECKS_TLS_SECRET}"
   rules:
   - host: ${HEALTHCHECKS_HOSTNAME}
     http:

@@ -103,6 +103,10 @@ metadata:
   name: ing-${SHLINK_LABEL}
 spec:
   ingressClassName: nginx
+  tls:
+  - hosts:
+    - ${SHLINK_HOSTNAME}
+    secretName: "${SHLINK_TLS_SECRET}"
   rules:
   - host: ${SHLINK_HOSTNAME}
     http:

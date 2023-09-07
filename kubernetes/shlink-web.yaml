@@ -40,6 +40,10 @@ metadata:
   name: ing-${SHLINK_WEB_LABEL}
 spec:
   ingressClassName: nginx
+  tls:
+  - hosts:
+    - ${SHLINK_WEB_HOSTNAME}
+    secretName: "${SHLINK_WEB_TLS_SECRET}"
   rules:
   - host: ${SHLINK_WEB_HOSTNAME}
     http:

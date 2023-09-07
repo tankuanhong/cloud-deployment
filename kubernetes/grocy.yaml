@@ -152,6 +152,10 @@ metadata:
   name: ing-${GROCY_LABEL}
 spec:
   ingressClassName: nginx
+  tls:
+  - hosts:
+    - ${GROCY_HOSTNAME}
+    secretName: "${GROCY_TLS_SECRET}"
   rules:
   - host: ${GROCY_HOSTNAME}
     http:
@@ -171,6 +175,10 @@ metadata:
   namespace: default
 spec:
   ingressClassName: nginx
+  tls:
+  - hosts:
+    - ${GROCY_HOSTNAME}
+    secretName: "${GROCY_TLS_SECRET}"
   rules:
   - host: ${GROCY_HOSTNAME}
     http:
