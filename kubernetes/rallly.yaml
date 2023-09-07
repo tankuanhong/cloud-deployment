@@ -1,0 +1,109 @@
+# https://github.com/lukevella/rallly-selfhosted
+# https://hub.docker.com/r/lukevella/rallly
+
+#PVC_START
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-${RALLLY_LABEL}
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: ${RALLLY_PVC_SIZE}
+#PVC_END
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-${RALLLY_LABEL}-http
+spec:
+  ports:
+  - port: 3000
+  selector:
+    app: app-${RALLLY_LABEL}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dep-${RALLLY_LABEL}
+  labels:
+    app: app-${RALLLY_LABEL}
+spec:
+  selector:
+    matchLabels:
+      app: app-${RALLLY_LABEL}
+  template:
+    metadata:
+      labels:
+        app: app-${RALLLY_LABEL}
+    spec:
+      restartPolicy: Always
+      containers:
+      - image: ${RALLLY_IMAGE}
+        imagePullPolicy: Always
+        name: pod-${RALLLY_LABEL}
+        env:
+        - name: DATABASE_URL
+          value: "postgres://${RALLLY_DB_USERNAME}:${RALLLY_DB_PASSWORD}@svc-${RALLLY_DB_LABEL}-db:5432/${RALLLY_DB_DATABASE}"
+        - name: SECRET_PASSWORD
+          value: "${RALLLY_SECRET_PASSWORD}"
+        - name: NEXT_PUBLIC_BASE_URL
+          value: "https://${RALLLY_HOSTNAME}"
+        - name: SUPPORT_EMAIL
+          value: "${RALLLY_SUPPORT_EMAIL}"
+        - name: SMTP_HOST
+          value: "${RALLLY_SMTP_HOST}"
+        - name: SMTP_PORT
+          value: "${RALLLY_SMTP_PORT}"
+        - name: SMTP_SECURE
+          value: "${RALLLY_SMTP_SECURE}"
+        - name: SMTP_USER
+          value: "${RALLLY_SMTP_USER}"
+        - name: SMTP_PWD
+          value: "${RALLLY_SMTP_PWD}"
+        - name: SMTP_TLS_ENABLED
+          value: "${RALLLY_SMTP_TLS_ENABLED}"
+        - name: AUTH_REQUIRED
+          value: "${RALLLY_AUTH_REQUIRED}"
+        - name: ALLOWED_EMAILS
+          value: "${RALLLY_ALLOWED_EMAILS}"
+        - name: DISABLE_LANDING_PAGE
+          value: "${RALLLY_DISABLE_LANDING_PAGE}"
+        ports:
+        - containerPort: 3000
+          protocol: TCP
+        volumeMounts:
+        - name: vol-${RALLLY_LABEL}
+          mountPath: /bitnami
+      volumes:
+      - name: vol-${RALLLY_LABEL}
+        persistentVolumeClaim:
+          claimName: pvc-${RALLLY_LABEL}
+      securityContext:
+        fsGroup: 1001
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-${RALLLY_LABEL}
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - ${RALLLY_HOSTNAME}
+    secretName: "${RALLLY_TLS_SECRET}"
+  rules:
+  - host: ${RALLLY_HOSTNAME}
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: svc-${RALLLY_LABEL}-http
+            port:
+              number: 8080

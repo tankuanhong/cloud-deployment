@@ -160,6 +160,8 @@ containers_menu() {
     "${SCRIPT_PATH}/scripts/container-deploy-shlink.sh"
     # TODO: Identify header required for syncthing discovery server
     "${SCRIPT_PATH}/scripts/container-deploy-syncthing-discovery.sh"
+    # TODO: Test rallly deployment
+    "${SCRIPT_PATH}/scripts/container-deploy-rallly.sh"
     # TODO: Refactor and test keycloak restore
     "${SCRIPT_PATH}/scripts/container-restore-keycloak.sh"
   )
