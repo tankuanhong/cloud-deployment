@@ -91,6 +91,7 @@ teleport_menu() {
   display_menu "${teleport[@]}"
 }
 
+# TODO: Remove standalone dokuwiki deployment
 # Dokuwiki submenu
 dokuwiki_menu() {
   local dokuwiki=(
