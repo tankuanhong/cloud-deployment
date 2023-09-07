@@ -138,17 +138,29 @@ kubernetes_menu() {
 containers_menu() {
   local containers=(
     "Containers"
+    # TODO: Test keycloak deployment
     "${SCRIPT_PATH}/scripts/container-deploy-keycloak.sh"
+    # TODO: Test oauth2 proxy deployment
     "${SCRIPT_PATH}/scripts/container-deploy-oauth2-proxy.sh"
+    # TODO: Test dokuwiki deployment
     "${SCRIPT_PATH}/scripts/container-deploy-dokuwiki.sh"
+    # TODO: Test firefly3 deployment
     "${SCRIPT_PATH}/scripts/container-deploy-firefly3.sh"
+    # TODO: Test healthchecks deployment
     "${SCRIPT_PATH}/scripts/container-deploy-healthchecks.sh"
+    # TODO: Test changedetection deployment
     "${SCRIPT_PATH}/scripts/container-deploy-changedetection.sh"
+    # TODO: Test gatus deployment
     "${SCRIPT_PATH}/scripts/container-deploy-gatus.sh"
+    # TODO: Test grocy deployment
     "${SCRIPT_PATH}/scripts/container-deploy-grocy.sh"
+    # TODO: Test memos deployment
     "${SCRIPT_PATH}/scripts/container-deploy-memos.sh"
+    # TODO: Test shlink deployment
     "${SCRIPT_PATH}/scripts/container-deploy-shlink.sh"
+    # TODO: Identify header required for syncthing discovery server
     "${SCRIPT_PATH}/scripts/container-deploy-syncthing-discovery.sh"
+    # TODO: Refactor and test keycloak restore
     "${SCRIPT_PATH}/scripts/container-restore-keycloak.sh"
   )
   display_menu "${containers[@]}"
