@@ -35,7 +35,11 @@ deploy_firefly3() {
 
 patch_ingress() {
   info "Patching firefly3 ingress..." && \
-    microk8s kubectl patch ingress ing-firefly3 --patch-file "${SCRIPT_PATH}/kubernetes/firefly3-ing-patch.yaml"
+    tmpfile=$(mktemp) && \
+    cp --attributes-only --preserve "${SCRIPT_PATH}/kubernetes/firefly3-ing-patch.yaml" $tmpfile && \
+    cat "${SCRIPT_PATH}/kubernetes/firefly3-ing-patch.yaml" | envsubst '$FIREFLY3_LABEL,$FIREFLY3_AUTH_QUERY' > $tmpfile && \
+    mv $tmpfile "${SCRIPT_PATH}/kubernetes/firefly3-ing-patch.yaml" && \
+    microk8s kubectl patch ingress ing-${FIREFLY3_LABEL} --patch-file "${SCRIPT_PATH}/kubernetes/firefly3-ing-patch.yaml"
 }
 
 print_credentials() {

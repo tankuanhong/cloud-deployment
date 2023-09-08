@@ -19,7 +19,11 @@ deploy_templateapp() {
 
 patch_ingress() {
   info "Patching templateapp ingress..." && \
-    microk8s kubectl patch ingress ing-templateapp --patch-file "${SCRIPT_PATH}/kubernetes/zz-templateapp-ing-patch.yaml"
+    tmpfile=$(mktemp) && \
+    cp --attributes-only --preserve "${SCRIPT_PATH}/kubernetes/zz-templateapp-ing-patch.yaml" $tmpfile && \
+    cat "${SCRIPT_PATH}/kubernetes/zz-templateapp-ing-patch.yaml" | envsubst '$TEMPLATEAPP_LABEL,$TEMPLATEAPP_AUTH_QUERY' > $tmpfile && \
+    mv $tmpfile "${SCRIPT_PATH}/kubernetes/zz-templateapp-ing-patch.yaml" && \
+    microk8s kubectl patch ingress ing-${TEMPLATEAPP_LABEL} --patch-file "${SCRIPT_PATH}/kubernetes/zz-templateapp-ing-patch.yaml"
 }
 
 print_credentials() {

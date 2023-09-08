@@ -29,9 +29,9 @@ patch_ingress() {
   info "Patching grocy ingress..." && \
     tmpfile=$(mktemp) && \
     cp --attributes-only --preserve "${SCRIPT_PATH}/kubernetes/grocy-ing-patch.yaml" $tmpfile && \
-    cat "${SCRIPT_PATH}/kubernetes/grocy-ing-patch.yaml" | envsubst '$GROCY_AUTH_QUERY' > $tmpfile && \
+    cat "${SCRIPT_PATH}/kubernetes/grocy-ing-patch.yaml" | envsubst '$GROCY_LABEL,$GROCY_AUTH_QUERY' > $tmpfile && \
     mv $tmpfile "${SCRIPT_PATH}/kubernetes/grocy-ing-patch.yaml" && \
-    microk8s kubectl patch ingress ing-grocy --patch-file "${SCRIPT_PATH}/kubernetes/grocy-ing-patch.yaml"
+    microk8s kubectl patch ingress ing-${GROCY_LABEL} --patch-file "${SCRIPT_PATH}/kubernetes/grocy-ing-patch.yaml"
 }
 
 deploy_grocy

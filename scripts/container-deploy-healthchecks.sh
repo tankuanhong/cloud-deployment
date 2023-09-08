@@ -54,6 +54,10 @@ create_superuser() {
 
 patch_ingress() {
   info "Patching healthchecks ingress..." && \
+    tmpfile=$(mktemp) && \
+    cp --attributes-only --preserve "${SCRIPT_PATH}/kubernetes/healthchecks-ing-patch.yaml" $tmpfile && \
+    cat "${SCRIPT_PATH}/kubernetes/healthchecks-ing-patch.yaml" | envsubst '$HEALTHCHECKS_LABEL,$HEALTHCHECKS_AUTH_QUERY' > $tmpfile && \
+    mv $tmpfile "${SCRIPT_PATH}/kubernetes/healthchecks-ing-patch.yaml" && \
     microk8s kubectl patch ingress ing-${HEALTHCHECKS_LABEL} --patch-file "${SCRIPT_PATH}/kubernetes/healthchecks-ing-patch.yaml"
 }
 
