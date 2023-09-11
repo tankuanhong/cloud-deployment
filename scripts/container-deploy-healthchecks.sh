@@ -46,10 +46,14 @@ deploy_healthchecks() {
 }
 
 create_superuser() {
-  info "Creating superuser account for healthchecks..." && \
+  if [ -n "$HEALTHCHECKS_USER_HEADER" ]; then
+    info "Creating superuser account for healthchecks..." && \
     info "Generating HEALTHCHECKS_SUPERUSER_PASS..." && \
     export HEALTHCHECKS_SUPERUSER_PASS=$(tr -dc A-Za-z0-9 </dev/urandom | head -c $(shuf -i 39-63 -n 1)) && \
     microk8s kubectl exec --stdin --tty deploy/dep-${HEALTHCHECKS_LABEL} -- /opt/healthchecks/manage.py shell -c "from django.contrib.auth.models import User; User.objects.create_superuser('${HEALTHCHECKS_SUPERUSER}', '${HEALTHCHECKS_SUPERUSER_EMAIL}', '${HEALTHCHECKS_SUPERUSER_PASS}')"
+  else
+    info "Authentication using keycloak, skipping superuser account creation"
+  fi
 }
 
 patch_ingress() {
