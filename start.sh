@@ -128,20 +128,44 @@ containers_menu() {
     # TODO: Test keycloak deployment
     "${SCRIPT_PATH}/scripts/container-deploy-keycloak.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-oauth2-proxy.sh"
+
+    "${SCRIPT_PATH}/scripts/container-deploy-changedetection.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-dokuwiki.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-firefly3.sh"
-    "${SCRIPT_PATH}/scripts/container-deploy-healthchecks.sh"
-    "${SCRIPT_PATH}/scripts/container-deploy-changedetection.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-gatus.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-grocy.sh"
+    "${SCRIPT_PATH}/scripts/container-deploy-healthchecks.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-memos.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-shlink.sh"
+
     # TODO: Identify header required for syncthing discovery server
     "${SCRIPT_PATH}/scripts/container-deploy-syncthing-discovery.sh"
     # TODO: Test rallly deployment
     "${SCRIPT_PATH}/scripts/container-deploy-rallly.sh"
+
     # TODO: Add vaultwarden https://github.com/dani-garcia/vaultwarden
     # TODO: Add formbricks https://github.com/formbricks/formbricks
+    # TODO: Add nomie https://github.com/open-nomie/nomie6-oss
+    # TODO: Add mealie https://github.com/mealie-recipes/mealie
+    # TODO: Add qr-code-styling https://github.com/kozakdenys/qr-code-styling
+    # TODO: Add answer https://github.com/answerdev/answer
+    # TODO: Add fider https://github.com/getfider/fider
+    # TODO: Add biodrop https://github.com/EddieHubCommunity/BioDrop
+    # TODO: Add fileshelter https://github.com/epoupon/fileshelter
+    # TODO: Add webhook.site https://github.com/webhooksite/webhook.site
+    # TODO: Add homechart https://github.com/candiddev/homechart
+    # TODO: Add prometheus https://github.com/prometheus/prometheus
+    # TODO: Add grafana https://github.com/grafana/grafana
+    # TODO: Add grafana loki https://github.com/grafana/loki
+    # TODO: Add seatsurfing https://github.com/seatsurfing/backend
+    # TODO: Add whitebophir https://github.com/lovasoa/whitebophir
+    # TODO: Add talkyard https://github.com/debiki/talkyard
+    # TODO: Add miniflux https://github.com/miniflux/v2
+    # TODO: Add transfer.sh https://github.com/dutchcoders/transfer.sh
+    # TODO: Add pairdrop https://github.com/schlagmichdoch/pairdrop
+    # TODO: Add peertube https://github.com/Chocobozzz/PeerTube
+    # TODO: Convert gitea deployment from standalone to container
+
     # TODO: Refactor and test keycloak restore
     "${SCRIPT_PATH}/scripts/container-restore-keycloak.sh"
   )
