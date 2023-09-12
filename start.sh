@@ -67,7 +67,6 @@ main_menu() {
   local main_menu=(
     "Main Menu"
     "teleport_menu"
-    "dokuwiki_menu"
     "gitea_menu"
     "syncthing_menu"
     "kubernetes_menu"
@@ -89,19 +88,6 @@ teleport_menu() {
     "${SCRIPT_PATH}/scripts/teleport-restore-proxy.sh"
   )
   display_menu "${teleport[@]}"
-}
-
-# TODO: Remove standalone dokuwiki deployment
-# Dokuwiki submenu
-dokuwiki_menu() {
-  local dokuwiki=(
-    "Dokuwiki"
-    "${SCRIPT_PATH}/scripts/dokuwiki-deploy.sh"
-    "${SCRIPT_PATH}/scripts/dokuwiki-harden.sh"
-    "echo 'Backing up Dokuwiki'"
-    "echo 'Restoring Dokuwiki'"
-  )
-  display_menu "${dokuwiki[@]}"
 }
 
 # Gitea submenu
