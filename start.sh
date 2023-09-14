@@ -143,27 +143,37 @@ containers_menu() {
     # TODO: Test rallly deployment
     "${SCRIPT_PATH}/scripts/container-deploy-rallly.sh"
 
-    # TODO: Add vaultwarden https://github.com/dani-garcia/vaultwarden
-    # TODO: Add formbricks https://github.com/formbricks/formbricks
-    # TODO: Add nomie https://github.com/open-nomie/nomie6-oss
-    # TODO: Add mealie https://github.com/mealie-recipes/mealie
-    # TODO: Add qr-code-styling https://github.com/kozakdenys/qr-code-styling
     # TODO: Add answer https://github.com/answerdev/answer
-    # TODO: Add fider https://github.com/getfider/fider
+    # TODO: Add asciiflow https://github.com/lewish/asciiflow
+    # TODO: Add babybuddy https://github.com/babybuddy/babybuddy
     # TODO: Add biodrop https://github.com/EddieHubCommunity/BioDrop
+    # TODO: Add claper https://github.com/ClaperCo/Claper
+    # TODO: Add dashy https://github.com/lissy93/dashy
+    # TODO: Add drone ci https://github.com/harness/drone
+    # TODO: Add fider https://github.com/getfider/fider
     # TODO: Add fileshelter https://github.com/epoupon/fileshelter
-    # TODO: Add webhook.site https://github.com/webhooksite/webhook.site
-    # TODO: Add homechart https://github.com/candiddev/homechart
-    # TODO: Add prometheus https://github.com/prometheus/prometheus
+    # TODO: Add formbricks https://github.com/formbricks/formbricks
     # TODO: Add grafana https://github.com/grafana/grafana
     # TODO: Add grafana loki https://github.com/grafana/loki
-    # TODO: Add seatsurfing https://github.com/seatsurfing/backend
-    # TODO: Add whitebophir https://github.com/lovasoa/whitebophir
-    # TODO: Add talkyard https://github.com/debiki/talkyard
+    # TODO: Add guacamole https://guacamole.apache.org/
+    # TODO: Add homechart https://github.com/candiddev/homechart
+    # TODO: Add ihatemoney https://github.com/spiral-project/ihatemoney
+    # TODO: Add mailcatcher (for testing) https://hub.docker.com/r/dockage/mailcatcher
+    # TODO: Add mealie https://github.com/mealie-recipes/mealie
     # TODO: Add miniflux https://github.com/miniflux/v2
-    # TODO: Add transfer.sh https://github.com/dutchcoders/transfer.sh
+    # TODO: Add nomie https://github.com/open-nomie/nomie6-oss
     # TODO: Add pairdrop https://github.com/schlagmichdoch/pairdrop
     # TODO: Add peertube https://github.com/Chocobozzz/PeerTube
+    # TODO: Add prometheus https://github.com/prometheus/prometheus
+    # TODO: Add qr-code-styling https://github.com/kozakdenys/qr-code-styling
+    # TODO: Add seatsurfing https://github.com/seatsurfing/backend
+    # TODO: Add speedtest https://github.com/openspeedtest/Speed-Test
+    # TODO: Add talkyard https://github.com/debiki/talkyard
+    # TODO: Add transfer.sh https://github.com/dutchcoders/transfer.sh
+    # TODO: Add vaultwarden https://github.com/dani-garcia/vaultwarden
+    # TODO: Add webhook.site https://github.com/webhooksite/webhook.site
+    # TODO: Add whitebophir https://github.com/lovasoa/whitebophir
+    
     # TODO: Convert gitea deployment from standalone to container
 
     # TODO: Refactor and test keycloak restore
