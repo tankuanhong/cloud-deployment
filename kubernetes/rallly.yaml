@@ -106,4 +106,4 @@ spec:
           service:
             name: svc-${RALLLY_LABEL}-http
             port:
-              number: 8080
+              number: 3000
