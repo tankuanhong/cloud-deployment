@@ -190,6 +190,8 @@ keycloak_menu() {
     "${SCRIPT_PATH}/scripts/keycloak-create-realm.sh"
     "${SCRIPT_PATH}/scripts/keycloak-create-client-oauth2-proxy.sh"
     "${SCRIPT_PATH}/scripts/keycloak-create-client-meetable.sh"
+
+    # TODO: Add create client script for dokuwiki app
   )
   display_menu "${keycloak[@]}"
 }

@@ -23,6 +23,8 @@ print_credentials() {
   info "Please verify that 1 credential are printed."
 }
 
+# TODO: Add hardening of dokuwiki config if possible
+
 deploy_dokuwiki
 print_credentials
 
