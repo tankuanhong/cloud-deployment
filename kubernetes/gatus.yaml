@@ -48,7 +48,7 @@ data:
       - name: keycloak
         enabled: true
         group: dev
-        url: https://keycloak.kuanhong.org/
+        url: https://keycloak.dev.kuanhong.org/
         method: GET
         interval: 1m
         client:
@@ -62,6 +62,7 @@ data:
               thresholds: [50, 200, 300, 500, 750]
         conditions:
           - "[STATUS] == 200"
+          - "[CERTIFICATE_EXPIRATION] > 720h"
 ---
 apiVersion: v1
 kind: Service
