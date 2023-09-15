@@ -79,6 +79,8 @@ deploy_microk8s() {
     source ${SCRIPT_PATH}/scripts/kubernetes-deploy-node.sh || fatal_err "Failed to deploy microk8s on all nodes"
 }
 
+# TODO: Add check and disable if host file is managed by cloud-config
+
 update_hosts_file() {
   info "Adding all node hostnames to hosts file..."
 
