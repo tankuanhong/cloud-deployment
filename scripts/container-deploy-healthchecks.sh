@@ -46,7 +46,7 @@ deploy_healthchecks() {
 }
 
 create_superuser() {
-  if [ -n "$HEALTHCHECKS_USER_HEADER" ]; then
+  if [ ! -n "$HEALTHCHECKS_USER_HEADER" ]; then
     info "Creating superuser account for healthchecks..." && \
     info "Generating HEALTHCHECKS_SUPERUSER_PASS..." && \
     export HEALTHCHECKS_SUPERUSER_PASS=$(tr -dc A-Za-z0-9 </dev/urandom | head -c $(shuf -i 39-63 -n 1)) && \
