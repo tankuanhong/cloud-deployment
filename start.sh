@@ -192,6 +192,7 @@ keycloak_menu() {
     "${SCRIPT_PATH}/scripts/keycloak-create-client-meetable.sh"
 
     # TODO: Add create client script for dokuwiki app
+    # TODO: Add create client script for memos app
   )
   display_menu "${keycloak[@]}"
 }
