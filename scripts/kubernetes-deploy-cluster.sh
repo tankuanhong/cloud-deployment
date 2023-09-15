@@ -5,6 +5,8 @@
 # import
 source "${SCRIPT_PATH}/conf/kubernetes.conf" || fatal_err "${SCRIPT_PATH}/conf/kubernetes.conf is missing"
 
+# TODO: If cluster has already been deployed and exit. Check for presence of flag file.
+
 install_parallel_utilities() {
   info "Installing pssh and pdsh..." && \
     apt-get update && \
