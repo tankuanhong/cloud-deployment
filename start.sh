@@ -125,7 +125,6 @@ kubernetes_menu() {
 containers_menu() {
   local containers=(
     "Containers"
-    # TODO: Test keycloak deployment
     "${SCRIPT_PATH}/scripts/container-deploy-keycloak.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-oauth2-proxy.sh"
 
@@ -134,6 +133,7 @@ containers_menu() {
     "${SCRIPT_PATH}/scripts/container-deploy-firefly3.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-gatus.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-grocy.sh"
+    # TODO: Create automated builds for healthchecks in amd64 and arm64
     "${SCRIPT_PATH}/scripts/container-deploy-healthchecks.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-memos.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-shlink.sh"
