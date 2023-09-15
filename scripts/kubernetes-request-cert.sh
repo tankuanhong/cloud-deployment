@@ -2,9 +2,6 @@
 
 { # this ensures the entire script is downloaded #
 
-# load configuration
-source "${SCRIPT_PATH}/conf/kubernetes.conf" || fatal_err "${SCRIPT_PATH}/conf/kubernetes.conf is missing"
-
 get_user_input() {
   info "Getting inputs from user..."
 
