@@ -19,6 +19,7 @@ deploy_database() {
     microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/rallly-db.yaml"
 }
 
+# TODO: Change secret generation to openssl
 deploy_rallly() {
   info "Setting custom rallly parameters..." && \
     info "Generating RALLLY_SECRET_PASSWORD..." && \
