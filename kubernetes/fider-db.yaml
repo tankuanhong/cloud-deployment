@@ -1,0 +1,69 @@
+# https://github.com/bitnami/containers/blob/main/bitnami/postgresql/14/debian-11/rootfs/opt/bitnami/scripts/postgresql-env.sh
+# https://hub.docker.com/r/bitnami/postgresql
+
+#PVC_START
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-${FIDER_DB_LABEL}
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: ${FIDER_DB_PVC_SIZE}
+#PVC_END
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-${FIDER_DB_LABEL}-db
+spec:
+  ports:
+  - port: 5432
+  selector:
+    app: app-${FIDER_DB_LABEL}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dep-${FIDER_DB_LABEL}
+  labels:
+    app: app-${FIDER_DB_LABEL}
+spec:
+  selector:
+    matchLabels:
+      app: app-${FIDER_DB_LABEL}
+  template:
+    metadata:
+      labels:
+        app: app-${FIDER_DB_LABEL}
+    spec:
+      restartPolicy: Always
+      containers:
+      - image: ${FIDER_DB_IMAGE}
+        imagePullPolicy: Always
+        name: pod-${FIDER_DB_LABEL}
+        env:
+        - name: POSTGRESQL_POSTGRES_PASSWORD
+          value: "${FIDER_DB_POSTGRES_PASSWORD}"
+        - name: POSTGRESQL_USERNAME
+          value: "${FIDER_DB_USERNAME}"
+        - name: POSTGRESQL_PASSWORD
+          value: "${FIDER_DB_PASSWORD}"
+        - name: POSTGRESQL_DATABASE
+          value: "${FIDER_DB_DATABASE}"
+        ports:
+        - containerPort: 5432
+          protocol: TCP
+        volumeMounts:
+        - name: vol-${FIDER_DB_LABEL}
+          mountPath: /bitnami/postgresql
+      volumes:
+      - name: vol-${FIDER_DB_LABEL}
+        persistentVolumeClaim:
+          claimName: pvc-${FIDER_DB_LABEL}
+      securityContext:
+        fsGroup: 1001

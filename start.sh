@@ -136,6 +136,8 @@ containers_menu() {
     "${SCRIPT_PATH}/scripts/container-deploy-memos.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-shlink.sh"
 
+    # TODO: Test fider deployment
+    "${SCRIPT_PATH}/scripts/container-deploy-fider.sh"
     # TODO: Create automated builds for healthchecks in amd64 and arm64
     "${SCRIPT_PATH}/scripts/container-deploy-healthchecks.sh"
     # TODO: Test rallly deployment (no arm64 images available)
@@ -150,7 +152,6 @@ containers_menu() {
     # TODO: Add claper https://github.com/ClaperCo/Claper
     # TODO: Add dashy https://github.com/lissy93/dashy
     # TODO: Add drone ci https://github.com/harness/drone
-    # TODO: Add fider https://github.com/getfider/fider
     # TODO: Add fileshelter https://github.com/epoupon/fileshelter
     # TODO: Add formbricks https://github.com/formbricks/formbricks
     # TODO: Add grafana https://github.com/grafana/grafana
