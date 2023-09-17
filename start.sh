@@ -133,15 +133,15 @@ containers_menu() {
     "${SCRIPT_PATH}/scripts/container-deploy-firefly3.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-gatus.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-grocy.sh"
-    # TODO: Create automated builds for healthchecks in amd64 and arm64
-    "${SCRIPT_PATH}/scripts/container-deploy-healthchecks.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-memos.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-shlink.sh"
 
-    # TODO: Identify header required for syncthing discovery server
-    "${SCRIPT_PATH}/scripts/container-deploy-syncthing-discovery.sh"
+    # TODO: Create automated builds for healthchecks in amd64 and arm64
+    "${SCRIPT_PATH}/scripts/container-deploy-healthchecks.sh"
     # TODO: Test rallly deployment (no arm64 images available)
     "${SCRIPT_PATH}/scripts/container-deploy-rallly.sh"
+    # TODO: Identify header required for syncthing discovery server
+    "${SCRIPT_PATH}/scripts/container-deploy-syncthing-discovery.sh"
 
     # TODO: Add answer https://github.com/answerdev/answer
     # TODO: Add asciiflow https://github.com/lewish/asciiflow
