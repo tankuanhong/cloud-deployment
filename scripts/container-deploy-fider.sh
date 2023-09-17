@@ -33,7 +33,6 @@ print_credentials() {
   info "Please save the following credentials."
   info "FIDER_DB_POSTGRES_PASSWORD: ${FIDER_DB_POSTGRES_PASSWORD}"
   info "FIDER_DB_PASSWORD: ${FIDER_DB_PASSWORD}"
-  info "FIDER_JWT_SECRET: ${FIDER_JWT_SECRET}"
   info "Please verify that 3 credentials are printed."
 }
 

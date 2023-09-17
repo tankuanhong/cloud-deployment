@@ -37,7 +37,7 @@ spec:
         - name: DATABASE_URL
           value: "postgres://${FIDER_DB_USERNAME}:${FIDER_DB_PASSWORD}@svc-${FIDER_DB_LABEL}-db:5432/${FIDER_DB_DATABASE}"
         - name: JWT_SECRET
-          value: "${FIDER_JWT_SECRET}"
+          value: '${FIDER_JWT_SECRET}'
         - name: EMAIL_NOREPLY
           value: "${FIDER_SENDER_EMAIL}"
         - name: EMAIL_MAILGUN_API
