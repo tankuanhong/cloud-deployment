@@ -3,7 +3,7 @@
 { # this ensures the entire script is downloaded #
 
 # import
-source "${SCRIPT_PATH}/conf/kubernetes.conf" || fatal_err "${SCRIPT_PATH}/conf/kubernetes.conf is missing"
+source "${SCRIPT_PATH}/conf/containers.conf" || fatal_err "${SCRIPT_PATH}/conf/containers.conf is missing"
 
 get_domain_name() {
   info "Obtaining domain name from user..."
@@ -23,7 +23,7 @@ get_domain_name() {
 
 install_oauth2_proxy() {
   info "Checking for existing deployment..." && \
-    if [ microk8s kubectl get deployment dep-oauth2-${OAUTH2_PROXY_SUFFIX} ]; then
+    if [ "$(microk8s kubectl get deployment dep-oauth2-${OAUTH2_PROXY_SUFFIX} >/dev/null 2>/dev/null; echo $?)" = '0' ]; then
       fatal_err "dep-oauth2-${OAUTH2_PROXY_SUFFIX} already exist"
     fi
   

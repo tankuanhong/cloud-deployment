@@ -5,16 +5,7 @@
 # import
 source "${SCRIPT_PATH}/conf/containers.conf" || fatal_err "${SCRIPT_PATH}/conf/containers.conf is missing"
 
-check_kube_ready() {
-  info "Checking Kubernetes cluster status..." && \
-    if [ $(curl -k -s -o /dev/null -w "%{http_code}" https://localhost:6443/livez) -eq "200" ]; then
-      info "Kubernetes cluster ok"
-    else
-      err "Kubernetes cluster not ok"
-      err "Exiting..."
-      exit 1
-    fi
-}
+wait_for_node_ready "300"
 
 deploy_database() {
   info "Setting custom database parameters..." && \
@@ -27,7 +18,7 @@ deploy_database() {
     cat "${SCRIPT_PATH}/kubernetes/shlink-db.yaml" | envsubst > $tmpfile && \
     mv $tmpfile "${SCRIPT_PATH}/kubernetes/shlink-db.yaml" && \
     info "Deploying database..." && \
-    kubectl apply -f "${SCRIPT_PATH}/kubernetes/shlink-db.yaml"
+    microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/shlink-db.yaml"
 }
 
 deploy_shlink() {
@@ -37,9 +28,9 @@ deploy_shlink() {
     cat "${SCRIPT_PATH}/kubernetes/shlink.yaml" | envsubst > $tmpfile && \
     mv $tmpfile "${SCRIPT_PATH}/kubernetes/shlink.yaml" && \
     info "Deploying shlink..." && \
-    kubectl apply -f "${SCRIPT_PATH}/kubernetes/shlink.yaml" && \
+    microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/shlink.yaml" && \
     info "Waiting for shlink to be ready..." && \
-    kubectl wait pods -l app=app-shlink --for condition=Ready --timeout=120s
+    wait_for_pods_ready "300" "default" "app=app-${SHLINK_LABEL}"
 }
 
 deploy_shlink_web() {
@@ -49,9 +40,9 @@ deploy_shlink_web() {
     cat "${SCRIPT_PATH}/kubernetes/shlink-web.yaml" | envsubst > $tmpfile && \
     mv $tmpfile "${SCRIPT_PATH}/kubernetes/shlink-web.yaml" && \
     info "Deploying shlink web client..." && \
-    kubectl apply -f "${SCRIPT_PATH}/kubernetes/shlink-web.yaml" && \
+    microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/shlink-web.yaml" && \
     info "Waiting for shlink web client to be ready..." && \
-    kubectl wait pods -l app=app-shlink-web --for condition=Ready --timeout=120s
+    wait_for_pods_ready "300" "default" "app=app-${SHLINK_WEB_LABEL}"
 }
 
 print_credentials() {
@@ -66,10 +57,9 @@ generate_apikey() {
     sleep 60 && \
     info "Wake after 1 minute" && \
     info "Generating first api key..." && \
-    kubectl exec --stdin --tty deploy/dep-shlink -- shlink api-key:generate
+    microk8s kubectl exec --stdin --tty deploy/dep-${SHLINK_LABEL} -- shlink api-key:generate
 }
 
-check_kube_ready
 deploy_database
 deploy_shlink
 deploy_shlink_web

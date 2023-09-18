@@ -1,0 +1,98 @@
+# https://hub.docker.com/r/bitnami/dokuwiki
+
+#PVC_START
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-${DOKUWIKI_LABEL}
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: ${DOKUWIKI_PVC_SIZE}
+#PVC_END
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-${DOKUWIKI_LABEL}-http
+spec:
+  ports:
+  - port: 8080
+  selector:
+    app: app-${DOKUWIKI_LABEL}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dep-${DOKUWIKI_LABEL}
+  labels:
+    app: app-${DOKUWIKI_LABEL}
+spec:
+  selector:
+    matchLabels:
+      app: app-${DOKUWIKI_LABEL}
+  template:
+    metadata:
+      labels:
+        app: app-${DOKUWIKI_LABEL}
+    spec:
+      restartPolicy: Always
+      containers:
+      - image: ${DOKUWIKI_IMAGE}
+        imagePullPolicy: Always
+        name: pod-${DOKUWIKI_LABEL}
+        env:
+        - name: DOKUWIKI_USERNAME
+          value: "${DOKUWIKI_ADMIN_USERNAME}"
+        - name: DOKUWIKI_FULL_NAME
+          value: "${DOKUWIKI_ADMIN_DISPLAYNAME}"
+        - name: DOKUWIKI_PASSWORD
+          value: "${DOKUWIKI_ADMIN_PASSWORD}"
+        - name: DOKUWIKI_EMAIL
+          value: "${DOKUWIKI_ADMIN_EMAIL}"
+        - name: DOKUWIKI_WIKI_NAME
+          value: "${DOKUWIKI_WIKI_NAME}"
+        - name: PHP_MEMORY_LIMIT
+          value: "${DOKUWIKI_PHP_MEMORY_LIMIT}"
+        - name: PHP_POST_MAX_SIZE
+          value: "${DOKUWIKI_PHP_POST_MAX}"
+        - name: PHP_UPLOAD_MAX_FILESIZE
+          value: "${DOKUWIKI_PHP_UPLOAD_MAX}"
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        volumeMounts:
+        - name: vol-${DOKUWIKI_LABEL}
+          mountPath: /bitnami/dokuwiki
+      volumes:
+      - name: vol-${DOKUWIKI_LABEL}
+        persistentVolumeClaim:
+          claimName: pvc-${DOKUWIKI_LABEL}
+      securityContext:
+        fsGroup: 1001
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-${DOKUWIKI_LABEL}
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - ${DOKUWIKI_HOSTNAME}
+    secretName: "${DOKUWIKI_TLS_SECRET}"
+  rules:
+  - host: ${DOKUWIKI_HOSTNAME}
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: svc-${DOKUWIKI_LABEL}-http
+            port:
+              number: 8080

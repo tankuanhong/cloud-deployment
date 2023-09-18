@@ -5,6 +5,8 @@
 # import
 source "${SCRIPT_PATH}/conf/kubernetes.conf" || fatal_err "${SCRIPT_PATH}/conf/kubernetes.conf is missing"
 
+# TODO: If cluster has already been deployed and exit. Check for presence of flag file.
+
 install_parallel_utilities() {
   info "Installing pssh and pdsh..." && \
     apt-get update && \
@@ -76,6 +78,8 @@ deploy_microk8s() {
     PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT}" pdsh -w ${KUBE_NODE_2},${KUBE_NODE_3} -S "/bin/bash /root/kubernetes-deploy-node.sh" && \
     source ${SCRIPT_PATH}/scripts/kubernetes-deploy-node.sh || fatal_err "Failed to deploy microk8s on all nodes"
 }
+
+# TODO: Add check and disable if host file is managed by cloud-config
 
 update_hosts_file() {
   info "Adding all node hostnames to hosts file..."

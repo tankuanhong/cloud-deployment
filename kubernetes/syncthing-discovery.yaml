@@ -4,7 +4,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: pvc-stdiscovery
+  name: pvc-${ST_DISCOSRV_LABEL}
   namespace: default
 spec:
   accessModes:
@@ -18,32 +18,32 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: svc-stdiscovery-http
+  name: svc-${ST_DISCOSRV_LABEL}-http
 spec:
   ports:
   - port: 8080
   selector:
-    app: app-stdiscovery
+    app: app-${ST_DISCOSRV_LABEL}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: dep-stdiscovery
+  name: dep-${ST_DISCOSRV_LABEL}
   labels:
-    app: app-stdiscovery
+    app: app-${ST_DISCOSRV_LABEL}
 spec:
   selector:
     matchLabels:
-      app: app-stdiscovery
+      app: app-${ST_DISCOSRV_LABEL}
   template:
     metadata:
       labels:
-        app: app-stdiscovery
+        app: app-${ST_DISCOSRV_LABEL}
     spec:
       restartPolicy: Always
       containers:
       - image: ${ST_DISCOSRV_IMAGE}
-        name: pod-stdiscovery
+        name: pod-${ST_DISCOSRV_LABEL}
         env:
         - name: EXTRA_OPTS
           value: "-debug -http -listen=:8080"
@@ -51,19 +51,23 @@ spec:
         - containerPort: 8080
           protocol: TCP
         volumeMounts:
-        - name: vol-stdiscovery
+        - name: vol-${ST_DISCOSRV_LABEL}
           mountPath: /var/stdiscosrv
       volumes:
-      - name: vol-stdiscovery
+      - name: vol-${ST_DISCOSRV_LABEL}
         persistentVolumeClaim:
-          claimName: pvc-stdiscovery
+          claimName: pvc-${ST_DISCOSRV_LABEL}
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ing-stdiscovery
+  name: ing-${ST_DISCOSRV_LABEL}
 spec:
   ingressClassName: nginx
+  tls:
+  - hosts:
+    - ${ST_DISCOSRV_HOSTNAME}
+    secretName: "${ST_DISCOSRV_TLS_SECRET}"
   rules:
   - host: ${ST_DISCOSRV_HOSTNAME}
     http:
@@ -72,6 +76,6 @@ spec:
         path: "/"
         backend:
           service:
-            name: svc-stdiscovery-http
+            name: svc-${ST_DISCOSRV_LABEL}-http
             port:
               number: 8080

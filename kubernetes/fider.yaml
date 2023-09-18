@@ -1,0 +1,77 @@
+# https://fider.io/docs/hosting-instance
+# https://hub.docker.com/r/getfider/fider
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-${FIDER_LABEL}-http
+spec:
+  ports:
+  - port: 3000
+  selector:
+    app: app-${FIDER_LABEL}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dep-${FIDER_LABEL}
+  labels:
+    app: app-${FIDER_LABEL}
+spec:
+  selector:
+    matchLabels:
+      app: app-${FIDER_LABEL}
+  template:
+    metadata:
+      labels:
+        app: app-${FIDER_LABEL}
+    spec:
+      restartPolicy: Always
+      containers:
+      - image: ${FIDER_IMAGE}
+        imagePullPolicy: Always
+        name: pod-${FIDER_LABEL}
+        env:
+        - name: BASE_URL
+          value: "https://${FIDER_HOSTNAME}"
+        - name: DATABASE_URL
+          value: "postgres://${FIDER_DB_USERNAME}:${FIDER_DB_PASSWORD}@svc-${FIDER_DB_LABEL}-db:5432/${FIDER_DB_DATABASE}?sslmode=disable"
+        - name: JWT_SECRET
+          value: '${FIDER_JWT_SECRET}'
+        - name: EMAIL_NOREPLY
+          value: "${FIDER_NOREPLY_EMAIL}"
+        - name: EMAIL_SMTP_HOST
+          value: "${FIDER_SMTP_HOST}"
+        - name: EMAIL_SMTP_PORT
+          value: "${FIDER_SMTP_PORT}"
+        - name: EMAIL_SMTP_USERNAME
+          value: "${FIDER_SMTP_USERNAME}"
+        - name: EMAIL_SMTP_PASSWORD
+          value: "${FIDER_SMTP_PASSWORD}"
+        - name: EMAIL_SMTP_ENABLE_STARTTLS
+          value: "${FIDER_SMTP_STARTTLS}"
+        ports:
+        - containerPort: 3000
+          protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-${FIDER_LABEL}
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - ${FIDER_HOSTNAME}
+    secretName: "${FIDER_TLS_SECRET}"
+  rules:
+  - host: ${FIDER_HOSTNAME}
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: svc-${FIDER_LABEL}-http
+            port:
+              number: 3000

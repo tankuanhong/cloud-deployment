@@ -5,16 +5,7 @@
 # import
 source "${SCRIPT_PATH}/conf/containers.conf" || fatal_err "${SCRIPT_PATH}/conf/containers.conf is missing"
 
-check_kube_ready() {
-  info "Checking Kubernetes cluster status..." && \
-    if [ $(curl -k -s -o /dev/null -w "%{http_code}" https://localhost:6443/livez) -eq "200" ]; then
-      info "Kubernetes cluster ok"
-    else
-      err "Kubernetes cluster not ok"
-      err "Exiting..."
-      exit 1
-    fi
-}
+wait_for_node_ready "300"
 
 deploy_changedetection() {
   info "Setting custom changedetection.io parameters..." && \
@@ -23,21 +14,20 @@ deploy_changedetection() {
     cat "${SCRIPT_PATH}/kubernetes/changedetection.yaml" | envsubst > $tmpfile && \
     mv $tmpfile "${SCRIPT_PATH}/kubernetes/changedetection.yaml" && \
     info "Deploying changedetection.io..." && \
-    kubectl apply -f "${SCRIPT_PATH}/kubernetes/changedetection.yaml" && \
+    microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/changedetection.yaml" && \
     info "Waiting for changedetection.io to be ready..." && \
-    kubectl wait pods -l app=app-changedetection --for condition=Ready --timeout=120s
+    wait_for_pods_ready "300" "default" "app=app-${CHANGEDETECTION_LABEL}"
 }
 
 patch_ingress() {
   info "Patching changedetection.io ingress..." && \
     tmpfile=$(mktemp) && \
     cp --attributes-only --preserve "${SCRIPT_PATH}/kubernetes/changedetection-ing-patch.yaml" $tmpfile && \
-    cat "${SCRIPT_PATH}/kubernetes/changedetection-ing-patch.yaml" | envsubst '$CHANGEDETECTION_AUTH_QUERY' > $tmpfile && \
+    cat "${SCRIPT_PATH}/kubernetes/changedetection-ing-patch.yaml" | envsubst '$CHANGEDETECTION_LABEL,$CHANGEDETECTION_AUTH_QUERY' > $tmpfile && \
     mv $tmpfile "${SCRIPT_PATH}/kubernetes/changedetection-ing-patch.yaml" && \
-    kubectl patch ingress ing-changedetection --patch-file "${SCRIPT_PATH}/kubernetes/changedetection-ing-patch.yaml"
+    microk8s kubectl patch ingress ing-${CHANGEDETECTION_LABEL} --patch-file "${SCRIPT_PATH}/kubernetes/changedetection-ing-patch.yaml"
 }
 
-check_kube_ready
 deploy_changedetection
 patch_ingress
 

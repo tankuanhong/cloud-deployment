@@ -4,7 +4,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: pvc-firefly3
+  name: pvc-${FIREFLY3_LABEL}
   namespace: default
 spec:
   accessModes:
@@ -18,32 +18,32 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: svc-firefly3-http
+  name: svc-${FIREFLY3_LABEL}-http
 spec:
   ports:
   - port: 8080
   selector:
-    app: app-firefly3
+    app: app-${FIREFLY3_LABEL}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: dep-firefly3
+  name: dep-${FIREFLY3_LABEL}
   labels:
-    app: app-firefly3
+    app: app-${FIREFLY3_LABEL}
 spec:
   selector:
     matchLabels:
-      app: app-firefly3
+      app: app-${FIREFLY3_LABEL}
   template:
     metadata:
       labels:
-        app: app-firefly3
+        app: app-${FIREFLY3_LABEL}
     spec:
       restartPolicy: Always
       containers:
-      - image: fireflyiii/core:version-6.0.10
-        name: pod-firefly3
+      - image: ${FIREFLY3_IMAGE}
+        name: pod-${FIREFLY3_LABEL}
         env:
         - name: APP_ENV
           value: "local"
@@ -52,9 +52,9 @@ spec:
         - name: APP_KEY
           value: "${FIREFLY3_APP_KEY}"
         - name: TZ
-          value: "Asia/Singapore"
+          value: "${FIREFLY3_TZ}"
         - name: DB_HOST
-          value: "svc-firefly3-db"
+          value: "svc-${FIREFLY3_DB_LABEL}-db"
         - name: DB_PORT
           value: "3306"
         - name: DB_CONNECTION
@@ -89,23 +89,23 @@ spec:
         - containerPort: 8080
           protocol: TCP
         volumeMounts:
-        - name: vol-firefly3
+        - name: vol-${FIREFLY3_LABEL}
           mountPath: /var/www/html/storage/upload
       volumes:
-      - name: vol-firefly3
+      - name: vol-${FIREFLY3_LABEL}
         persistentVolumeClaim:
-          claimName: pvc-firefly3
+          claimName: pvc-${FIREFLY3_LABEL}
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ing-firefly3
-  annotations:
-    nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth"
-    nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=https://$host$request_uri"
-    nginx.ingress.kubernetes.io/auth-response-headers: X-Auth-Request-Email,X-Auth-Request-Access-Token,X-Auth-Request-Preferred-Username
+  name: ing-${FIREFLY3_LABEL}
 spec:
   ingressClassName: nginx
+  tls:
+  - hosts:
+    - ${FIREFLY3_HOSTNAME}
+    secretName: "${FIREFLY3_TLS_SECRET}"
   rules:
   - host: ${FIREFLY3_HOSTNAME}
     http:
@@ -114,17 +114,21 @@ spec:
         path: "/"
         backend:
           service:
-            name: svc-firefly3-http
+            name: svc-${FIREFLY3_LABEL}-http
             port:
               number: 8080
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ing-firefly3-oauth2-proxy
+  name: ing-${FIREFLY3_LABEL}-oauth2-proxy
   namespace: default
 spec:
   ingressClassName: nginx
+  tls:
+  - hosts:
+    - ${FIREFLY3_HOSTNAME}
+    secretName: "${FIREFLY3_TLS_SECRET}"
   rules:
   - host: ${FIREFLY3_HOSTNAME}
     http:

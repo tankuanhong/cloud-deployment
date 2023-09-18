@@ -5,16 +5,7 @@
 # import
 source "${SCRIPT_PATH}/conf/containers.conf" || fatal_err "${SCRIPT_PATH}/conf/containers.conf is missing"
 
-check_kube_ready() {
-  info "Checking Kubernetes cluster status..." && \
-    if [ $(curl -k -s -o /dev/null -w "%{http_code}" https://localhost:6443/livez) -eq "200" ]; then
-      info "Kubernetes cluster ok"
-    else
-      err "Kubernetes cluster not ok"
-      err "Exiting..."
-      exit 1
-    fi
-}
+wait_for_node_ready "300"
 
 deploy_database() {
   info "Setting custom database parameters..." && \
@@ -27,7 +18,7 @@ deploy_database() {
     cat "${SCRIPT_PATH}/kubernetes/firefly3-db.yaml" | envsubst > $tmpfile && \
     mv $tmpfile "${SCRIPT_PATH}/kubernetes/firefly3-db.yaml" && \
     info "Deploying database..." && \
-    kubectl apply -f "${SCRIPT_PATH}/kubernetes/firefly3-db.yaml"
+    microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/firefly3-db.yaml"
 }
 
 deploy_firefly3() {
@@ -39,12 +30,16 @@ deploy_firefly3() {
     cat "${SCRIPT_PATH}/kubernetes/firefly3.yaml" | envsubst > $tmpfile && \
     mv $tmpfile "${SCRIPT_PATH}/kubernetes/firefly3.yaml" && \
     info "Deploying firefly-iii..." && \
-    kubectl apply -f "${SCRIPT_PATH}/kubernetes/firefly3.yaml"
+    microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/firefly3.yaml"
 }
 
 patch_ingress() {
   info "Patching firefly3 ingress..." && \
-    kubectl patch ingress ing-firefly3 --patch-file "${SCRIPT_PATH}/kubernetes/firefly3-ing-patch.yaml"
+    tmpfile=$(mktemp) && \
+    cp --attributes-only --preserve "${SCRIPT_PATH}/kubernetes/firefly3-ing-patch.yaml" $tmpfile && \
+    cat "${SCRIPT_PATH}/kubernetes/firefly3-ing-patch.yaml" | envsubst '$FIREFLY3_LABEL,$FIREFLY3_AUTH_QUERY' > $tmpfile && \
+    mv $tmpfile "${SCRIPT_PATH}/kubernetes/firefly3-ing-patch.yaml" && \
+    microk8s kubectl patch ingress ing-${FIREFLY3_LABEL} --patch-file "${SCRIPT_PATH}/kubernetes/firefly3-ing-patch.yaml"
 }
 
 print_credentials() {
@@ -54,7 +49,6 @@ print_credentials() {
   info "Please verify that 2 credentials are printed."
 }
 
-check_kube_ready
 deploy_database
 deploy_firefly3
 patch_ingress

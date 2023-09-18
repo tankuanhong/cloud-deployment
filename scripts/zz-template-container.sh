@@ -12,14 +12,18 @@ deploy_templateapp() {
     info "Generating TEMPLATEAPP_PARAMETER_1..." && \
     export TEMPLATEAPP_PARAMETER_1=$(tr -dc A-Za-z0-9 </dev/urandom | head -c $(shuf -i 39-63 -n 1)) && \
     info "Populating env variables into manifest..." && \
-    populate_yaml_env "${SCRIPT_PATH}/kubernetes/zz-templateapp.yaml"
+    populate_yaml_env "${SCRIPT_PATH}/kubernetes/zz-templateapp.yaml" && \
     info "Deploying app..." && \
     microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/zz-templateapp.yaml"
 }
 
 patch_ingress() {
   info "Patching templateapp ingress..." && \
-    kubectl patch ingress ing-templateapp --patch-file "${SCRIPT_PATH}/kubernetes/zz-templateapp-ing-patch.yaml"
+    tmpfile=$(mktemp) && \
+    cp --attributes-only --preserve "${SCRIPT_PATH}/kubernetes/zz-templateapp-ing-patch.yaml" $tmpfile && \
+    cat "${SCRIPT_PATH}/kubernetes/zz-templateapp-ing-patch.yaml" | envsubst '$TEMPLATEAPP_LABEL,$TEMPLATEAPP_AUTH_QUERY' > $tmpfile && \
+    mv $tmpfile "${SCRIPT_PATH}/kubernetes/zz-templateapp-ing-patch.yaml" && \
+    microk8s kubectl patch ingress ing-${TEMPLATEAPP_LABEL} --patch-file "${SCRIPT_PATH}/kubernetes/zz-templateapp-ing-patch.yaml"
 }
 
 print_credentials() {
