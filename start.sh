@@ -130,14 +130,13 @@ containers_menu() {
 
     "${SCRIPT_PATH}/scripts/container-deploy-changedetection.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-dokuwiki.sh"
+    "${SCRIPT_PATH}/scripts/container-deploy-fider.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-firefly3.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-gatus.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-grocy.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-memos.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-shlink.sh"
-
-    # TODO: Test fider deployment
-    "${SCRIPT_PATH}/scripts/container-deploy-fider.sh"
+    
     # TODO: Create automated builds for healthchecks in amd64 and arm64
     "${SCRIPT_PATH}/scripts/container-deploy-healthchecks.sh"
     # TODO: Test rallly deployment (no arm64 images available)
