@@ -56,6 +56,13 @@ create_superuser() {
   fi
 }
 
+set_telegram_webhook() {
+  if [ -n "$HEALTHCHECKS_TELEGRAM_BOT" ] && [ -n "$HEALTHCHECKS_TELEGRAM_TOKEN" ]; then
+    info "Invoking Telegram's setWebhook API call..." && \
+    microk8s kubectl exec --stdin --tty deploy/dep-${HEALTHCHECKS_LABEL} -- /opt/healthchecks/manage.py settelegramwebhook
+  fi
+}
+
 patch_ingress() {
   info "Patching healthchecks ingress..." && \
     tmpfile=$(mktemp) && \
@@ -76,6 +83,7 @@ print_credentials() {
 deploy_database
 deploy_healthchecks
 create_superuser
+set_telegram_webhook
 patch_ingress
 print_credentials
 
