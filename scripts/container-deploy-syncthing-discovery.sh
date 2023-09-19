@@ -3,7 +3,7 @@
 { # this ensures the entire script is downloaded #
 
 # import
-source "${SCRIPT_PATH}/conf/syncthing.conf" || fatal_err "${SCRIPT_PATH}/conf/syncthing.conf is missing"
+source "${SCRIPT_PATH}/conf/containers.conf" || fatal_err "${SCRIPT_PATH}/conf/containers.conf is missing"
 
 wait_for_node_ready "300"
 
