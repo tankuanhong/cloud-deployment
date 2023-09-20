@@ -44,9 +44,6 @@ spec:
       containers:
       - image: ${ST_DISCOSRV_IMAGE}
         name: pod-${ST_DISCOSRV_LABEL}
-        env:
-        - name: EXTRA_OPTS
-          value: "-debug -http -listen=:8080"
         ports:
         - containerPort: 8080
           protocol: TCP
@@ -62,6 +59,9 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ing-${ST_DISCOSRV_LABEL}
+  annotations:
+    nginx.ingress.kubernetes.io/server-snippet: |
+      ssl_verify_client optional_no_ca;
 spec:
   ingressClassName: nginx
   tls:
