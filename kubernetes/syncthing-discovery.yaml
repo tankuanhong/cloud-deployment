@@ -59,6 +59,9 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ing-${ST_DISCOSRV_LABEL}
+  annotations:
+    nginx.ingress.kubernetes.io/server-snippet: |
+      ssl_verify_client optional_no_ca;
 spec:
   ingressClassName: nginx
   tls:

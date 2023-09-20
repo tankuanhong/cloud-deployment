@@ -4,6 +4,8 @@
 apiVersion: v1
 data:
   X-Custom-Headers-Serial: "20230920"
+  X-SSL-Cert: $ssl_client_cert
+  X-Client-Port: $remote_port
 kind: ConfigMap
 metadata:
   name: custom-headers
