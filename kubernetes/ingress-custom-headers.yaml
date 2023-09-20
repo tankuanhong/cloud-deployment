@@ -3,9 +3,7 @@
 
 apiVersion: v1
 data:
-  X-Custom-Headers-Serial: "2023-05-04-0855"
-  X-SSL-Cert: $ssl_client_escaped_cert
-  X-Client-Port: $remote_port
+  X-Custom-Headers-Serial: "20230920"
 kind: ConfigMap
 metadata:
   name: custom-headers
