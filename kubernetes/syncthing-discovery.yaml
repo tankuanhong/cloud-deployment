@@ -59,11 +59,6 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ing-${ST_DISCOSRV_LABEL}
-  annotations:
-    nginx.ingress.kubernetes.io/server-snippet: |
-      proxy_set_header X-Client-Port $remote_port;
-      proxy_set_header X-SSL-Cert $ssl_client_cert;
-      ssl_verify_client optional_no_ca;
 spec:
   ingressClassName: nginx
   tls:
