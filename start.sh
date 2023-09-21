@@ -117,6 +117,8 @@ kubernetes_menu() {
     "${SCRIPT_PATH}/scripts/kubernetes-deploy-cluster.sh"
     "${SCRIPT_PATH}/scripts/kubernetes-deploy-cert-issuer.sh"
     "${SCRIPT_PATH}/scripts/kubernetes-request-cert.sh"
+    "${SCRIPT_PATH}/scripts/kubernetes-deploy-kubedash-ingress.sh"
+    "${SCRIPT_PATH}/scripts/kubernetes-deploy-longhorn-ingress.sh"
   )
   display_menu "${kubernetes[@]}"
 }
