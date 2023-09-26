@@ -138,11 +138,9 @@ containers_menu() {
     "${SCRIPT_PATH}/scripts/container-deploy-grocy.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-healthchecks.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-memos.sh"
+    "${SCRIPT_PATH}/scripts/container-deploy-rallly.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-shlink.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-syncthing-discovery.sh"
-
-    # TODO: Test rallly deployment (no arm64 images available)
-    "${SCRIPT_PATH}/scripts/container-deploy-rallly.sh"
 
     # TODO: Add answer https://github.com/answerdev/answer
     # TODO: Add asciiflow https://github.com/lewish/asciiflow
