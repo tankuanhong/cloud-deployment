@@ -1,6 +1,21 @@
 # https://docs.getoutline.com/s/hosting/
 # https://hub.docker.com/r/outlinewiki/outline
 
+#PVC_START
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-${OUTLINE_LABEL}
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: ${OUTLINE_PVC_SIZE}
+#PVC_END
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -105,6 +120,13 @@ spec:
         ports:
         - containerPort: 3000
           protocol: TCP
+        volumeMounts:
+        - name: vol-${OUTLINE_LABEL}
+          mountPath: ${OUTLINE_FILE_STORAGE_DIR}
+      volumes:
+      - name: vol-${OUTLINE_LABEL}
+        persistentVolumeClaim:
+          claimName: pvc-${OUTLINE_LABEL}
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
