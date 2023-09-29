@@ -43,7 +43,7 @@ spec:
         - name: PGSSLMODE
           value: "disable"
         - name: REDIS_URL
-          value: "redis://localhost:6379"
+          value: "redis://svc-${OUTLINE_REDIS_LABEL}-redis:6379"
         - name: URL
           value: "https://${OUTLINE_HOSTNAME}"
         - name: PORT
