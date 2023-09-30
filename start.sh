@@ -138,6 +138,7 @@ containers_menu() {
     "${SCRIPT_PATH}/scripts/container-deploy-grocy.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-healthchecks.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-memos.sh"
+    "${SCRIPT_PATH}/scripts/container-deploy-outline.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-rallly.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-shlink.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-syncthing-discovery.sh"
@@ -164,7 +165,6 @@ containers_menu() {
     # TODO: Add miniflux https://github.com/miniflux/v2
     # TODO: Add nomie https://github.com/open-nomie/nomie6-oss
     # TODO: Add ontime https://github.com/cpvalente/ontime
-    # TODO: Add outline https://github.com/outline/outline
     # TODO: Add pairdrop https://github.com/schlagmichdoch/pairdrop
     # TODO: Add peertube https://github.com/Chocobozzz/PeerTube
     # TODO: Add prometheus https://github.com/prometheus/prometheus
