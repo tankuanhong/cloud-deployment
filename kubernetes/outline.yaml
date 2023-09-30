@@ -134,6 +134,8 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ing-${OUTLINE_LABEL}
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
 spec:
   ingressClassName: nginx
   tls:
