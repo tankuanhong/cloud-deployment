@@ -58,7 +58,7 @@ spec:
         - name: PGSSLMODE
           value: "disable"
         - name: REDIS_URL
-          value: "redis://svc-${OUTLINE_REDIS_LABEL}-redis:6379"
+          value: "redis://:${OUTLINE_REDIS_PASSWORD}@svc-${OUTLINE_REDIS_LABEL}-redis:6379"
         - name: URL
           value: "https://${OUTLINE_HOSTNAME}"
         - name: PORT
@@ -94,21 +94,21 @@ spec:
         - name: MAXIMUM_IMPORT_SIZE
           value: "${OUTLINE_MAXIMUM_IMPORT_SIZE}"
         - name: SMTP_HOST
-          value: ""
+          value: "${OUTLINE_SMTP_HOST}"
         - name: SMTP_PORT
-          value: ""
+          value: "${OUTLINE_SMTP_PORT}"
         - name: SMTP_USERNAME
-          value: ""
+          value: "${OUTLINE_SMTP_USERNAME}"
         - name: SMTP_PASSWORD
-          value: ""
+          value: "${OUTLINE_SMTP_PASSWORD}"
         - name: SMTP_FROM_EMAIL
-          value: ""
+          value: "${OUTLINE_SMTP_FROM_EMAIL}"
         - name: SMTP_REPLY_EMAIL
-          value: ""
+          value: "${OUTLINE_SMTP_REPLY_EMAIL}"
         - name: SMTP_TLS_CIPHERS
-          value: ""
+          value: "${OUTLINE_SMTP_TLS_CIPHERS}"
         - name: SMTP_SECURE
-          value: ""
+          value: "${OUTLINE_SMTP_SECURE}"
         - name: DEFAULT_LANGUAGE
           value: "${OUTLINE_DEFAULT_LANGUAGE}"
         - name: RATE_LIMITER_ENABLED
@@ -127,6 +127,8 @@ spec:
       - name: vol-${OUTLINE_LABEL}
         persistentVolumeClaim:
           claimName: pvc-${OUTLINE_LABEL}
+      securityContext:
+        fsGroup: 1001
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress

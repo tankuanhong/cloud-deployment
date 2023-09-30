@@ -47,9 +47,9 @@ spec:
         name: pod-${OUTLINE_REDIS_LABEL}
         env:
         - name: ALLOW_EMPTY_PASSWORD
-          value: "yes"
+          value: "${OUTLINE_REDIS_EMPTY_PASSWORD}"
         - name: REDIS_PASSWORD
-          value: ""
+          value: "${OUTLINE_REDIS_PASSWORD}"
         ports:
         - containerPort: 6379
           protocol: TCP
