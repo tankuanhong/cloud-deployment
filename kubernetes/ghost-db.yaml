@@ -1,0 +1,74 @@
+# https://github.com/bitnami/containers/blob/main/bitnami/mariadb/10.9/debian-11/rootfs/opt/bitnami/scripts/mariadb-env.sh
+# https://hub.docker.com/r/bitnami/mariadb
+
+#PVC_START
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-${GHOST_DB_LABEL}
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: ${GHOST_DB_PVC_SIZE}
+#PVC_END
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-${GHOST_DB_LABEL}-db
+spec:
+  ports:
+  - port: 3306
+  selector:
+    app: app-${GHOST_DB_LABEL}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dep-${GHOST_DB_LABEL}
+  labels:
+    app: app-${GHOST_DB_LABEL}
+spec:
+  selector:
+    matchLabels:
+      app: app-${GHOST_DB_LABEL}
+  template:
+    metadata:
+      labels:
+        app: app-${GHOST_DB_LABEL}
+    spec:
+      restartPolicy: Always
+      containers:
+      - image: ${GHOST_DB_IMAGE}
+        name: pod-${GHOST_DB_LABEL}
+        env:
+        - name: ALLOW_EMPTY_PASSWORD
+          value: "no"
+        - name: MYSQL_CHARACTER_SET
+          value: "utf8"
+        - name: MYSQL_COLLATE
+          value: "utf8_general_ci"
+        - name: MYSQL_ROOT_PASSWORD
+          value: "${GHOST_DB_ROOT_PASSWORD}"
+        - name: MYSQL_USER
+          value: "${GHOST_DB_USERNAME}"
+        - name: MYSQL_PASSWORD
+          value: "${GHOST_DB_PASSWORD}"
+        - name: MYSQL_DATABASE
+          value: "${GHOST_DB_DATABASE}"
+        ports:
+        - containerPort: 3306
+          protocol: TCP
+        volumeMounts:
+        - name: vol-${GHOST_DB_LABEL}
+          mountPath: /bitnami/mysql/data
+      volumes:
+      - name: vol-${GHOST_DB_LABEL}
+        persistentVolumeClaim:
+          claimName: pvc-${GHOST_DB_LABEL}
+      securityContext:
+        fsGroup: 1001
