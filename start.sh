@@ -135,6 +135,7 @@ containers_menu() {
     "${SCRIPT_PATH}/scripts/container-deploy-fider.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-firefly3.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-gatus.sh"
+    "${SCRIPT_PATH}/scripts/container-deploy-ghost.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-grocy.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-healthchecks.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-memos.sh"
@@ -153,7 +154,6 @@ containers_menu() {
     # TODO: Add fileshelter https://github.com/epoupon/fileshelter
     # TODO: Add formbricks https://github.com/formbricks/formbricks
     # TODO: Add gathio https://github.com/lowercasename/gathio
-    # TODO: Add ghost https://github.com/TryGhost/Ghost
     # TODO: Add grafana https://github.com/grafana/grafana
     # TODO: Add grafana loki https://github.com/grafana/loki
     # TODO: Add guacamole https://guacamole.apache.org/
