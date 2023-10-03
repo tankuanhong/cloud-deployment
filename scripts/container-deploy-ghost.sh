@@ -22,7 +22,9 @@ deploy_database() {
 }
 
 deploy_ghost() {
-  info "Setting custom ghost parameters..." && \
+  info "Waiting 1 minute for database to initialize" && \
+    sleep 60 && \
+    info "Setting custom ghost parameters..." && \
     info "Populating env variables into manifest..." && \
     populate_yaml_env "${SCRIPT_PATH}/kubernetes/ghost.yaml" && \
     info "Deploying ghost..." && \
