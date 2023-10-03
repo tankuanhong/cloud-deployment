@@ -16,7 +16,9 @@ deploy_database() {
     info "Populating env variables into manifest..." && \
     populate_yaml_env "${SCRIPT_PATH}/kubernetes/ghost-db.yaml" && \
     info "Deploying database..." && \
-    microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/ghost-db.yaml"
+    microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/ghost-db.yaml" && \
+    info "Waiting for database to be ready..." && \
+    wait_for_pods_ready "300" "default" "app=app-${GHOST_DB_LABEL}"
 }
 
 deploy_ghost() {
