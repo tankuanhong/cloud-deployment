@@ -34,7 +34,7 @@ deploy_caddy() {
 
 deploy_littlelink() {
   info "Installing git into container..." && \
-    export LITTLELINK_CLONE_URL="https://${LITTLELINK_REPO_USERNAME}:${LITTLELINK_REPO_PAT}@${LITTLELINK_REPO_URL#https://}"
+    export LITTLELINK_CLONE_URL="https://${LITTLELINK_REPO_USERNAME}:${LITTLELINK_REPO_PASSWORD}@${LITTLELINK_REPO_URL#https://}"
     microk8s kubectl exec --stdin --tty deploy/dep-${CADDY_LABEL} -- apk update && \
     microk8s kubectl exec --stdin --tty deploy/dep-${CADDY_LABEL} -- apk add git && \
     microk8s kubectl exec --stdin --tty deploy/dep-${CADDY_LABEL} -- git clone ${LITTLELINK_CLONE_URL} /data/caddy

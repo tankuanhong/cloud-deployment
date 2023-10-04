@@ -138,6 +138,7 @@ containers_menu() {
     "${SCRIPT_PATH}/scripts/container-deploy-ghost.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-grocy.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-healthchecks.sh"
+    "${SCRIPT_PATH}/scripts/container-deploy-littlelink.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-memos.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-outline.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-rallly.sh"
