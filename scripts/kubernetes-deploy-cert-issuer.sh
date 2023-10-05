@@ -21,10 +21,8 @@ get_cloudflare_token() {
 
   info "Generating CLOUDFLARE_TOKEN_NAME_SUFFIX..." && \
     export CLOUDFLARE_TOKEN_NAME_SUFFIX=$(tr -dc a-z0-9 </dev/urandom | head -c 5) && \
-    tmpfile=$(mktemp) && \
-    cp --attributes-only --preserve "${SCRIPT_PATH}/kubernetes/cloudflare-api-token.yaml" $tmpfile && \
-    cat "${SCRIPT_PATH}/kubernetes/cloudflare-api-token.yaml" | envsubst > $tmpfile && \
-    mv $tmpfile "${SCRIPT_PATH}/kubernetes/cloudflare-api-token-${CLOUDFLARE_TOKEN_NAME_SUFFIX}.yaml" && \
+    info "Populating env variables into manifest..." && \
+    populate_yaml_env "${SCRIPT_PATH}/kubernetes/cloudflare-api-token.yaml" "${SCRIPT_PATH}/kubernetes/cloudflare-api-token-${CLOUDFLARE_TOKEN_NAME_SUFFIX}.yaml" && \
     info "Deploying cloudflare api token..." && \
     microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/cloudflare-api-token-${CLOUDFLARE_TOKEN_NAME_SUFFIX}.yaml" || fatal_err "Failed to deploy cloudflare api token"
 }
@@ -33,10 +31,8 @@ create_clusterissuer() {
   info "Creating cloudflare clusterissuer..." && \
     info "Generating LE_NAME_SUFFIX..." && \
     export LE_NAME_SUFFIX=$(tr -dc a-z0-9 </dev/urandom | head -c 5) && \
-    tmpfile=$(mktemp) && \
-    cp --attributes-only --preserve "${SCRIPT_PATH}/kubernetes/cloudflare-clusterissuer.yaml" $tmpfile && \
-    cat "${SCRIPT_PATH}/kubernetes/cloudflare-clusterissuer.yaml" | envsubst > $tmpfile && \
-    mv $tmpfile "${SCRIPT_PATH}/kubernetes/cloudflare-clusterissuer-${LE_NAME_SUFFIX}.yaml" && \
+    info "Populating env variables into manifest..." && \
+    populate_yaml_env "${SCRIPT_PATH}/kubernetes/cloudflare-clusterissuer.yaml" "${SCRIPT_PATH}/kubernetes/cloudflare-clusterissuer-${LE_NAME_SUFFIX}.yaml" && \
     info "Deploying cloudflare clusterissuer..." && \
     microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/cloudflare-clusterissuer-${LE_NAME_SUFFIX}.yaml" || fatal_err "Failed to deploy cloudflare clusterissuer"
 }

@@ -9,10 +9,7 @@ wait_for_node_ready "300"
 
 deploy_grocy() {
   info "Setting custom grocy parameters..." && \
-    tmpfile=$(mktemp) && \
-    cp --attributes-only --preserve "${SCRIPT_PATH}/kubernetes/grocy.yaml" $tmpfile && \
-    cat "${SCRIPT_PATH}/kubernetes/grocy.yaml" | envsubst > $tmpfile && \
-    mv $tmpfile "${SCRIPT_PATH}/kubernetes/grocy.yaml" && \
+    populate_yaml_env "${SCRIPT_PATH}/kubernetes/grocy.yaml" && \
     info "Deploying grocy..." && \
     microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/grocy.yaml" && \
     info "Waiting for grocy to be ready..." && \

@@ -13,10 +13,8 @@ deploy_database() {
     export HEALTHCHECKS_DB_ROOT_PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom | head -c $(shuf -i 39-63 -n 1)) && \
     info "Generating HEALTHCHECKS_DB_PASSWORD..." && \
     export HEALTHCHECKS_DB_PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom | head -c $(shuf -i 39-63 -n 1)) && \
-    tmpfile=$(mktemp) && \
-    cp --attributes-only --preserve "${SCRIPT_PATH}/kubernetes/healthchecks-db.yaml" $tmpfile && \
-    cat "${SCRIPT_PATH}/kubernetes/healthchecks-db.yaml" | envsubst > $tmpfile && \
-    mv $tmpfile "${SCRIPT_PATH}/kubernetes/healthchecks-db.yaml" && \
+    info "Populating env variables into manifest..." && \
+    populate_yaml_env "${SCRIPT_PATH}/kubernetes/healthchecks-db.yaml" && \
     info "Deploying database..." && \
     microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/healthchecks-db.yaml" && \
     info "Waiting for database to be ready..." && \
@@ -31,10 +29,8 @@ deploy_healthchecks() {
   info "Setting custom healthchecks parameters..." && \
     info "Generating HEALTHCHECKS_SECRET_KEY..." && \
     export HEALTHCHECKS_SECRET_KEY=$(tr -dc 'A-Za-z0-9!@#$%^&*(-_=+)' </dev/urandom | head -c $(shuf -i 50-100 -n 1)) && \
-    tmpfile=$(mktemp) && \
-    cp --attributes-only --preserve "${SCRIPT_PATH}/kubernetes/healthchecks.yaml" $tmpfile && \
-    cat "${SCRIPT_PATH}/kubernetes/healthchecks.yaml" | envsubst > $tmpfile && \
-    mv $tmpfile "${SCRIPT_PATH}/kubernetes/healthchecks.yaml" && \
+    info "Populating env variables into manifest..." && \
+    populate_yaml_env "${SCRIPT_PATH}/kubernetes/healthchecks.yaml" && \
     info "Deploying healthchecks..." && \
     microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/healthchecks.yaml" && \
     info "Waiting for healthchecks to be ready..." && \

@@ -9,10 +9,7 @@ wait_for_node_ready "300"
 
 deploy_memos() {
   info "Setting custom memos parameters..." && \
-    tmpfile=$(mktemp) && \
-    cp --attributes-only --preserve "${SCRIPT_PATH}/kubernetes/memos.yaml" $tmpfile && \
-    cat "${SCRIPT_PATH}/kubernetes/memos.yaml" | envsubst > $tmpfile && \
-    mv $tmpfile "${SCRIPT_PATH}/kubernetes/memos.yaml" && \
+    populate_yaml_env "${SCRIPT_PATH}/kubernetes/memos.yaml" && \
     info "Deploying memos..." && \
     microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/memos.yaml" && \
     info "Waiting for memos to be ready..." && \

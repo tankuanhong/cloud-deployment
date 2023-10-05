@@ -13,20 +13,15 @@ deploy_database() {
     export SHLINK_DB_ROOT_PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom | head -c $(shuf -i 39-63 -n 1)) && \
     info "Generating SHLINK_DB_PASSWORD..." && \
     export SHLINK_DB_PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom | head -c $(shuf -i 39-63 -n 1)) && \
-    tmpfile=$(mktemp) && \
-    cp --attributes-only --preserve "${SCRIPT_PATH}/kubernetes/shlink-db.yaml" $tmpfile && \
-    cat "${SCRIPT_PATH}/kubernetes/shlink-db.yaml" | envsubst > $tmpfile && \
-    mv $tmpfile "${SCRIPT_PATH}/kubernetes/shlink-db.yaml" && \
+    info "Populating env variables into manifest..." && \
+    populate_yaml_env "${SCRIPT_PATH}/kubernetes/shlink-db.yaml" && \
     info "Deploying database..." && \
     microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/shlink-db.yaml"
 }
 
 deploy_shlink() {
   info "Setting custom shlink parameters..." && \
-    tmpfile=$(mktemp) && \
-    cp --attributes-only --preserve "${SCRIPT_PATH}/kubernetes/shlink.yaml" $tmpfile && \
-    cat "${SCRIPT_PATH}/kubernetes/shlink.yaml" | envsubst > $tmpfile && \
-    mv $tmpfile "${SCRIPT_PATH}/kubernetes/shlink.yaml" && \
+    populate_yaml_env "${SCRIPT_PATH}/kubernetes/shlink.yaml" && \
     info "Deploying shlink..." && \
     microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/shlink.yaml" && \
     info "Waiting for shlink to be ready..." && \
@@ -35,10 +30,7 @@ deploy_shlink() {
 
 deploy_shlink_web() {
   info "Setting custom shlink web client parameters..." && \
-    tmpfile=$(mktemp) && \
-    cp --attributes-only --preserve "${SCRIPT_PATH}/kubernetes/shlink-web.yaml" $tmpfile && \
-    cat "${SCRIPT_PATH}/kubernetes/shlink-web.yaml" | envsubst > $tmpfile && \
-    mv $tmpfile "${SCRIPT_PATH}/kubernetes/shlink-web.yaml" && \
+    populate_yaml_env "${SCRIPT_PATH}/kubernetes/shlink-web.yaml" && \
     info "Deploying shlink web client..." && \
     microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/shlink-web.yaml" && \
     info "Waiting for shlink web client to be ready..." && \

@@ -13,10 +13,8 @@ deploy_database() {
     export FIREFLY3_DB_ROOT_PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom | head -c $(shuf -i 39-63 -n 1)) && \
     info "Generating FIREFLY3_DB_PASSWORD..." && \
     export FIREFLY3_DB_PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom | head -c $(shuf -i 39-63 -n 1)) && \
-    tmpfile=$(mktemp) && \
-    cp --attributes-only --preserve "${SCRIPT_PATH}/kubernetes/firefly3-db.yaml" $tmpfile && \
-    cat "${SCRIPT_PATH}/kubernetes/firefly3-db.yaml" | envsubst > $tmpfile && \
-    mv $tmpfile "${SCRIPT_PATH}/kubernetes/firefly3-db.yaml" && \
+    info "Populating env variables into manifest..." && \
+    populate_yaml_env "${SCRIPT_PATH}/kubernetes/firefly3-db.yaml" && \
     info "Deploying database..." && \
     microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/firefly3-db.yaml"
 }
@@ -25,10 +23,8 @@ deploy_firefly3() {
   info "Setting custom firefly-iii parameters..." && \
     info "Generating FIREFLY3_APP_KEY..." && \
     export FIREFLY3_APP_KEY=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 32) && \
-    tmpfile=$(mktemp) && \
-    cp --attributes-only --preserve "${SCRIPT_PATH}/kubernetes/firefly3.yaml" $tmpfile && \
-    cat "${SCRIPT_PATH}/kubernetes/firefly3.yaml" | envsubst > $tmpfile && \
-    mv $tmpfile "${SCRIPT_PATH}/kubernetes/firefly3.yaml" && \
+    info "Populating env variables into manifest..." && \
+    populate_yaml_env "${SCRIPT_PATH}/kubernetes/firefly3.yaml" && \
     info "Deploying firefly-iii..." && \
     microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/firefly3.yaml"
 }

@@ -30,10 +30,8 @@ install_oauth2_proxy() {
   info "Setting custom oauth2-proxy parameters..." && \
     info "Generating OAUTH2_COOKIE_SECRET..." && \
     export OAUTH2_COOKIE_SECRET=$(dd if=/dev/urandom bs=32 count=1 2>/dev/null | base64 | tr -d -- '\n' | tr -- '+/' '-_') && \
-    tmpfile=$(mktemp) && \
-    cp --attributes-only --preserve "${SCRIPT_PATH}/kubernetes/oauth2-proxy.yaml" $tmpfile && \
-    cat "${SCRIPT_PATH}/kubernetes/oauth2-proxy.yaml" | envsubst > $tmpfile && \
-    mv $tmpfile "${SCRIPT_PATH}/kubernetes/oauth2-${OAUTH2_PROXY_SUFFIX}.yaml" && \
+    info "Populating env variables into manifest..." && \
+    populate_yaml_env "${SCRIPT_PATH}/kubernetes/oauth2-proxy.yaml" "${SCRIPT_PATH}/kubernetes/oauth2-${OAUTH2_PROXY_SUFFIX}.yaml" && \
     info "Installing oauth2-proxy for ${OAUTH2_PROXY_DOMAIN}..." && \
     microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/oauth2-${OAUTH2_PROXY_SUFFIX}.yaml" || fatal_err "Failed to deploy oauth2-${OAUTH2_PROXY_SUFFIX} pods"
 
