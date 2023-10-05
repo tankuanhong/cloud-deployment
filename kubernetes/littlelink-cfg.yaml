@@ -12,4 +12,18 @@ data:
 
       # Enable the static file server.
       file_server
+
+      # Block access to dot files and folders
+      # but exclude .well-known directory
+      @dotfiles {
+        path_regexp ^.*\/\.
+        not path /.well-known/*
+      }
+      respond @dotfiles 403
+
+      # Block access to common source files
+      @sourcefiles {
+        path /LICENSE.md /README.md
+      }
+      respond @sourcefiles 403
     }
