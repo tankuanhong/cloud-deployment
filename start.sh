@@ -153,14 +153,13 @@ containers_menu() {
     # TODO: Add dashy https://github.com/lissy93/dashy
     # TODO: Add drone ci https://github.com/harness/drone
     # TODO: Add fileshelter https://github.com/epoupon/fileshelter
-    # TODO: Add formbricks https://github.com/formbricks/formbricks
+    # TODO: *Add formbricks https://github.com/formbricks/formbricks
     # TODO: Add gathio https://github.com/lowercasename/gathio
     # TODO: Add grafana https://github.com/grafana/grafana
     # TODO: Add grafana loki https://github.com/grafana/loki
     # TODO: Add guacamole https://guacamole.apache.org/
     # TODO: Add homechart https://github.com/candiddev/homechart
     # TODO: Add ihatemoney https://github.com/spiral-project/ihatemoney
-    # TODO: Add littlelink https://github.com/sethcottle/littlelink
     # TODO: Add mailcatcher (for testing) https://hub.docker.com/r/dockage/mailcatcher
     # TODO: Add mealie https://github.com/mealie-recipes/mealie
     # TODO: Add miniflux https://github.com/miniflux/v2
@@ -168,8 +167,9 @@ containers_menu() {
     # TODO: Add ontime https://github.com/cpvalente/ontime
     # TODO: Add pairdrop https://github.com/schlagmichdoch/pairdrop
     # TODO: Add peertube https://github.com/Chocobozzz/PeerTube
+    # TODO: Add plane https://github.com/makeplane/plane
     # TODO: Add prometheus https://github.com/prometheus/prometheus
-    # TODO: Add qr-code-styling https://github.com/kozakdenys/qr-code-styling
+    # TODO: *Add qr-code-styling https://github.com/kozakdenys/qr-code-styling
     # TODO: Add seatsurfing https://github.com/seatsurfing/backend
     # TODO: Add speedtest https://github.com/openspeedtest/Speed-Test
     # TODO: Add talkyard https://github.com/debiki/talkyard
