@@ -1,0 +1,91 @@
+# https://github.com/bitnami/containers/blob/main/bitnami/couchdb/3/debian-11/rootfs/opt/bitnami/scripts/couchdb-env.sh
+# https://hub.docker.com/r/bitnami/couchdb
+
+#PVC_START
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-${NOMIE_DB_LABEL}
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: ${NOMIE_DB_PVC_SIZE}
+#PVC_END
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-${NOMIE_DB_LABEL}-db
+spec:
+  ports:
+  - port: 5984
+  selector:
+    app: app-${NOMIE_DB_LABEL}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dep-${NOMIE_DB_LABEL}
+  labels:
+    app: app-${NOMIE_DB_LABEL}
+spec:
+  selector:
+    matchLabels:
+      app: app-${NOMIE_DB_LABEL}
+  template:
+    metadata:
+      labels:
+        app: app-${NOMIE_DB_LABEL}
+    spec:
+      restartPolicy: Always
+      containers:
+      - image: ${NOMIE_DB_IMAGE}
+        imagePullPolicy: Always
+        name: pod-${NOMIE_DB_LABEL}
+        env:
+        - name: COUCHDB_CREATE_DATABASES
+          value: "yes"
+        - name: COUCHDB_USER
+          value: "${NOMIE_DB_USER}"
+        - name: COUCHDB_PASSWORD
+          value: "couchdb"
+        - name: COUCHDB_SECRET
+          value: "7LP54CXvOtSriqoSGiD4cQEl0AYFuchgy6NRK74XxBY"
+        ports:
+        - containerPort: 5984
+          protocol: TCP
+        volumeMounts:
+        - name: vol-${NOMIE_DB_LABEL}
+          mountPath: /bitnami/couchdb
+      volumes:
+      - name: vol-${NOMIE_DB_LABEL}
+        persistentVolumeClaim:
+          claimName: pvc-${NOMIE_DB_LABEL}
+      securityContext:
+        fsGroup: 1001
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-${NOMIE_DB_LABEL}
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - ${NOMIE_DB_HOSTNAME}
+    secretName: "${NOMIE_DB_TLS_SECRET}"
+  rules:
+  - host: ${NOMIE_DB_HOSTNAME}
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: svc-${NOMIE_DB_LABEL}-http
+            port:
+              number: 5984
