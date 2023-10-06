@@ -25,9 +25,9 @@ deploy_caddyfile() {
 
 deploy_caddy() {
   info "Populating env variables into manifest..." && \
-    populate_yaml_env "${SCRIPT_PATH}/kubernetes/caddy.yaml" && \
+    populate_yaml_env "${SCRIPT_PATH}/kubernetes/caddy.yaml" "${SCRIPT_PATH}/kubernetes/caddy-${CADDY_LABEL}.yaml" && \
     info "Deploying caddy..." && \
-    microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/caddy.yaml" && \
+    microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/caddy-${CADDY_LABEL}.yaml" && \
     info "Waiting for caddy to be ready..." && \
     wait_for_pods_ready "300" "default" "app=app-${CADDY_LABEL}"
 }
