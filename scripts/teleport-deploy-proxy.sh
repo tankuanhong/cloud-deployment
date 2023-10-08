@@ -300,6 +300,7 @@ configure_caddy() {
               "handle": [
                 {
                   "handler": "proxy",
+                  "proxy_protocol": "v2",
                   "upstreams": [
                     {
                       "dial": [
@@ -433,6 +434,7 @@ ssh_service:
 # This section configures the 'proxy service'
 proxy_service:
   enabled: "yes"
+  proxy_protocol: "on"
   web_listen_addr: 0.0.0.0:${TELEPORT_PROXY_PORT}
   public_addr: ${TELEPORT_PUBLIC_ADDR}:443
   https_keypairs:
