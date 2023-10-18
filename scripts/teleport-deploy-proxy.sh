@@ -46,8 +46,8 @@ install_caddy() {
     mkdir -p /etc/caddy && \
     mkdir -p /var/log/caddy && \
     mkdir -p /var/lib/caddy && \
-    info "Copying caddy binary..." && \
-    cp "${SCRIPT_PATH}/assets/caddy/linux/2.6.4/caddy-cloudflare-layer4-l4tls-l4proxy-security" /usr/bin/caddy && \
+    info "Downloading caddy binary..." && \
+    wget -O /usr/bin/caddy ${CADDY_DOWNLOAD_URL} && \
     chmod +x /usr/bin/caddy && \
     info "Setting permissions..." && \
     chown caddy:caddy /usr/bin/caddy && \
