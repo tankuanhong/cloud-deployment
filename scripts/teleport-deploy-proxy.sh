@@ -94,10 +94,9 @@ configure_caddy() {
         },
         "level": "DEBUG",
         "include": [
-            "http.log.access",
+            "http",
             "layer4",
-            "layer4.handlers.proxy",
-            "layer4.matchers.tls"
+            "tls"
         ]
       }
     }
