@@ -5,27 +5,10 @@
 # import
 source "${SCRIPT_PATH}/conf/teleport.conf" || fatal_err "${SCRIPT_PATH}/conf/teleport.conf is missing"
 
-# function to check if command exist
-command_exist() {
-  type "$1" > /dev/null 2>&1
-}
-
-# function to check if service is active
-service_active() {
-  systemctl is-active --quiet $1
-}
-
-# this script is only tested on Ubuntu 20.04
-if [ $(lsb_release -si) != "Ubuntu" ] || [ $(lsb_release -sr) != "20.04" ]; then
-  err "This server is not running Ubuntu 20.04"
-  err "Terminating script..."
-  exit 1
-fi
-
 check_restore_files() {
-  if [ ! -f "${TELEPORT_STATE_RESTORE}" ]; then exit 1; fi
-  if [ ! -f "${TELEPORT_DATA_RESTORE}" ]; then exit 1; fi
-  if [ ! -f "${CADDY_DATA_RESTORE}" ]; then exit 1; fi
+  if [ ! -f "${TELEPORT_STATE_RESTORE}" ]; then fatal_err "${TELEPORT_STATE_RESTORE} is missing"; fi
+  if [ ! -f "${TELEPORT_DATA_RESTORE}" ]; then fatal_err "${TELEPORT_DATA_RESTORE} is missing"; fi
+  if [ ! -f "${CADDY_DATA_RESTORE}" ]; then fatal_err "${CADDY_DATA_RESTORE} is missing"; fi
 }
 
 restore_caddy_data() {
