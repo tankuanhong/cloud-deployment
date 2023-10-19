@@ -5,28 +5,10 @@
 # import
 source "${SCRIPT_PATH}/conf/teleport.conf" || fatal_err "${SCRIPT_PATH}/conf/teleport.conf is missing"
 
-# function to check if command exist
-command_exist() {
-  type "$1" > /dev/null 2>&1
-}
-
-# function to check if service is active
-service_active() {
-  systemctl is-active --quiet $1
-}
-
-# this script is only tested on Ubuntu 20.04
-if [ $(lsb_release -si) != "Ubuntu" ] || [ $(lsb_release -sr) != "20.04" ]; then
-  err "This server is not running Ubuntu 20.04"
-  err "Terminating script..."
-  exit 1
-fi
-
 export_teleport_state() {
   info "Checking Teleport service..."
   if ! service_active teleport; then
-    err "Teleport service is not running"
-    exit 1
+    fatal_err "Teleport service is not running"
   else
     info "Exporting Teleport state"
     tctl get all --with-secrets > ${SCRIPT_PATH}/teleport_state_$(date "+%y%m%d_%H%M%S").yaml
@@ -40,8 +22,7 @@ stop_teleport_service() {
 
 export_teleport_data() {
   if service_active teleport; then
-    err "Teleport service is still running"
-    exit 1
+    fatal_err "Teleport service is still running"
   else
     info "Exporting Teleport data directory..."
     cd /var/lib
