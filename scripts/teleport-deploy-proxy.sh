@@ -20,9 +20,7 @@ install_teleport() {
     sudo apt-get install teleport
 
   if ! command_exist "teleport"; then
-    err "Teleport not found after installation"
-    err "Terminating script..."
-    exit 1
+    fatal_err "Teleport not found after installation"
   else
     info "Teleport installed"
   fi
@@ -67,9 +65,7 @@ install_caddy() {
     mandb
 
   if ! command_exist "caddy"; then
-    err "Caddy not found after installation"
-    err "Terminating script..."
-    exit 1
+    fatal_err "Caddy not found after installation"
   else
     info "Caddy installed"
   fi
@@ -296,7 +292,7 @@ EOF
     systemctl status teleport --no-pager
 
   if ! service_active teleport; then
-    warn "Teleport service is not running"
+    fatal_err "Teleport service is not running"
   else
     info "Teleport configured and started"
   fi
@@ -307,7 +303,7 @@ install_fail2ban() {
     apt-get -y install fail2ban
 
   if ! service_active fail2ban; then
-    warn "fail2ban service is not running"
+    fatal_err "fail2ban service is not running"
   else
     info "fail2ban installed"
   fi
@@ -348,7 +344,7 @@ EOF
     systemctl restart fail2ban && \
     systemctl status fail2ban --no-pager && \
     if ! service_active fail2ban; then
-      warn "fail2ban service is not running"
+      fatal_err "fail2ban service is not running"
     else
       info "fail2ban configured and started"
     fi
@@ -361,8 +357,7 @@ install_kopia() {
     apt update && \
     apt install kopia && \
     if ! command_exist "kopia"; then
-      err "kopia not found after installation"
-      err "Terminating script..."
+      fatal_err "kopia not found after installation"
     else
       info "kopia installed"
     fi
