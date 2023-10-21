@@ -8,6 +8,14 @@ source "${SCRIPT_PATH}/conf/teleport.conf" || fatal_err "${SCRIPT_PATH}/conf/tel
 # harden os
 source ${SCRIPT_PATH}/scripts/common-harden-ubuntu.sh || fatal_err "Failed to harden os"
 
+# allow http and https
+web_firewall_rules() {
+  info "Allow web services on ufw..." && \
+    ufw allow http && \
+    ufw allow https && \
+    info "Failed to add web services on ufw"
+}
+
 # install teleport
 install_teleport() {
   info "Installing Teleport..." && \
@@ -420,13 +428,7 @@ install_cron() {
   fi
 }
 
-# allow http and https
-allow_web_service() {
-  info "Allow http and https on ufw..." && \
-    ufw allow http && \
-    ufw allow https
-}
-
+web_firewall_rules
 install_teleport
 install_caddy
 configure_caddy
@@ -436,6 +438,5 @@ configure_fail2ban
 install_kopia
 configure_kopia
 install_cron
-allow_web_service
 
 } # this ensures the entire script is downloaded #
