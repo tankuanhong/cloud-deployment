@@ -420,12 +420,13 @@ install_cron() {
   fi
 }
 
-configure_ufw
-upgrade_packages
-disable_autoupgrade
-setup_ntp
-harden_sshd
-configure_remote_syslog
+# allow http and https
+allow_web_service() {
+  info "Allow http and https on ufw..." && \
+    ufw allow http && \
+    ufw allow https
+}
+
 install_teleport
 install_caddy
 configure_caddy
@@ -435,5 +436,6 @@ configure_fail2ban
 install_kopia
 configure_kopia
 install_cron
+allow_web_service
 
 } # this ensures the entire script is downloaded #
