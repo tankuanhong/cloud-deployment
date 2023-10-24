@@ -106,6 +106,30 @@ configure_caddy() {
     }
   },
   "apps": {
+    "http": {
+      "servers": {
+        "srv0": {
+          "listen": [
+            ":80"
+          ],
+          "routes": [
+            {
+              "handle": [
+                {
+                  "handler": "static_response",
+                  "headers": {
+                    "Location": [
+                      "https://{http.request.host}{http.request.uri}"
+                    ]
+                  },
+                  "status_code": 302
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
     "layer4": {
       "servers": {
         "srv0": {
