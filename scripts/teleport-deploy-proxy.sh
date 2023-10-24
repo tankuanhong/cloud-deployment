@@ -276,10 +276,13 @@ auth_service:
 ssh_service:
   enabled: "yes"
   listen_addr: 0.0.0.0:3022
+  labels:
+    env: tbc
   commands:
   - name: hostname
     command: [hostname]
     period: 1m0s
+  disable_create_host_user: true
 
 # This section configures the 'proxy service'
 proxy_service:
