@@ -7,7 +7,7 @@ source "${SCRIPT_PATH}/conf/teleport.conf" || fatal_err "${SCRIPT_PATH}/conf/tel
 
 # set variables
 backup_time=$(date "+%y%m%d_%H%M%S")
-backup_dir=${TELEPORT_BACKUP_DIR}/${backup_time}_manual
+backup_dir=${TELEPORT_BACKUP_DIR}/${backup_time}_full
 
 setup_backup_dir() {
   info "Setting up backup directory..." && \
