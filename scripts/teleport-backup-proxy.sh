@@ -5,13 +5,27 @@
 # import
 source "${SCRIPT_PATH}/conf/teleport.conf" || fatal_err "${SCRIPT_PATH}/conf/teleport.conf is missing"
 
+# set variables
+backup_time=$(date "+%y%m%d_%H%M%S")
+backup_dir=${TELEPORT_BACKUP_DIR}/${backup_time}_manual
+
+setup_backup_dir() {
+  info "Setting up backup directory..." && \
+    mkdir -p ${backup_dir}
+}
+
+export_teleport_conf() {
+  info "Exporting Teleport configuration..." && \
+    cp /etc/teleport.yaml ${backup_dir}/teleport_conf.yaml
+}
+
 export_teleport_state() {
   info "Checking Teleport service..."
   if ! service_active teleport; then
     fatal_err "Teleport service is not running"
   else
-    info "Exporting Teleport state"
-    tctl get all --with-secrets > ${SCRIPT_PATH}/teleport_state_$(date "+%y%m%d_%H%M%S").yaml
+    info "Exporting Teleport state..."
+    tctl get all --with-secrets > ${backup_dir}/teleport_state.yaml
   fi
 }
 
@@ -26,25 +40,33 @@ export_teleport_data() {
   else
     info "Exporting Teleport data directory..."
     cd /var/lib
-    tar cf ${SCRIPT_PATH}/teleport_data_dir_$(date "+%y%m%d_%H%M%S").tar teleport
+    tar cf ${backup_dir}/teleport_data_dir.tar teleport
   fi
+}
+
+export_caddy_conf() {
+  info "Exporting caddy configuration..." && \
+    cp /etc/caddy/caddy.json ${backup_dir}/caddy.json
 }
 
 export_caddy_data() {
   info "Exporting Caddy data directory..."
   cd /var/lib/caddy
-  tar cf ${SCRIPT_PATH}/caddy_data_dir_$(date "+%y%m%d_%H%M%S").tar .local
+  tar cf ${backup_dir}/caddy_data_dir.tar .local
 }
 
 export_kopia_config() {
   info "Exporting kopia config directory..."
   cd /opt
-  tar cf ${SCRIPT_PATH}/kopia_opt_dir_$(date "+%y%m%d_%H%M%S").tar kopia
+  tar cf ${backup_dir}/kopia_opt_dir.tar kopia
 }
 
+setup_backup_dir
+export_teleport_conf
 export_teleport_state
 stop_teleport_service
 export_teleport_data
+export_caddy_conf
 export_caddy_data
 export_kopia_config
 

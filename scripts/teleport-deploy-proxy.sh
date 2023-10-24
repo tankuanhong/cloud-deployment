@@ -449,6 +449,12 @@ EOF
   fi
 }
 
+create_backup_dir() {
+  info "Creating backup directory..." && \
+    mkdir -p ${TELEPORT_BACKUP_DIR} && \
+    chmod 700 ${TELEPORT_BACKUP_DIR}
+}
+
 install_cron() {
   info "Install cron jobs..."
   if [ "$(crontab ${SCRIPT_PATH}/assets/teleport/teleport.cron; echo $?)" = '0' ]; then
@@ -467,6 +473,7 @@ install_fail2ban
 configure_fail2ban
 install_kopia
 configure_kopia
+create_backup_dir
 install_cron
 
 } # this ensures the entire script is downloaded #
