@@ -456,7 +456,13 @@ create_backup_dir() {
 }
 
 install_cron() {
-  info "Install cron jobs..."
+  info "Populating variables in cron file" && \
+    tmpfile=$(mktemp) && \
+    cp --attributes-only --preserve "${SCRIPT_PATH}/assets/teleport/teleport.cron" $tmpfile && \
+    cat "${SCRIPT_PATH}/assets/teleport/teleport.cron" | envsubst '$TELEPORT_BACKUP_DIR' > $tmpfile && \
+    mv $tmpfile "${SCRIPT_PATH}/assets/teleport/teleport.cron"
+    
+  info "Installing cron jobs..."
   if [ "$(crontab ${SCRIPT_PATH}/assets/teleport/teleport.cron; echo $?)" = '0' ]; then
     info "Cron installed successfully"
   else
