@@ -283,6 +283,9 @@ ssh_service:
     command: [hostname]
     period: 1m0s
   disable_create_host_user: true
+  pam:
+    enabled: true
+    service_name: "sshd"
 
 # This section configures the 'proxy service'
 proxy_service:
