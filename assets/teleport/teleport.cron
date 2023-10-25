@@ -1,2 +1,2 @@
 MAILTO=""
-15 * * * *    BACKUP_DIR=${TELEPORT_BACKUP_DIR}/$(date +\%y\%m\%d_\%H\%M)_partial && mkdir ${BACKUP_DIR} && cp /etc/teleport.yaml ${BACKUP_DIR}/teleport_conf.yaml && /usr/local/bin/tctl get all --with-secrets > ${BACKUP_DIR}/teleport_state.yaml && cp /etc/caddy/caddy.json ${BACKUP_DIR}/caddy.json
+15 * * * *    BACKUP_DIR=${TELEPORT_BACKUP_DIR}/$(date +\%y\%m\%d_\%H\%M)_partial && mkdir ${BACKUP_DIR} && cp /etc/teleport.yaml ${BACKUP_DIR}/teleport_conf.yaml && /usr/local/bin/tctl get all --with-secrets > ${BACKUP_DIR}/teleport_state.yaml && cp /etc/caddy/caddy.json ${BACKUP_DIR}/caddy_conf.json
