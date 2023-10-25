@@ -277,7 +277,9 @@ ssh_service:
   enabled: "yes"
   listen_addr: 0.0.0.0:3022
   labels:
-    env: tbc
+    env: dev
+    role: security
+    app: teleport
   commands:
   - name: hostname
     command: [hostname]
