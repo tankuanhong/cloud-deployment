@@ -58,7 +58,7 @@ export_caddy_conf() {
   fi
 
   info "Exporting caddy configuration..." && \
-    cp /etc/caddy/caddy.json ${backup_dir}/caddy.json
+    cp /etc/caddy/caddy.json ${backup_dir}/caddy_conf.json
 }
 
 export_caddy_data() {
