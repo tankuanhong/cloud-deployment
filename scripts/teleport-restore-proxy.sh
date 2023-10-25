@@ -6,8 +6,10 @@
 source "${SCRIPT_PATH}/conf/teleport.conf" || fatal_err "${SCRIPT_PATH}/conf/teleport.conf is missing"
 
 check_restore_files() {
+  if [ ! -f "${SCRIPT_PATH}/${TELEPORT_CONF_RESTORE}" ]; then fatal_err "${SCRIPT_PATH}/${TELEPORT_CONF_RESTORE} is missing"; fi
   if [ ! -f "${SCRIPT_PATH}/${TELEPORT_STATE_RESTORE}" ]; then fatal_err "${SCRIPT_PATH}/${TELEPORT_STATE_RESTORE} is missing"; fi
   if [ ! -f "${SCRIPT_PATH}/${TELEPORT_DATA_RESTORE}" ]; then fatal_err "${SCRIPT_PATH}/${TELEPORT_DATA_RESTORE} is missing"; fi
+  if [ ! -f "${SCRIPT_PATH}/${CADDY_CONF_RESTORE}" ]; then fatal_err "${SCRIPT_PATH}/${CADDY_CONF_RESTORE} is missing"; fi
   if [ ! -f "${SCRIPT_PATH}/${CADDY_DATA_RESTORE}" ]; then fatal_err "${SCRIPT_PATH}/${CADDY_DATA_RESTORE} is missing"; fi
 }
 
