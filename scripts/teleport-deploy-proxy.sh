@@ -280,10 +280,6 @@ ssh_service:
     env: dev
     role: security
     app: teleport
-  commands:
-  - name: hostname
-    command: [hostname]
-    period: 1m0s
   disable_create_host_user: true
   pam:
     enabled: true
