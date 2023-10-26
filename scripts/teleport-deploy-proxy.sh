@@ -260,12 +260,13 @@ auth_service:
   authentication:
     type: local
     second_factor: otp
+    locking_mode: strict
   listen_addr: 0.0.0.0:${TELEPORT_AUTH_PORT}
   session_recording: "node-sync"
   proxy_checks_host_keys: "yes"
-  client_idle_timeout: never
-  client_idle_timeout_message: ""
-  web_idle_timeout: 10m
+  client_idle_timeout: 20m
+  client_idle_timeout_message: "Session terminated due to inactivity (20m)."
+  web_idle_timeout: 30m
   disconnect_expired_cert: "no"
   keep_alive_interval: 5m
   keep_alive_count_max: 3
