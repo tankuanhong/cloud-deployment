@@ -275,11 +275,13 @@ auth_service:
 # This section configures the 'node service'
 ssh_service:
   enabled: "yes"
+  enhanced_recording:
+    enabled: true
   listen_addr: 0.0.0.0:3022
   labels:
     env: dev
-    role: security
-    app: teleport
+    security: high
+    partition: mina
   disable_create_host_user: true
   pam:
     enabled: true
