@@ -1,0 +1,37 @@
+kind: role
+version: v7
+metadata:
+  description: Medium security level access
+  name: medium-security-level
+spec:
+  allow:
+    logins:
+    - '{{internal.logins}}'
+    node_labels:
+      '*': '*'
+    rules:
+    - resources:
+      - session
+      verbs:
+      - read
+      - list
+      where: contains(session.participants, user.metadata.name)
+    - resources:
+      - instance
+      verbs:
+      - list
+      - read
+  deny:
+    node_labels:
+      'security': 'high'
+  options:
+    cert_format: standard
+    create_host_user_mode: drop
+    enhanced_recording:
+    - command
+    - network
+    forward_agent: true
+    max_session_ttl: 8h0m0s
+    pin_source_ip: false
+    port_forwarding: true
+    ssh_file_copy: true
