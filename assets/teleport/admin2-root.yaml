@@ -1,12 +1,12 @@
 kind: role
 version: v7
 metadata:
-  description: Low security level access
-  name: low-security-level
+  description: Root level access for admin2
+  name: admin2-root
 spec:
   allow:
     logins:
-    - '{{internal.logins}}'
+    - root
     node_labels:
       '*': '*'
     rules:
@@ -23,12 +23,10 @@ spec:
       - read
   deny:
     node_labels:
-      'security':
-      - 'high'
-      - 'med'
+      'hostname': 'dev-teleport-01'
   options:
     cert_format: standard
-    create_host_user_mode: drop
+    create_host_user_mode: off
     enhanced_recording:
     - command
     - network

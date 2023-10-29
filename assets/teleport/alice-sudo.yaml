@@ -1,14 +1,20 @@
 kind: role
 version: v7
 metadata:
-  description: Medium security level access
-  name: medium-security-level
+  description: Sudoer level access for alice
+  name: alice-sudo
 spec:
   allow:
     logins:
-    - '{{internal.logins}}'
+    - alice
+    host_sudoers:
+    - "ALL=(ALL) NOPASSWD: ALL"
     node_labels:
-      '*': '*'
+      'hostname':
+      - 'dev-mina-01'
+      - 'dev-mina-02'
+      - 'dev-zqsn-01'
+      - 'dev-xd-01'
     rules:
     - resources:
       - session
@@ -21,12 +27,10 @@ spec:
       verbs:
       - list
       - read
-  deny:
-    node_labels:
-      'security': 'high'
+  deny: {}
   options:
     cert_format: standard
-    create_host_user_mode: drop
+    create_host_user_mode: keep
     enhanced_recording:
     - command
     - network
