@@ -1,0 +1,16 @@
+kind: role
+version: v7
+metadata:
+  description: Review user session recordings
+  name: session-review
+spec:
+  allow:
+    rules:
+    - resources:
+      - session
+      verbs:
+      - list
+      - read
+      where: >
+        contains(session.participants, "alice") ||
+        contains(session.participants, "anotheruser")
