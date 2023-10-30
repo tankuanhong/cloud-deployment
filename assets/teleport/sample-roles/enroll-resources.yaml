@@ -1,0 +1,14 @@
+kind: role
+version: v7
+metadata:
+  description: Enroll new resources
+  name: enroll-resources
+spec:
+  allow:
+    node_labels:
+      '*': '*'
+    rules:
+    - resources:
+      - token
+      verbs:
+      - create

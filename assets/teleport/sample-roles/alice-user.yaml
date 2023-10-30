@@ -1,0 +1,38 @@
+kind: role
+version: v7
+metadata:
+  description: User level access for alice
+  name: alice-user
+spec:
+  allow:
+    logins:
+    - alice
+    host_sudoers:
+    - "ALL=(ALL) NOPASSWD: /usr/bin/whoami"
+    node_labels:
+      'hostname':
+      - 'dev-zqsn-01'
+    rules:
+    - resources:
+      - session
+      verbs:
+      - read
+      - list
+      where: contains(session.participants, user.metadata.name)
+    - resources:
+      - instance
+      verbs:
+      - list
+      - read
+  deny: {}
+  options:
+    cert_format: standard
+    create_host_user_mode: keep
+    enhanced_recording:
+    - command
+    - network
+    forward_agent: true
+    max_session_ttl: 8h0m0s
+    pin_source_ip: false
+    port_forwarding: true
+    ssh_file_copy: true

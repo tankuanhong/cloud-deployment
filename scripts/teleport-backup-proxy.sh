@@ -5,65 +5,88 @@
 # import
 source "${SCRIPT_PATH}/conf/teleport.conf" || fatal_err "${SCRIPT_PATH}/conf/teleport.conf is missing"
 
-# function to check if command exist
-command_exist() {
-  type "$1" > /dev/null 2>&1
+# set variables
+backup_time=$(date "+%y%m%d_%H%M%S")
+backup_dir=${TELEPORT_BACKUP_DIR}/${backup_time}_full
+
+setup_backup_dir() {
+  info "Setting up backup directory..." && \
+    mkdir -p ${backup_dir}
 }
 
-# function to check if service is active
-service_active() {
-  systemctl is-active --quiet $1
-}
+export_teleport_conf() {
+  if [ ! -f /etc/teleport.yaml ]; then
+    fatal_err "/etc/teleport.yaml is missing";
+  fi
 
-# this script is only tested on Ubuntu 20.04
-if [ $(lsb_release -si) != "Ubuntu" ] || [ $(lsb_release -sr) != "20.04" ]; then
-  err "This server is not running Ubuntu 20.04"
-  err "Terminating script..."
-  exit 1
-fi
+  info "Exporting Teleport configuration..." && \
+    cp /etc/teleport.yaml ${backup_dir}/teleport_conf.yaml
+}
 
 export_teleport_state() {
-  info "Checking Teleport service..."
-  if ! service_active teleport; then
-    err "Teleport service is not running"
-    exit 1
-  else
-    info "Exporting Teleport state"
-    tctl get all --with-secrets > ${SCRIPT_PATH}/teleport_state_$(date "+%y%m%d_%H%M%S").yaml
-  fi
+  info "Checking Teleport service..." && \
+    if ! service_active teleport; then
+      fatal_err "Teleport service is not running"
+    else
+      info "Exporting Teleport state..."
+      tctl get all --with-secrets > ${backup_dir}/teleport_state.yaml
+    fi
 }
 
 stop_teleport_service() {
-  info "Stopping Teleport service..."
-  systemctl stop teleport
+  info "Stopping Teleport service..." && \
+    systemctl stop teleport
 }
 
 export_teleport_data() {
+  if [ ! -d /var/lib/teleport ]; then
+    fatal_err "/var/lib/teleport is missing";
+  fi
+
   if service_active teleport; then
-    err "Teleport service is still running"
-    exit 1
+    fatal_err "Teleport service is still running"
   else
     info "Exporting Teleport data directory..."
     cd /var/lib
-    tar cf ${SCRIPT_PATH}/teleport_data_dir_$(date "+%y%m%d_%H%M%S").tar teleport
+    tar cf ${backup_dir}/teleport_data_dir.tar teleport
   fi
 }
 
+export_caddy_conf() {
+  if [ ! -f /etc/caddy/caddy.json ]; then
+    fatal_err "/etc/caddy/caddy.json is missing";
+  fi
+
+  info "Exporting caddy configuration..." && \
+    cp /etc/caddy/caddy.json ${backup_dir}/caddy_conf.json
+}
+
 export_caddy_data() {
-  info "Exporting Caddy data directory..."
-  cd /var/lib/caddy
-  tar cf ${SCRIPT_PATH}/caddy_data_dir_$(date "+%y%m%d_%H%M%S").tar .local
+  if [ ! -d /var/lib/caddy/.local ]; then
+    fatal_err "/var/lib/caddy/.local is missing";
+  fi
+
+  info "Exporting Caddy data directory..." && \
+    cd /var/lib/caddy && \
+    tar cf ${backup_dir}/caddy_data_dir.tar .local
 }
 
 export_kopia_config() {
+  if [ ! -d /opt/kopia ]; then
+    fatal_err "/opt/kopia is missing";
+  fi
+
   info "Exporting kopia config directory..."
   cd /opt
-  tar cf ${SCRIPT_PATH}/kopia_opt_dir_$(date "+%y%m%d_%H%M%S").tar kopia
+  tar cf ${backup_dir}/kopia_opt_dir.tar kopia
 }
 
+setup_backup_dir
+export_teleport_conf
 export_teleport_state
 stop_teleport_service
 export_teleport_data
+export_caddy_conf
 export_caddy_data
 export_kopia_config
 

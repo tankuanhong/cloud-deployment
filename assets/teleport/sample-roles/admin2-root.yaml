@@ -1,0 +1,37 @@
+kind: role
+version: v7
+metadata:
+  description: Root level access for admin2
+  name: admin2-root
+spec:
+  allow:
+    logins:
+    - root
+    node_labels:
+      '*': '*'
+    rules:
+    - resources:
+      - session
+      verbs:
+      - read
+      - list
+      where: contains(session.participants, user.metadata.name)
+    - resources:
+      - instance
+      verbs:
+      - list
+      - read
+  deny:
+    node_labels:
+      'hostname': 'dev-teleport-01'
+  options:
+    cert_format: standard
+    create_host_user_mode: off
+    enhanced_recording:
+    - command
+    - network
+    forward_agent: true
+    max_session_ttl: 8h0m0s
+    pin_source_ip: false
+    port_forwarding: true
+    ssh_file_copy: true

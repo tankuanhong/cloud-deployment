@@ -1,0 +1,34 @@
+kind: role
+version: v7
+metadata:
+  description: Peer user ssh sessions
+  name: session-peer
+spec:
+  allow:
+    join_sessions:
+      - name: Join and interact with user ssh sessions
+        roles:
+        - alice-sudo
+        - alice-user
+        kinds:
+        - ssh
+        modes:
+        - observer
+        - moderator
+        - peer
+    rules:
+    - resources:
+      - event
+      verbs:
+      - list
+      - read
+    - resources:
+      - session_tracker
+      verbs:
+      - list
+      - read
+    - resources:
+      - cluster_alert
+      verbs:
+      - list
+      - read
