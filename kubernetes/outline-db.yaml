@@ -1,0 +1,69 @@
+# https://github.com/bitnami/containers/blob/main/bitnami/postgresql/14/debian-11/rootfs/opt/bitnami/scripts/postgresql-env.sh
+# https://hub.docker.com/r/bitnami/postgresql
+
+#PVC_START
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-${OUTLINE_DB_LABEL}
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: ${OUTLINE_DB_PVC_SIZE}
+#PVC_END
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-${OUTLINE_DB_LABEL}-db
+spec:
+  ports:
+  - port: 5432
+  selector:
+    app: app-${OUTLINE_DB_LABEL}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dep-${OUTLINE_DB_LABEL}
+  labels:
+    app: app-${OUTLINE_DB_LABEL}
+spec:
+  selector:
+    matchLabels:
+      app: app-${OUTLINE_DB_LABEL}
+  template:
+    metadata:
+      labels:
+        app: app-${OUTLINE_DB_LABEL}
+    spec:
+      restartPolicy: Always
+      containers:
+      - image: ${OUTLINE_DB_IMAGE}
+        imagePullPolicy: Always
+        name: pod-${OUTLINE_DB_LABEL}
+        env:
+        - name: POSTGRESQL_POSTGRES_PASSWORD
+          value: "${OUTLINE_DB_POSTGRES_PASSWORD}"
+        - name: POSTGRESQL_USERNAME
+          value: "${OUTLINE_DB_USERNAME}"
+        - name: POSTGRESQL_PASSWORD
+          value: "${OUTLINE_DB_PASSWORD}"
+        - name: POSTGRESQL_DATABASE
+          value: "${OUTLINE_DB_DATABASE}"
+        ports:
+        - containerPort: 5432
+          protocol: TCP
+        volumeMounts:
+        - name: vol-${OUTLINE_DB_LABEL}
+          mountPath: /bitnami/postgresql
+      volumes:
+      - name: vol-${OUTLINE_DB_LABEL}
+        persistentVolumeClaim:
+          claimName: pvc-${OUTLINE_DB_LABEL}
+      securityContext:
+        fsGroup: 1001

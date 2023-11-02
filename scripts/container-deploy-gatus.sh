@@ -9,10 +9,7 @@ wait_for_node_ready "300"
 
 deploy_gatus() {
   info "Setting custom gatus parameters..." && \
-    tmpfile=$(mktemp) && \
-    cp --attributes-only --preserve "${SCRIPT_PATH}/kubernetes/gatus.yaml" $tmpfile && \
-    cat "${SCRIPT_PATH}/kubernetes/gatus.yaml" | envsubst > $tmpfile && \
-    mv $tmpfile "${SCRIPT_PATH}/kubernetes/gatus.yaml" && \
+    populate_yaml_env "${SCRIPT_PATH}/kubernetes/gatus.yaml" && \
     info "Deploying gatus..." && \
     microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/gatus.yaml" && \
     info "Waiting for gatus to be ready..." && \

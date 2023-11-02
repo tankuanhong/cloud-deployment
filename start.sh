@@ -117,6 +117,8 @@ kubernetes_menu() {
     "${SCRIPT_PATH}/scripts/kubernetes-deploy-cluster.sh"
     "${SCRIPT_PATH}/scripts/kubernetes-deploy-cert-issuer.sh"
     "${SCRIPT_PATH}/scripts/kubernetes-request-cert.sh"
+    "${SCRIPT_PATH}/scripts/kubernetes-deploy-kubedash-ingress.sh"
+    "${SCRIPT_PATH}/scripts/kubernetes-deploy-longhorn-ingress.sh"
   )
   display_menu "${kubernetes[@]}"
 }
@@ -133,14 +135,15 @@ containers_menu() {
     "${SCRIPT_PATH}/scripts/container-deploy-fider.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-firefly3.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-gatus.sh"
+    "${SCRIPT_PATH}/scripts/container-deploy-ghost.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-grocy.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-healthchecks.sh"
+    "${SCRIPT_PATH}/scripts/container-deploy-littlelink.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-memos.sh"
+    "${SCRIPT_PATH}/scripts/container-deploy-outline.sh"
+    "${SCRIPT_PATH}/scripts/container-deploy-rallly.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-shlink.sh"
     "${SCRIPT_PATH}/scripts/container-deploy-syncthing-discovery.sh"
-
-    # TODO: Test rallly deployment (no arm64 images available)
-    "${SCRIPT_PATH}/scripts/container-deploy-rallly.sh"
 
     # TODO: Add answer https://github.com/answerdev/answer
     # TODO: Add asciiflow https://github.com/lewish/asciiflow
@@ -148,11 +151,14 @@ containers_menu() {
     # TODO: Add biodrop https://github.com/EddieHubCommunity/BioDrop
     # TODO: Add claper https://github.com/ClaperCo/Claper
     # TODO: Add dashy https://github.com/lissy93/dashy
+    # TODO: Add drawio https://github.com/jgraph/drawio
     # TODO: Add drone ci https://github.com/harness/drone
     # TODO: Add fileshelter https://github.com/epoupon/fileshelter
-    # TODO: Add formbricks https://github.com/formbricks/formbricks
+    # TODO: *Add formbricks https://github.com/formbricks/formbricks
+    # TODO: Add gathio https://github.com/lowercasename/gathio
     # TODO: Add grafana https://github.com/grafana/grafana
     # TODO: Add grafana loki https://github.com/grafana/loki
+    # TODO: Add grist https://github.com/gristlabs/grist-core
     # TODO: Add guacamole https://guacamole.apache.org/
     # TODO: Add homechart https://github.com/candiddev/homechart
     # TODO: Add ihatemoney https://github.com/spiral-project/ihatemoney
@@ -160,10 +166,15 @@ containers_menu() {
     # TODO: Add mealie https://github.com/mealie-recipes/mealie
     # TODO: Add miniflux https://github.com/miniflux/v2
     # TODO: Add nomie https://github.com/open-nomie/nomie6-oss
+            # work in progress
+            # nomie app deployment similar to littlelink
+            # see nomie-db.yaml for database deployment
+    # TODO: Add ontime https://github.com/cpvalente/ontime
     # TODO: Add pairdrop https://github.com/schlagmichdoch/pairdrop
     # TODO: Add peertube https://github.com/Chocobozzz/PeerTube
+    # TODO: Add plane https://github.com/makeplane/plane
     # TODO: Add prometheus https://github.com/prometheus/prometheus
-    # TODO: Add qr-code-styling https://github.com/kozakdenys/qr-code-styling
+    # TODO: *Add qr-code-styling https://github.com/kozakdenys/qr-code-styling
     # TODO: Add seatsurfing https://github.com/seatsurfing/backend
     # TODO: Add speedtest https://github.com/openspeedtest/Speed-Test
     # TODO: Add talkyard https://github.com/debiki/talkyard

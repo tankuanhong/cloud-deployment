@@ -1,0 +1,57 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-${LONGHORN_LABEL}
+  annotations:
+    nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth$LONGHORN_AUTH_QUERY"
+    nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=https://$host$request_uri"
+    nginx.ingress.kubernetes.io/auth-response-headers: X-Auth-Request-Email,X-Auth-Request-Access-Token,X-Auth-Request-Preferred-Username
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - ${LONGHORN_HOSTNAME}
+    secretName: "${LONGHORN_TLS_SECRET}"
+  rules:
+  - host: ${LONGHORN_HOSTNAME}
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: svc-${LONGHORN_LABEL}-http
+            port:
+              number: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-${LONGHORN_LABEL}-http
+spec:
+  type: ExternalName
+  externalName: longhorn-frontend.longhorn-system.svc.cluster.local
+  ports:
+  - port: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-${LONGHORN_LABEL}-oauth2-proxy
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - ${LONGHORN_HOSTNAME}
+    secretName: "${LONGHORN_TLS_SECRET}"
+  rules:
+  - host: ${LONGHORN_HOSTNAME}
+    http:
+      paths:
+      - path: /oauth2
+        pathType: Prefix
+        backend:
+          service:
+            name: ${LONGHORN_OAUTH2_PROXY}
+            port:
+              number: 4180

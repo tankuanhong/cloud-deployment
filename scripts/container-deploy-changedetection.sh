@@ -9,10 +9,7 @@ wait_for_node_ready "300"
 
 deploy_changedetection() {
   info "Setting custom changedetection.io parameters..." && \
-    tmpfile=$(mktemp) && \
-    cp --attributes-only --preserve "${SCRIPT_PATH}/kubernetes/changedetection.yaml" $tmpfile && \
-    cat "${SCRIPT_PATH}/kubernetes/changedetection.yaml" | envsubst > $tmpfile && \
-    mv $tmpfile "${SCRIPT_PATH}/kubernetes/changedetection.yaml" && \
+    populate_yaml_env "${SCRIPT_PATH}/kubernetes/changedetection.yaml" && \
     info "Deploying changedetection.io..." && \
     microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/changedetection.yaml" && \
     info "Waiting for changedetection.io to be ready..." && \

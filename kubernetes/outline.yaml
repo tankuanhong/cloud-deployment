@@ -1,0 +1,155 @@
+# https://docs.getoutline.com/s/hosting/
+# https://hub.docker.com/r/outlinewiki/outline
+
+#PVC_START
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-${OUTLINE_LABEL}
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: ${OUTLINE_PVC_SIZE}
+#PVC_END
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-${OUTLINE_LABEL}-http
+spec:
+  ports:
+  - port: 3000
+  selector:
+    app: app-${OUTLINE_LABEL}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dep-${OUTLINE_LABEL}
+  labels:
+    app: app-${OUTLINE_LABEL}
+spec:
+  selector:
+    matchLabels:
+      app: app-${OUTLINE_LABEL}
+  template:
+    metadata:
+      labels:
+        app: app-${OUTLINE_LABEL}
+    spec:
+      restartPolicy: Always
+      containers:
+      - image: ${OUTLINE_IMAGE}
+        imagePullPolicy: Always
+        name: pod-${OUTLINE_LABEL}
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: SECRET_KEY
+          value: "${OUTLINE_SECRET_KEY}"
+        - name: UTILS_SECRET
+          value: "${OUTLINE_UTILS_SECRET}"
+        - name: DATABASE_URL
+          value: "postgres://${OUTLINE_DB_USERNAME}:${OUTLINE_DB_PASSWORD}@svc-${OUTLINE_DB_LABEL}-db:5432/${OUTLINE_DB_DATABASE}"
+        - name: PGSSLMODE
+          value: "disable"
+        - name: REDIS_URL
+          value: "redis://:${OUTLINE_REDIS_PASSWORD}@svc-${OUTLINE_REDIS_LABEL}-redis:6379"
+        - name: URL
+          value: "https://${OUTLINE_HOSTNAME}"
+        - name: PORT
+          value: "3000"
+        - name: FILE_STORAGE
+          value: "local"
+        - name: FILE_STORAGE_LOCAL_ROOT_DIR
+          value: "${OUTLINE_FILE_STORAGE_DIR}"
+        - name: FILE_STORAGE_UPLOAD_MAX_SIZE
+          value: "${OUTLINE_FILE_UPLOAD_MAX_SIZE}"
+        - name: OIDC_CLIENT_ID
+          value: "${OUTLINE_OIDC_CLIENT_ID}"
+        - name: OIDC_CLIENT_SECRET
+          value: "${OUTLINE_OIDC_CLIENT_SECRET}"
+        - name: OIDC_AUTH_URI
+          value: "${OUTLINE_OIDC_AUTH_URI}"
+        - name: OIDC_TOKEN_URI
+          value: "${OUTLINE_OIDC_TOKEN_URI}"
+        - name: OIDC_USERINFO_URI
+          value: "${OUTLINE_OIDC_USERINFO_URI}"
+        - name: OIDC_USERNAME_CLAIM
+          value: "${OUTLINE_OIDC_USERNAME_CLAIM}"
+        - name: OIDC_DISPLAY_NAME
+          value: "${OUTLINE_OIDC_DISPLAY_NAME}"
+        - name: OIDC_SCOPES
+          value: "${OUTLINE_OIDC_SCOPES}"
+        - name: FORCE_HTTPS
+          value: "false"
+        - name: ENABLE_UPDATES
+          value: "${OUTLINE_ENABLE_UPDATES}"
+        - name: WEB_CONCURRENCY
+          value: "1"
+        - name: MAXIMUM_IMPORT_SIZE
+          value: "${OUTLINE_MAXIMUM_IMPORT_SIZE}"
+        - name: SMTP_HOST
+          value: "${OUTLINE_SMTP_HOST}"
+        - name: SMTP_PORT
+          value: "${OUTLINE_SMTP_PORT}"
+        - name: SMTP_USERNAME
+          value: "${OUTLINE_SMTP_USERNAME}"
+        - name: SMTP_PASSWORD
+          value: "${OUTLINE_SMTP_PASSWORD}"
+        - name: SMTP_FROM_EMAIL
+          value: "${OUTLINE_SMTP_FROM_EMAIL}"
+        - name: SMTP_REPLY_EMAIL
+          value: "${OUTLINE_SMTP_REPLY_EMAIL}"
+        - name: SMTP_TLS_CIPHERS
+          value: "${OUTLINE_SMTP_TLS_CIPHERS}"
+        - name: SMTP_SECURE
+          value: "${OUTLINE_SMTP_SECURE}"
+        - name: DEFAULT_LANGUAGE
+          value: "${OUTLINE_DEFAULT_LANGUAGE}"
+        - name: RATE_LIMITER_ENABLED
+          value: "${OUTLINE_RATE_LIMITER_ENABLED}"
+        - name: RATE_LIMITER_REQUESTS
+          value: "${OUTLINE_RATE_LIMITER_REQUESTS}"
+        - name: RATE_LIMITER_DURATION_WINDOW
+          value: "${OUTLINE_RATE_LIMITER_DURATION_WINDOW}"
+        ports:
+        - containerPort: 3000
+          protocol: TCP
+        volumeMounts:
+        - name: vol-${OUTLINE_LABEL}
+          mountPath: ${OUTLINE_FILE_STORAGE_DIR}
+      volumes:
+      - name: vol-${OUTLINE_LABEL}
+        persistentVolumeClaim:
+          claimName: pvc-${OUTLINE_LABEL}
+      securityContext:
+        fsGroup: 1001
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-${OUTLINE_LABEL}
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - ${OUTLINE_HOSTNAME}
+    secretName: "${OUTLINE_TLS_SECRET}"
+  rules:
+  - host: ${OUTLINE_HOSTNAME}
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: svc-${OUTLINE_LABEL}-http
+            port:
+              number: 3000

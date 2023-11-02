@@ -1,0 +1,97 @@
+# https://hub.docker.com/_/ghost/
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-${GHOST_LABEL}-http
+spec:
+  ports:
+  - port: 2368
+  selector:
+    app: app-${GHOST_LABEL}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dep-${GHOST_LABEL}
+  labels:
+    app: app-${GHOST_LABEL}
+spec:
+  selector:
+    matchLabels:
+      app: app-${GHOST_LABEL}
+  template:
+    metadata:
+      labels:
+        app: app-${GHOST_LABEL}
+    spec:
+      restartPolicy: Always
+      containers:
+      - image: ${GHOST_IMAGE}
+        name: pod-${GHOST_LABEL}
+        env:
+        - name: url
+          value: "https://${GHOST_HOSTNAME}"
+        - name: database__client
+          value: "mysql"
+        - name: database__connection__host
+          value: "svc-${GHOST_DB_LABEL}-db"
+        - name: database__connection__port
+          value: "3306"
+        - name: database__connection__user
+          value: "${GHOST_DB_USERNAME}"
+        - name: database__connection__password
+          value: "${GHOST_DB_PASSWORD}"
+        - name: database__connection__database
+          value: "${GHOST_DB_DATABASE}"
+        - name: mail__transport
+          value: "smtp"
+        - name: mail__options__service
+          value: "${GHOST_SMTP_SERVICE}"
+        - name: mail__options__host
+          value: "${GHOST_SMTP_HOST}"
+        - name: mail__options__port
+          value: "${GHOST_SMTP_PORT}"
+        - name: mail__options__secure
+          value: "${GHOST_SMTP_SECURE}"
+        - name: mail__options__auth__user
+          value: "${GHOST_SMTP_USER}"
+        - name: mail__options__auth__pass
+          value: "${GHOST_SMTP_PASS}"
+        - name: mail__from
+          value: "${GHOST_SMTP_FROM}"
+        - name: privacy__useUpdateCheck
+          value: "${GHOST_UPDATE_CHECK}"
+        - name: privacy__useGravatar
+          value: "${GHOST_USE_GRAVATAR}"
+        - name: privacy__useRpcPing
+          value: "${GHOST_RPC_PING}"
+        - name: privacy__useStructuredData
+          value: "${GHOST_STRUCTURED_DATA}"
+        - name: referrerPolicy
+          value: "${GHOST_REFERRER_POLICY}"
+        ports:
+        - containerPort: 2368
+          protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-${GHOST_LABEL}
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - ${GHOST_HOSTNAME}
+    secretName: "${GHOST_TLS_SECRET}"
+  rules:
+  - host: ${GHOST_HOSTNAME}
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: svc-${GHOST_LABEL}-http
+            port:
+              number: 2368
