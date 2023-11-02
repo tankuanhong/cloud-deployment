@@ -166,6 +166,9 @@ containers_menu() {
     # TODO: Add mealie https://github.com/mealie-recipes/mealie
     # TODO: Add miniflux https://github.com/miniflux/v2
     # TODO: Add nomie https://github.com/open-nomie/nomie6-oss
+            # work in progress
+            # nomie app deployment similar to littlelink
+            # see nomie-db.yaml for database deployment
     # TODO: Add ontime https://github.com/cpvalente/ontime
     # TODO: Add pairdrop https://github.com/schlagmichdoch/pairdrop
     # TODO: Add peertube https://github.com/Chocobozzz/PeerTube
