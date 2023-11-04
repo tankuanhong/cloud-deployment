@@ -279,10 +279,10 @@ ssh_service:
   enhanced_recording:
     enabled: true
   listen_addr: 0.0.0.0:3022
-  labels:
-    env: dev
-    security: high
-    partition: mina
+  commands:
+  - name: hostname
+    command: [hostname]
+    period: 1m0s
   disable_create_host_user: true
   pam:
     enabled: true
