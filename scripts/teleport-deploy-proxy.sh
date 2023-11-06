@@ -357,12 +357,23 @@ failregex = ^{"level":"debug","ts":"","logger":"layer4","msg":"matching","remote
 ignoreregex =
 EOF
 
+  info "Creating teleport filter..." && \
+    cat > /etc/fail2ban/filter.d/teleport.conf <<EOF
+[INCLUDES]
+before = common.conf
+
+[Definition]
+_daemon = teleport
+failregex = ^%(__prefix_line)s[0-9\-T\:\+]{25} INFO \[AUDIT\]\s* user\.login addr\.remote:<ADDR>:\d{1,5} cluster_name:\S+ code:T1000W ei:0 error:\[invalid username, password or second factor\] event:user\.login method:local success:false time:[0-9\-T\:\.Z]{24} uid:[a-z0-9\-]{36} user:<F-USER>[^@]+</F-USER> user_agent:.* events\/emitter\.go:\d+$
+ignoreregex =
+EOF
+
   info "Creating custom jail..." && \
     cat > /etc/fail2ban/jail.d/main.conf <<EOF
 [DEFAULT]
 bantime.increment = true
 bantime.factor = 1
-bantime.maxtime = 3w
+bantime.maxtime = 3600
 
 [sshd]
 port = ${SSH_PORT}
@@ -372,6 +383,15 @@ mode = aggressive
 enabled = true
 filter = caddy
 logpath = /var/log/caddy/caddy.log
+maxretry = 10
+findtime = 3600
+bantime = 900
+action = iptables-allports
+
+[teleport]
+enabled = true
+filter = teleport
+logpath = /var/log/syslog
 maxretry = 10
 findtime = 3600
 bantime = 900
