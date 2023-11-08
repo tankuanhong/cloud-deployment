@@ -46,9 +46,9 @@ harden_all_nodes() {
     source ${SCRIPT_PATH}/scripts/common-harden-ubuntu.sh || fatal_err "Failed to harden all nodes"
 }
 
-node_firewall_rules() {
-  info "Allow all inter-node communications..." && \
-    PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT} -o StrictHostKeyChecking=accept-new" pdsh -w ${KUBE_NODE_1},${KUBE_NODE_2},${KUBE_NODE_3} -S "ufw allow from ${KUBE_INT_NET} comment 'Inter-node communications'" || fatal_err "Failed to configure ufw for inter-node communications"
+disable_node_firewall() {
+  info "Disable ufw that was enabled during hardening..." && \
+    PDSH_RCMD_TYPE=ssh PDSH_SSH_ARGS_APPEND="-p ${SSH_PORT} -o StrictHostKeyChecking=accept-new" pdsh -w ${KUBE_NODE_1},${KUBE_NODE_2},${KUBE_NODE_3} -S "ufw disable" || fatal_err "Failed to disable ufw"
 }
 
 install_snapd() {
@@ -153,7 +153,7 @@ else
   generate_ssh_keypair
   deploy_ssh_keypair
   harden_all_nodes
-  node_firewall_rules
+  disable_node_firewall
   install_snapd
 fi
 
