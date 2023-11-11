@@ -17,6 +17,14 @@ spec:
 #PVC_END
 ---
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cfg-${KEYCLOAK_LABEL}-quarkus-properties
+data:
+  quarkus.properties: |
+    quarkus.log.file.rotation.max-file-size=100M
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: svc-${KEYCLOAK_LABEL}-http
@@ -91,6 +99,10 @@ spec:
           value: "true"
         - name: KEYCLOAK_PROXY
           value: "edge"
+        - name: KEYCLOAK_LOG_LEVEL
+          value: "INFO,org.keycloak.events:debug"
+        - name: KEYCLOAK_EXTRA_ARGS
+          value: "--log=console,file"
         ports:
         - containerPort: 8080
           protocol: TCP
@@ -99,10 +111,16 @@ spec:
         volumeMounts:
         - name: vol-${KEYCLOAK_LABEL}
           mountPath: /bitnami
+        - name: vol-${KEYCLOAK_LABEL}-quarkus-properties
+          mountPath: /opt/bitnami/keycloak/conf/quarkus.properties
+          subPath: quarkus.properties
       volumes:
       - name: vol-${KEYCLOAK_LABEL}
         persistentVolumeClaim:
           claimName: pvc-${KEYCLOAK_LABEL}
+      - name: vol-${KEYCLOAK_LABEL}-quarkus-properties
+        configMap:
+          name: cfg-${KEYCLOAK_LABEL}-quarkus-properties
       securityContext:
         fsGroup: 1001
 ---
