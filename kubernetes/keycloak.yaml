@@ -125,6 +125,8 @@ spec:
         volumeMounts:
         - name: vol-${KEYCLOAK_LABEL}
           mountPath: /bitnami
+        - name: vol-${KEYCLOAK_LABEL}-log
+          mountPath: /opt/bitnami/keycloak/data/log
         - name: vol-${KEYCLOAK_LABEL}-quarkus
           mountPath: /opt/bitnami/keycloak/conf/quarkus.properties
           subPath: quarkus.properties
@@ -132,6 +134,9 @@ spec:
       - name: vol-${KEYCLOAK_LABEL}
         persistentVolumeClaim:
           claimName: pvc-${KEYCLOAK_LABEL}
+      - name: vol-${KEYCLOAK_LABEL}-log
+        persistentVolumeClaim:
+          claimName: pvc-${KEYCLOAK_LABEL}-log
       - name: vol-${KEYCLOAK_LABEL}-quarkus
         configMap:
           name: cfg-${KEYCLOAK_LABEL}-quarkus
