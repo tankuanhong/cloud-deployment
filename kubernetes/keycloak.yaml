@@ -14,15 +14,29 @@ spec:
   resources:
     requests:
       storage: ${KEYCLOAK_PVC_SIZE}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-${KEYCLOAK_LABEL}-log
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: ${KEYCLOAK_LOG_PVC_SIZE}
 #PVC_END
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: cfg-${KEYCLOAK_LABEL}-quarkus-properties
+  name: cfg-${KEYCLOAK_LABEL}-quarkus
 data:
   quarkus.properties: |
     quarkus.log.file.rotation.max-file-size=100M
+    quarkus.log.file.rotation.max-backup-index=10
 ---
 apiVersion: v1
 kind: Service
@@ -111,16 +125,16 @@ spec:
         volumeMounts:
         - name: vol-${KEYCLOAK_LABEL}
           mountPath: /bitnami
-        - name: vol-${KEYCLOAK_LABEL}-quarkus-properties
+        - name: vol-${KEYCLOAK_LABEL}-quarkus
           mountPath: /opt/bitnami/keycloak/conf/quarkus.properties
           subPath: quarkus.properties
       volumes:
       - name: vol-${KEYCLOAK_LABEL}
         persistentVolumeClaim:
           claimName: pvc-${KEYCLOAK_LABEL}
-      - name: vol-${KEYCLOAK_LABEL}-quarkus-properties
+      - name: vol-${KEYCLOAK_LABEL}-quarkus
         configMap:
-          name: cfg-${KEYCLOAK_LABEL}-quarkus-properties
+          name: cfg-${KEYCLOAK_LABEL}-quarkus
       securityContext:
         fsGroup: 1001
 ---
