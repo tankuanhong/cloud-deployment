@@ -50,7 +50,7 @@ spec:
         - name: PLAYWRIGHT_DRIVER_URL
           value: "${CHANGEDETECTION_PLAYWRIGHT}"
         - name: HIDE_REFERER
-          value: "true"
+          value: "false"
         - name: USE_X_SETTINGS
           value: "1"
         ports:
