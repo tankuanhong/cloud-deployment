@@ -39,7 +39,7 @@ spec:
       containers:
       - image: ${KEYCLOAK_IMAGE}
         imagePullPolicy: Always
-        name: pod-${KEYCLOAK_LABEL}
+        name: con-${KEYCLOAK_LABEL}
         env:
         - name: KEYCLOAK_HOSTNAME
           value: "${KEYCLOAK_HOSTNAME}"
@@ -104,7 +104,7 @@ spec:
           mountPath: /opt/bitnami/keycloak/data/log
       - image: ${KEYCLOAK_LOG_IMAGE}
         imagePullPolicy: Always
-        name: pod-${KEYCLOAK_LOG_LABEL}
+        name: con-${KEYCLOAK_LOG_LABEL}
         env:
         - name: INGESTION_KEY
           value: "${KEYCLOAK_LOG_INGESTION_KEY}"
