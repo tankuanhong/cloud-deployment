@@ -97,18 +97,27 @@ spec:
         volumeMounts:
         - name: vol-${KEYCLOAK_LABEL}
           mountPath: /bitnami
-        - name: vol-${KEYCLOAK_LABEL}-log
-          mountPath: /opt/bitnami/keycloak/data/log
         - name: vol-${KEYCLOAK_LABEL}-quarkus
           mountPath: /opt/bitnami/keycloak/conf/quarkus.properties
           subPath: quarkus.properties
+        - name: vol-${KEYCLOAK_LOG_LABEL}-log
+          mountPath: /opt/bitnami/keycloak/data/log
+      - image: ${KEYCLOAK_LOG_IMAGE}
+        imagePullPolicy: Always
+        name: pod-${KEYCLOAK_LOG_LABEL}
+        env:
+        - name: INGESTION_KEY
+          value: "${KEYCLOAK_LOG_INGESTION_KEY}"
+        volumeMounts:
+        - name: vol-${KEYCLOAK_LOG_LABEL}-log
+          mountPath: /logs
       volumes:
       - name: vol-${KEYCLOAK_LABEL}
         persistentVolumeClaim:
           claimName: pvc-${KEYCLOAK_LABEL}
-      - name: vol-${KEYCLOAK_LABEL}-log
+      - name: vol-${KEYCLOAK_LOG_LABEL}-log
         persistentVolumeClaim:
-          claimName: pvc-${KEYCLOAK_LABEL}-log
+          claimName: pvc-${KEYCLOAK_LOG_LABEL}-log
       - name: vol-${KEYCLOAK_LABEL}-quarkus
         configMap:
           name: cfg-${KEYCLOAK_LABEL}-quarkus

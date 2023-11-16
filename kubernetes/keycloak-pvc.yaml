@@ -14,7 +14,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: pvc-${KEYCLOAK_LABEL}-log
+  name: pvc-${KEYCLOAK_LOG_LABEL}-log
   namespace: default
 spec:
   accessModes:
