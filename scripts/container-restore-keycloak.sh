@@ -54,13 +54,13 @@ restore_keycloak() {
     info "Generating KEYCLOAK_ADMIN_PASSWORD..." && \
     export KEYCLOAK_ADMIN_PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom | head -c $(shuf -i 39-63 -n 1)) && \
     tmpfile=$(mktemp) && \
-    cp --attributes-only --preserve "${SCRIPT_PATH}/kubernetes/keycloak.yaml" $tmpfile && \
-    cat "${SCRIPT_PATH}/kubernetes/keycloak.yaml" | envsubst > $tmpfile && \
-    mv $tmpfile "${SCRIPT_PATH}/kubernetes/keycloak.yaml" && \
+    cp --attributes-only --preserve "${SCRIPT_PATH}/kubernetes/keycloak/keycloak.yaml" $tmpfile && \
+    cat "${SCRIPT_PATH}/kubernetes/keycloak/keycloak.yaml" | envsubst > $tmpfile && \
+    mv $tmpfile "${SCRIPT_PATH}/kubernetes/keycloak/keycloak.yaml" && \
     info "Disable creation of new persistent volume..." && \
-    comment '/#PVC_START/,/#PVC_END/' "${SCRIPT_PATH}/kubernetes/keycloak.yaml" && \
+    comment '/#PVC_START/,/#PVC_END/' "${SCRIPT_PATH}/kubernetes/keycloak/keycloak.yaml" && \
     info "Restoring keycloak..." && \
-    kubectl apply -f "${SCRIPT_PATH}/kubernetes/keycloak.yaml"
+    kubectl apply -f "${SCRIPT_PATH}/kubernetes/keycloak/keycloak.yaml"
 }
 
 check_kube_ready
