@@ -14,9 +14,9 @@ deploy_database() {
     info "Generating KEYCLOAK_DB_PASSWORD..." && \
     export KEYCLOAK_DB_PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom | head -c $(shuf -i 39-63 -n 1)) && \
     info "Populating env variables into manifest..." && \
-    populate_yaml_env "${SCRIPT_PATH}/kubernetes/keycloak-db.yaml" && \
+    populate_yaml_env "${SCRIPT_PATH}/kubernetes/keycloakdb.yaml" && \
     info "Deploying database..." && \
-    microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/keycloak-db.yaml"
+    microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/keycloakdb.yaml"
 }
 
 deploy_keycloak() {
