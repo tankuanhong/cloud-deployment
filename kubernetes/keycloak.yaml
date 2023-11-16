@@ -1,34 +1,6 @@
 # https://github.com/bitnami/containers/blob/main/bitnami/keycloak/19/debian-11/rootfs/opt/bitnami/scripts/keycloak-env.sh
 # https://hub.docker.com/r/bitnami/keycloak
 
-#PVC_START
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: pvc-${KEYCLOAK_LABEL}
-  namespace: default
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: longhorn
-  resources:
-    requests:
-      storage: ${KEYCLOAK_PVC_SIZE}
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: pvc-${KEYCLOAK_LABEL}-log
-  namespace: default
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: longhorn
-  resources:
-    requests:
-      storage: ${KEYCLOAK_LOG_PVC_SIZE}
-#PVC_END
----
 apiVersion: v1
 kind: ConfigMap
 metadata:

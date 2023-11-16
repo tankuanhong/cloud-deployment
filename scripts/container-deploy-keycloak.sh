@@ -26,6 +26,13 @@ deploy_database() {
     microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/keycloakdb.yaml"
 }
 
+create_keycloak_pvc() {
+  info "Populating env variables into manifest..." && \
+    populate_yaml_env "${SCRIPT_PATH}/kubernetes/keycloak-pvc.yaml" && \
+    info "Deploying keycloak pvc..." && \
+    microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/keycloak-pvc.yaml"
+}
+
 deploy_keycloak() {
   info "Setting custom keycloak parameters..." && \
     info "Generating KEYCLOAK_ADMIN_PASSWORD..." && \
@@ -46,6 +53,7 @@ print_credentials() {
 
 create_database_pvc
 deploy_database
+create_keycloak_pvc
 deploy_keycloak
 print_credentials
 
