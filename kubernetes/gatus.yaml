@@ -92,7 +92,7 @@ spec:
       restartPolicy: Always
       containers:
       - image: ${GATUS_IMAGE}
-        name: pod-${GATUS_LABEL}
+        name: con-${GATUS_LABEL}
         ports:
         - containerPort: 8080
           protocol: TCP

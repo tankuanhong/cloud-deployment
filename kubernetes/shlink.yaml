@@ -29,7 +29,7 @@ spec:
       restartPolicy: Always
       containers:
       - image: ${SHLINK_IMAGE}
-        name: pod-${SHLINK_LABEL}
+        name: con-${SHLINK_LABEL}
         env:
         - name: DEFAULT_DOMAIN
           value: "${SHLINK_HOSTNAME}"

@@ -29,7 +29,7 @@ spec:
       restartPolicy: Always
       containers:
       - image: ${SHLINK_WEB_IMAGE}
-        name: pod-${SHLINK_WEB_LABEL}
+        name: con-${SHLINK_WEB_LABEL}
         ports:
         - containerPort: 80
           protocol: TCP

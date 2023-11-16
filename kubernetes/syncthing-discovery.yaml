@@ -43,7 +43,7 @@ spec:
       restartPolicy: Always
       containers:
       - image: ${ST_DISCOSRV_IMAGE}
-        name: pod-${ST_DISCOSRV_LABEL}
+        name: con-${ST_DISCOSRV_LABEL}
         ports:
         - containerPort: 8080
           protocol: TCP

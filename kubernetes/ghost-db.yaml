@@ -44,7 +44,7 @@ spec:
       restartPolicy: Always
       containers:
       - image: ${GHOST_DB_IMAGE}
-        name: pod-${GHOST_DB_LABEL}
+        name: con-${GHOST_DB_LABEL}
         env:
         - name: ALLOW_EMPTY_PASSWORD
           value: "no"

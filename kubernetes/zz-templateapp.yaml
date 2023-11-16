@@ -44,7 +44,7 @@ spec:
       containers:
       - image: ${TEMPLATEAPP_IMAGE}
         imagePullPolicy: Always
-        name: pod-${TEMPLATEAPP_LABEL}
+        name: con-${TEMPLATEAPP_LABEL}
         env:
         - name: ENV_1
           value: "${TEMPLATEAPP_PARAMETER_1}"

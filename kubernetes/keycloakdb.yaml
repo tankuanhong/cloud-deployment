@@ -30,7 +30,7 @@ spec:
       containers:
       - image: ${KEYCLOAK_DB_IMAGE}
         imagePullPolicy: Always
-        name: pod-${KEYCLOAK_DB_LABEL}
+        name: con-${KEYCLOAK_DB_LABEL}
         env:
         - name: POSTGRESQL_POSTGRES_PASSWORD
           value: "${KEYCLOAK_DB_POSTGRES_PASSWORD}"

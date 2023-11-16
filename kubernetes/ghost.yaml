@@ -28,7 +28,7 @@ spec:
       restartPolicy: Always
       containers:
       - image: ${GHOST_IMAGE}
-        name: pod-${GHOST_LABEL}
+        name: con-${GHOST_LABEL}
         env:
         - name: url
           value: "https://${GHOST_HOSTNAME}"

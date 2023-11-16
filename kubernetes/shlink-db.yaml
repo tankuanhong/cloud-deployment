@@ -44,7 +44,7 @@ spec:
       restartPolicy: Always
       containers:
       - image: ${SHLINK_DB_IMAGE}
-        name: pod-${SHLINK_DB_LABEL}
+        name: con-${SHLINK_DB_LABEL}
         env:
         - name: ALLOW_EMPTY_PASSWORD
           value: "no"

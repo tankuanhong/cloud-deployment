@@ -45,7 +45,7 @@ spec:
       containers:
       - image: ${NOMIE_DB_IMAGE}
         imagePullPolicy: Always
-        name: pod-${NOMIE_DB_LABEL}
+        name: con-${NOMIE_DB_LABEL}
         env:
         - name: COUCHDB_CREATE_DATABASES
           value: "yes"

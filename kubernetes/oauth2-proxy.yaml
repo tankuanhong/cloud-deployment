@@ -34,7 +34,7 @@ spec:
       containers:
       - image: ${OAUTH2_PROXY_IMAGE}
         imagePullPolicy: Always
-        name: pod-oauth2-${OAUTH2_PROXY_SUFFIX}
+        name: con-oauth2-${OAUTH2_PROXY_SUFFIX}
         args:
         - --approval-prompt="force"
         - --auth-logging=true

@@ -45,7 +45,7 @@ spec:
       containers:
       - image: ${RALLLY_IMAGE}
         imagePullPolicy: Always
-        name: pod-${RALLLY_LABEL}
+        name: con-${RALLLY_LABEL}
         env:
         - name: DATABASE_URL
           value: "postgres://${RALLLY_DB_USERNAME}:${RALLLY_DB_PASSWORD}@svc-${RALLLY_DB_LABEL}-db:5432/${RALLLY_DB_DATABASE}"

@@ -45,7 +45,7 @@ spec:
       containers:
       - image: ${FIDER_DB_IMAGE}
         imagePullPolicy: Always
-        name: pod-${FIDER_DB_LABEL}
+        name: con-${FIDER_DB_LABEL}
         env:
         - name: POSTGRESQL_POSTGRES_PASSWORD
           value: "${FIDER_DB_POSTGRES_PASSWORD}"

@@ -43,7 +43,7 @@ spec:
       restartPolicy: Always
       containers:
       - image: ${CHANGEDETECTION_IMAGE}
-        name: pod-${CHANGEDETECTION_LABEL}
+        name: con-${CHANGEDETECTION_LABEL}
         env:
         - name: BASE_URL
           value: "${CHANGEDETECTION_BASE_URL}"

@@ -44,7 +44,7 @@ spec:
       restartPolicy: Always
       containers:
       - image: ${MEMOS_IMAGE}
-        name: pod-${MEMOS_LABEL}
+        name: con-${MEMOS_LABEL}
         ports:
         - containerPort: 5230
           protocol: TCP

@@ -43,7 +43,7 @@ spec:
       restartPolicy: Always
       containers:
       - image: ${CADDY_IMAGE}
-        name: pod-${CADDY_LABEL}
+        name: con-${CADDY_LABEL}
         ports:
         - containerPort: 80
           protocol: TCP

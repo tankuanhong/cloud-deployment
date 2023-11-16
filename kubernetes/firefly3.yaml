@@ -43,7 +43,7 @@ spec:
       restartPolicy: Always
       containers:
       - image: ${FIREFLY3_IMAGE}
-        name: pod-${FIREFLY3_LABEL}
+        name: con-${FIREFLY3_LABEL}
         env:
         - name: APP_ENV
           value: "local"

@@ -44,7 +44,7 @@ spec:
       containers:
       - image: ${DOKUWIKI_IMAGE}
         imagePullPolicy: Always
-        name: pod-${DOKUWIKI_LABEL}
+        name: con-${DOKUWIKI_LABEL}
         env:
         - name: DOKUWIKI_USERNAME
           value: "${DOKUWIKI_ADMIN_USERNAME}"

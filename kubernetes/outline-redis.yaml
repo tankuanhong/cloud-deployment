@@ -44,7 +44,7 @@ spec:
       containers:
       - image: ${OUTLINE_REDIS_IMAGE}
         imagePullPolicy: Always
-        name: pod-${OUTLINE_REDIS_LABEL}
+        name: con-${OUTLINE_REDIS_LABEL}
         env:
         - name: ALLOW_EMPTY_PASSWORD
           value: "${OUTLINE_REDIS_EMPTY_PASSWORD}"

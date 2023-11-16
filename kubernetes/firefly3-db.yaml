@@ -44,7 +44,7 @@ spec:
       restartPolicy: Always
       containers:
       - image: ${FIREFLY3_DB_IMAGE}
-        name: pod-${FIREFLY3_DB_LABEL}
+        name: con-${FIREFLY3_DB_LABEL}
         env:
         - name: ALLOW_EMPTY_PASSWORD
           value: "no"

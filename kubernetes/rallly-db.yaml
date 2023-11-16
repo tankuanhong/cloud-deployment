@@ -45,7 +45,7 @@ spec:
       containers:
       - image: ${RALLLY_DB_IMAGE}
         imagePullPolicy: Always
-        name: pod-${RALLLY_DB_LABEL}
+        name: con-${RALLLY_DB_LABEL}
         env:
         - name: POSTGRESQL_POSTGRES_PASSWORD
           value: "${RALLLY_DB_POSTGRES_PASSWORD}"

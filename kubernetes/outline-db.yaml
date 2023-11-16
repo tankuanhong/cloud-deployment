@@ -45,7 +45,7 @@ spec:
       containers:
       - image: ${OUTLINE_DB_IMAGE}
         imagePullPolicy: Always
-        name: pod-${OUTLINE_DB_LABEL}
+        name: con-${OUTLINE_DB_LABEL}
         env:
         - name: POSTGRESQL_POSTGRES_PASSWORD
           value: "${OUTLINE_DB_POSTGRES_PASSWORD}"

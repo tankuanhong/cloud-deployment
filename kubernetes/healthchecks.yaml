@@ -28,7 +28,7 @@ spec:
       restartPolicy: Always
       containers:
       - image: ${HEALTHCHECKS_IMAGE}
-        name: pod-${HEALTHCHECKS_LABEL}
+        name: con-${HEALTHCHECKS_LABEL}
         env:
         - name: ADMINS
           value: "${HEALTHCHECKS_ADMINS}"

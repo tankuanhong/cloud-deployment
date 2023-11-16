@@ -45,7 +45,7 @@ spec:
       restartPolicy: Always
       containers:
       - image: ${GROCY_IMAGE}
-        name: pod-${GROCY_LABEL}
+        name: con-${GROCY_LABEL}
         env:
         - name: TZ
           value: "${GROCY_TZ}"

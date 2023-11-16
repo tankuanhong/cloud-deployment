@@ -30,7 +30,7 @@ spec:
       containers:
       - image: ${FIDER_IMAGE}
         imagePullPolicy: Always
-        name: pod-${FIDER_LABEL}
+        name: con-${FIDER_LABEL}
         env:
         - name: BASE_URL
           value: "https://${FIDER_HOSTNAME}"

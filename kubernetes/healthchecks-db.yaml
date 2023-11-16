@@ -44,7 +44,7 @@ spec:
       restartPolicy: Always
       containers:
       - image: ${HEALTHCHECKS_DB_IMAGE}
-        name: pod-${HEALTHCHECKS_DB_LABEL}
+        name: con-${HEALTHCHECKS_DB_LABEL}
         env:
         - name: ALLOW_EMPTY_PASSWORD
           value: "no"
