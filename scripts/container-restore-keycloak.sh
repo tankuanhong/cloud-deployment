@@ -1,4 +1,5 @@
 #!/bin/bash
+# TODO: REFACTOR!!!
 
 { # this ensures the entire script is downloaded #
 
