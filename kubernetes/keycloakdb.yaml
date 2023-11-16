@@ -1,21 +1,6 @@
 # https://github.com/bitnami/containers/blob/main/bitnami/postgresql/14/debian-11/rootfs/opt/bitnami/scripts/postgresql-env.sh
 # https://hub.docker.com/r/bitnami/postgresql
 
-#PVC_START
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: pvc-${KEYCLOAK_DB_LABEL}
-  namespace: default
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: longhorn
-  resources:
-    requests:
-      storage: ${KEYCLOAK_DB_PVC_SIZE}
-#PVC_END
----
 apiVersion: v1
 kind: Service
 metadata:

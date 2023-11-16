@@ -7,6 +7,13 @@ source "${SCRIPT_PATH}/conf/containers.conf" || fatal_err "${SCRIPT_PATH}/conf/c
 
 wait_for_node_ready "300"
 
+create_database_pvc() {
+  info "Populating env variables into manifest..." && \
+    populate_yaml_env "${SCRIPT_PATH}/kubernetes/keycloakdb-pvc.yaml" && \
+    info "Creating database pvc..." && \
+    microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/keycloakdb-pvc.yaml"
+}
+
 deploy_database() {
   info "Setting custom database parameters..." && \
     info "Generating KEYCLOAK_DB_POSTGRES_PASSWORD..." && \
@@ -37,6 +44,7 @@ print_credentials() {
   info "Please verify that 3 credentials are printed."
 }
 
+create_database_pvc
 deploy_database
 deploy_keycloak
 print_credentials
