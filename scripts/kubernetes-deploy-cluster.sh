@@ -139,6 +139,20 @@ configure_nginx() {
     microk8s kubectl -n ingress patch configmap nginx-load-balancer-microk8s-conf --patch-file "${SCRIPT_PATH}/kubernetes/nginx-load-balancer-microk8s-conf.yaml" || fatal_err "Failed to configure ingress nginx"
 }
 
+add_kubectl_aliases() {
+  info "Adding microk8s kubectl aliases to root user..." && \
+    cat >> /root/.bash_aliases <<EOF
+alias k='microk8s kubectl'
+alias kgp='microk8s kubectl get pods'
+alias kgpo='microk8s kubectl get pods --output wide'
+alias kgpw='microk8s kubectl get pods --watch'
+alias kgpa='microk8s kubectl get pods --all-namespaces'
+alias kgpaw='microk8s kubectl get pods --all-namespaces --watch'
+alias kgpwa='microk8s kubectl get pods --watch --all-namespaces'
+alias klogingress='microk8s kubectl logs --namespace ingress --selector name=nginx-ingress-microk8s --follow'
+EOF
+}
+
 if [ -f "${SCRIPT_PATH}/rebooted" ]; then
   rm -f "${SCRIPT_PATH}/rebooted"
   deploy_microk8s
@@ -148,6 +162,7 @@ if [ -f "${SCRIPT_PATH}/rebooted" ]; then
   configure_microk8s
   deploy_storage
   configure_nginx
+  add_kubectl_aliases
 else
   install_parallel_utilities
   generate_ssh_keypair
