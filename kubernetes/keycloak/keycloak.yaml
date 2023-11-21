@@ -111,6 +111,10 @@ spec:
         volumeMounts:
         - name: vol-${KEYCLOAK_LOG_LABEL}-log
           mountPath: /logs
+        - name: vol-${KEYCLOAK_LOG_LABEL}-work
+          mountPath: /work
+        - name: vol-${KEYCLOAK_LOG_LABEL}-config
+          mountPath: /config
       volumes:
       - name: vol-${KEYCLOAK_LABEL}
         persistentVolumeClaim:
@@ -118,6 +122,12 @@ spec:
       - name: vol-${KEYCLOAK_LOG_LABEL}-log
         persistentVolumeClaim:
           claimName: pvc-${KEYCLOAK_LOG_LABEL}-log
+      - name: vol-${KEYCLOAK_LOG_LABEL}-work
+        persistentVolumeClaim:
+          claimName: pvc-${KEYCLOAK_LOG_LABEL}-work
+      - name: vol-${KEYCLOAK_LOG_LABEL}-config
+        persistentVolumeClaim:
+          claimName: pvc-${KEYCLOAK_LOG_LABEL}-config
       - name: vol-${KEYCLOAK_LABEL}-quarkus
         configMap:
           name: cfg-${KEYCLOAK_LABEL}-quarkus

@@ -22,4 +22,30 @@ spec:
   storageClassName: longhorn
   resources:
     requests:
-      storage: ${KEYCLOAK_LOG_PVC_SIZE}
+      storage: ${KEYCLOAK_LOG_LOG_PVC_SIZE}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-${KEYCLOAK_LOG_LABEL}-work
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: ${KEYCLOAK_LOG_WORK_PVC_SIZE}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-${KEYCLOAK_LOG_LABEL}-config
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: ${KEYCLOAK_LOG_CONFIG_PVC_SIZE}
