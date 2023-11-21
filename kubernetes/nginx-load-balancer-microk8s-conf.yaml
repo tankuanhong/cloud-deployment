@@ -11,5 +11,3 @@ data:
   compute-full-forwarded-for: "true"
   proxy-buffer-size: "8k"
   large-client-header-buffers: "4 16k"
-  server-snippet: |
-    real_ip_header CF-Connecting-IP;
