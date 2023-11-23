@@ -1,20 +1,5 @@
 # https://hub.docker.com/r/dgtlmoon/changedetection.io
 
-#PVC_START
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: pvc-${CHANGEDETECTION_LABEL}
-  namespace: default
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: longhorn
-  resources:
-    requests:
-      storage: ${CHANGEDETECTION_PVC_SIZE}
-#PVC_END
----
 apiVersion: v1
 kind: Service
 metadata:
