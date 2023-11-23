@@ -21,22 +21,23 @@ install_longhorn() {
 
 configure_longhorn() {
   info "Setting node-down-pod-deletion-policy" && \
-    microk8s kubectl get settings node-down-pod-deletion-policy -n longhorn-system -o yaml > ${SCRIPT_PATH}/node-down-pod-deletion-policy.yaml && \
-    sed -i 's/do-nothing/delete-both-statefulset-and-deployment-pod/g' ${SCRIPT_PATH}/node-down-pod-deletion-policy.yaml && \
-    microk8s kubectl apply -f ${SCRIPT_PATH}/node-down-pod-deletion-policy.yaml || fatal_err "Failed to set longhorn node-down-pod-deletion-policy"
+    microk8s kubectl get settings node-down-pod-deletion-policy -n longhorn-system -o yaml > ${SCRIPT_PATH}/deployed/node-down-pod-deletion-policy.yaml && \
+    sed -i 's/do-nothing/delete-both-statefulset-and-deployment-pod/g' ${SCRIPT_PATH}/deployed/node-down-pod-deletion-policy.yaml && \
+    microk8s kubectl apply -f ${SCRIPT_PATH}/deployed/node-down-pod-deletion-policy.yaml || fatal_err "Failed to set longhorn node-down-pod-deletion-policy"
 
   info "Setting allow-recurring-job-while-volume-detached" && \
-    microk8s kubectl get settings allow-recurring-job-while-volume-detached -n longhorn-system -o yaml > ${SCRIPT_PATH}/allow-recurring-job-while-volume-detached.yaml && \
-    sed -i 's/false/true/g' ${SCRIPT_PATH}/allow-recurring-job-while-volume-detached.yaml && \
-    microk8s kubectl apply -f ${SCRIPT_PATH}/allow-recurring-job-while-volume-detached.yaml || fatal_err "Failed to set longhorn allow-recurring-job-while-volume-detached"
+    microk8s kubectl get settings allow-recurring-job-while-volume-detached -n longhorn-system -o yaml > ${SCRIPT_PATH}/deployed/allow-recurring-job-while-volume-detached.yaml && \
+    sed -i 's/false/true/g' ${SCRIPT_PATH}/deployed/allow-recurring-job-while-volume-detached.yaml && \
+    microk8s kubectl apply -f ${SCRIPT_PATH}/deployed/allow-recurring-job-while-volume-detached.yaml || fatal_err "Failed to set longhorn allow-recurring-job-while-volume-detached"
 
   info "Setting backup-target" && \
-    microk8s kubectl get settings backup-target -n longhorn-system -o yaml > ${SCRIPT_PATH}/backup-target.yaml && \
-    sed -i "s@\"\"@nfs://${KUBE_NODE_1}:${NFS_MOUNT_PATH}/longhorn@g" ${SCRIPT_PATH}/backup-target.yaml && \
-    microk8s kubectl apply -f ${SCRIPT_PATH}/backup-target.yaml || fatal_err "Failed to set longhorn backup-target"
+    microk8s kubectl get settings backup-target -n longhorn-system -o yaml > ${SCRIPT_PATH}/deployed/backup-target.yaml && \
+    sed -i "s@\"\"@nfs://${KUBE_NODE_1}:${NFS_MOUNT_PATH}/longhorn@g" ${SCRIPT_PATH}/deployed/backup-target.yaml && \
+    microk8s kubectl apply -f ${SCRIPT_PATH}/deployed/backup-target.yaml || fatal_err "Failed to set longhorn backup-target"
 
   info "Configuring hourly backup of volumes..." && \
-    microk8s kubectl apply -f ${SCRIPT_PATH}/kubernetes/longhorn-hourly-backup.yaml || fatal_err "Failed to set longhorn hourly backup"
+    cp ${SCRIPT_PATH}/kubernetes/longhorn-hourly-backup.yaml ${SCRIPT_PATH}/deployed/longhorn-hourly-backup.yaml && \
+    microk8s kubectl apply -f ${SCRIPT_PATH}/deployed/longhorn-hourly-backup.yaml || fatal_err "Failed to set longhorn hourly backup"
 }
 
 install_nfs_server() {

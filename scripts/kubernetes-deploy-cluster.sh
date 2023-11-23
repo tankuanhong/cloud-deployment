@@ -7,6 +7,9 @@ source "${SCRIPT_PATH}/conf/kubernetes.conf" || fatal_err "${SCRIPT_PATH}/conf/k
 
 # TODO: If cluster has already been deployed and exit. Check for presence of flag file.
 
+# create directory to store deployed yaml
+mkdir -p "${SCRIPT_PATH}/deployed"
+
 install_parallel_utilities() {
   info "Installing pssh and pdsh..." && \
     apt-get update && \
@@ -135,6 +138,8 @@ deploy_storage() {
 
 configure_nginx() {
   info "Configuring ingress nginx controller..." && \
+    cp "${SCRIPT_PATH}/kubernetes/nginx/ingress-custom-headers.yaml" "${SCRIPT_PATH}/deployed/ingress-custom-headers.yaml" && \
+    cp "${SCRIPT_PATH}/kubernetes/nginx/nginx-load-balancer-microk8s-conf.yaml" "${SCRIPT_PATH}/deployed/nginx-load-balancer-microk8s-conf.yaml" && \
     microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/nginx/ingress-custom-headers.yaml" && \
     microk8s kubectl -n ingress patch configmap nginx-load-balancer-microk8s-conf --patch-file "${SCRIPT_PATH}/kubernetes/nginx/nginx-load-balancer-microk8s-conf.yaml" || fatal_err "Failed to configure ingress nginx"
 }
