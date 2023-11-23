@@ -135,8 +135,8 @@ deploy_storage() {
 
 configure_nginx() {
   info "Configuring ingress nginx controller..." && \
-    microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/ingress-custom-headers.yaml" && \
-    microk8s kubectl -n ingress patch configmap nginx-load-balancer-microk8s-conf --patch-file "${SCRIPT_PATH}/kubernetes/nginx-load-balancer-microk8s-conf.yaml" || fatal_err "Failed to configure ingress nginx"
+    microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/nginx/ingress-custom-headers.yaml" && \
+    microk8s kubectl -n ingress patch configmap nginx-load-balancer-microk8s-conf --patch-file "${SCRIPT_PATH}/kubernetes/nginx/nginx-load-balancer-microk8s-conf.yaml" || fatal_err "Failed to configure ingress nginx"
 }
 
 add_kubectl_aliases() {
