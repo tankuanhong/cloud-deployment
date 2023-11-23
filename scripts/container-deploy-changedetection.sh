@@ -10,6 +10,13 @@ mkdir -p "${SCRIPT_PATH}/deployed"
 
 wait_for_node_ready "300"
 
+deploy_changedetectionchrome() {
+  info "Populating env variables into manifest..." && \
+    populate_yaml_env "${SCRIPT_PATH}/kubernetes/changedetection/changedetectionchrome.yaml" "${SCRIPT_PATH}/deployed/changedetectionchrome.yaml" && \
+    info "Deploying chrome..." && \
+    microk8s kubectl apply -f "${SCRIPT_PATH}/deployed/changedetectionchrome.yaml"
+}
+
 create_changedetection_pvc() {
   info "Populating env variables into manifest..." && \
     populate_yaml_env "${SCRIPT_PATH}/kubernetes/changedetection/changedetection-pvc.yaml" "${SCRIPT_PATH}/deployed/changedetection-pvc.yaml" && \
@@ -18,7 +25,7 @@ create_changedetection_pvc() {
 }
 
 deploy_changedetection() {
-  info "Setting custom changedetection.io parameters..." && \
+  info "Populating env variables into manifest..." && \
     populate_yaml_env "${SCRIPT_PATH}/kubernetes/changedetection/changedetection.yaml" "${SCRIPT_PATH}/deployed/changedetection.yaml" && \
     info "Deploying changedetection.io..." && \
     microk8s kubectl apply -f "${SCRIPT_PATH}/deployed/changedetection.yaml"
@@ -33,6 +40,7 @@ patch_ingress() {
     microk8s kubectl patch ingress ing-${CHANGEDETECTION_LABEL} --patch-file "${SCRIPT_PATH}/deployed/changedetection-ing-patch.yaml"
 }
 
+deploy_changedetectionchrome
 create_changedetection_pvc
 deploy_changedetection
 patch_ingress

@@ -1,0 +1,34 @@
+# https://hub.docker.com/r/browserless/chrome
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-${CHANGEDETECTION_CHROME_LABEL}-ws
+spec:
+  ports:
+  - port: 3000
+  selector:
+    app: app-${CHANGEDETECTION_CHROME_LABEL}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dep-${CHANGEDETECTION_CHROME_LABEL}
+  labels:
+    app: app-${CHANGEDETECTION_CHROME_LABEL}
+spec:
+  selector:
+    matchLabels:
+      app: app-${CHANGEDETECTION_CHROME_LABEL}
+  template:
+    metadata:
+      labels:
+        app: app-${CHANGEDETECTION_CHROME_LABEL}
+    spec:
+      restartPolicy: Always
+      containers:
+      - image: ${CHANGEDETECTION_CHROME_IMAGE}
+        name: con-${CHANGEDETECTION_CHROME_LABEL}
+        ports:
+        - containerPort: 3000
+          protocol: TCP
