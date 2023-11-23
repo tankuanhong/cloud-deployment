@@ -1,5 +1,3 @@
-# https://hub.docker.com/r/dgtlmoon/changedetection.io
-
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
