@@ -5,16 +5,26 @@
 # import
 source "${SCRIPT_PATH}/conf/containers.conf" || fatal_err "${SCRIPT_PATH}/conf/containers.conf is missing"
 
+# create directory to store deployed yaml
+mkdir -p "${SCRIPT_PATH}/deployed"
+
 wait_for_node_ready "300"
+
+create_dokuwiki_pvc() {
+  info "Populating env variables into manifest..." && \
+    populate_yaml_env "${SCRIPT_PATH}/kubernetes/dokuwiki/dokuwiki-pvc.yaml" "${SCRIPT_PATH}/deployed/dokuwiki-pvc.yaml" && \
+    info "Creating dokuwiki pvc..." && \
+    microk8s kubectl apply -f "${SCRIPT_PATH}/deployed/dokuwiki-pvc.yaml"
+}
 
 deploy_dokuwiki() {
   info "Setting custom dokuwiki parameters..." && \
     info "Generating DOKUWIKI_ADMIN_PASSWORD..." && \
     export DOKUWIKI_ADMIN_PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom | head -c $(shuf -i 39-63 -n 1)) && \
     info "Populating env variables into manifest..." && \
-    populate_yaml_env "${SCRIPT_PATH}/kubernetes/dokuwiki.yaml" && \
+    populate_yaml_env "${SCRIPT_PATH}/kubernetes/dokuwiki/dokuwiki.yaml" "${SCRIPT_PATH}/deployed/dokuwiki.yaml" && \
     info "Deploying dokuwiki..." && \
-    microk8s kubectl apply -f "${SCRIPT_PATH}/kubernetes/dokuwiki.yaml"
+    microk8s kubectl apply -f "${SCRIPT_PATH}/deployed/dokuwiki.yaml"
 }
 
 print_credentials() {
@@ -24,7 +34,7 @@ print_credentials() {
 }
 
 # TODO: Add hardening of dokuwiki config if possible
-
+create_dokuwiki_pvc
 deploy_dokuwiki
 print_credentials
 
